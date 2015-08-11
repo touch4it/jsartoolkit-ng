@@ -1,0 +1,19 @@
+<html>
+<body>
+<script src="common.js"></script>
+<script src="test.js"></script>
+<script>
+
+onReady(function() {
+	// Sample WebIDL ARController usage
+	ar = new Module.ARController();
+	console.log(ar.getARToolKitVersion());
+	ar.setDebugMode(true);
+	console.log('debug mode', !!ar.getDebugMode());
+
+});
+
+</script>
+
+</body>
+</html>

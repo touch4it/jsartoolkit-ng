@@ -1205,6 +1205,7 @@ int ARController::getMatrixCodeType() const
     return (int)matrixCodeType;
 }
 
+#if HAVE_NFT
 void ARController::setNFTMultiMode(bool on)
 {
     m_nftMultiMode = on;
@@ -1214,6 +1215,7 @@ bool ARController::getNFTMultiMode() const
 {
     return m_nftMultiMode;
 }
+#endif
 
 // ----------------------------------------------------------------------------------------------------
 #pragma mark Debug texture

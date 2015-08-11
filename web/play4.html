@@ -1,0 +1,149 @@
+<html>
+<body>
+
+<script src="/gits/three.js/build/three.js"></script>
+<script src="common.js"></script>
+<script src="test.js"></script>
+
+<video id="v" src="tests/output_4.ogg" width="320" height="240" loop="" controls="" autoplay webkit-playsinline></video>
+
+<!-- test4.mp4 -->
+<script>
+
+THREE.Matrix4.prototype.setFromArray = function(m) {
+	return this.elements.set(m);
+};
+
+var renderer = new THREE.WebGLRenderer();
+var scene = new THREE.Scene();
+
+renderer.setSize(v.width, v.height);
+
+document.body.appendChild(renderer.domElement);
+
+// Create a camera and a marker root object for your Three.js scene.
+var camera = new THREE.Camera();
+
+// var camera = new THREE.PerspectiveCamera(90, w / h, 0.1, 100000);
+// camera.position.set(0, 0, 200);
+// camera.lookAt(scene);
+
+
+scene.add(camera);
+
+var light = new THREE.PointLight(0xffffff);
+light.position.set(400, 500, 100);
+scene.add(light);
+var light = new THREE.PointLight(0xffffff);
+light.position.set(-400, -500, -100);
+scene.add(light);
+
+var markerRoot = new THREE.Object3D();
+
+markerRoot.matrixAutoUpdate = false;
+camera.matrixAutoUpdate = false;
+
+// Add the marker models and suchlike into your marker root object.
+
+var cube = new THREE.Mesh(
+  new THREE.CubeGeometry(100,100,100),
+  new THREE.MeshBasicMaterial({
+  	color: 0|(0xffffff * Math.random())
+  	// color: 0xff00ff,
+  	// wireframe: true
+  })
+
+);
+cube.position.z = -50;
+markerRoot.add(cube);
+
+// Add the marker root to your scene.
+scene.add(markerRoot);
+
+
+// var m = {};
+
+// m.model = new THREE.Object3D();
+// var cube = new THREE.Mesh(
+// 	new THREE.BoxGeometry(100,100,100),
+// 	new THREE.MeshBasicMaterial({ // MeshLambertMaterial MeshBasicMaterial
+// 		color: 0|(0xffffff) //*Math.random()
+
+// 	})
+// );
+// cube.position.z = -50;
+// cube.doubleSided = true;
+// m.model.matrixAutoUpdate = false;
+// m.model.add(cube);
+// scene.add(m.model);
+
+// // To display the video, first create a texture from it.
+// var videoTex = new THREE.Texture(videoCanvas);
+
+// // Then create a plane textured with the video.
+// var plane = new THREE.Mesh(
+//   new THREE.PlaneGeometry(2, 2, 0),
+//   new THREE.MeshBasicMaterial({map: videoTex})
+// );
+
+// // The video plane shouldn't care about the z-buffer.
+// plane.material.depthTest = false;
+// plane.material.depthWrite = false;
+
+// // Create a camera and a scene for the video plane and
+// // add the camera and the video plane to the scene.
+// var videoCam = new THREE.Camera();
+// var videoScene = new THREE.Scene();
+// videoScene.add(plane);
+// videoScene.add(videoCam);
+
+
+
+// On every frame do the following:
+function tick() {
+	requestAnimationFrame(tick);
+	var target = markerRoot;
+		// m.model;
+
+	if (!camera_mat) return;
+
+	target.matrix.setFromArray(transform_mat);
+	camera.projectionMatrix.setFromArray(camera_mat);
+	getFrame();
+
+
+	// Render the scene.
+	renderer.autoClear = false;
+	renderer.clear();
+	renderer.render(scene, camera);
+}
+
+tick();
+
+// console.log('meow')
+onReady(function() {
+	console.log('onready');
+	var w = 320, h = 240;
+
+	arSetup(w, h);
+	debugSetup();
+
+
+
+
+	// interval = setInterval(getFrame, 13);
+})
+
+function getFrame() {
+	process(v);
+	// tick();
+}
+
+function stop() {
+	clearInterval(interval)
+}
+
+</script>
+
+</body>
+</html>

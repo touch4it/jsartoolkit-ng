@@ -89,7 +89,7 @@
 
 #else
 
-#  error Unsupported platform.
+// #  error Unsupported platform.
 
 #endif
 
@@ -136,6 +136,10 @@
 
 #endif
 
+#  define EXPORT_API
+#  define CALL_CONV
+#  define LOGI(...) fprintf(stdout, __VA_ARGS__)
+#  define LOGE(...) fprintf(stderr, __VA_ARGS__)
 typedef void (CALL_CONV *PFN_LOGCALLBACK)(const char* msg);
 
 

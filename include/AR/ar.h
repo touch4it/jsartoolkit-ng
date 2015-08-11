@@ -64,8 +64,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #ifndef _WIN32 // errno is defined in stdlib.h on Windows.
-#  include <sys/errno.h>
-#endif 
+// #  include <sys/errno.h> // for suppressing warnings
+    #include <errno.h>
+#endif
 #include <AR/config.h>
 #include <AR/arConfig.h>
 #ifdef __ANDROID__

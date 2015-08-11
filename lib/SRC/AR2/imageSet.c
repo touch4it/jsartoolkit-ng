@@ -91,7 +91,7 @@ AR2ImageSetT *ar2ReadImageSet( char *filename )
     size_t         len;
     const char     ext[] = ".iset";
     char          *buf;
-    
+
     len = strlen(filename) + strlen(ext) + 1; // +1 for nul terminator.
     arMalloc(buf, char, len);
     sprintf(buf, "%s%s", filename, ext);

@@ -1,0 +1,80 @@
+<html>
+<body>
+<style>
+video {
+	transform: scale(-1, 1);
+}
+
+canvas {
+	transform: scale(-1, 1);
+}
+</style>
+
+
+<script src="common.js"></script>
+<script src="test.js"></script>
+
+
+<script>
+var video = document.createElement('video');
+
+document.body.appendChild(video);
+
+navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+var tw = 1280 / 2;
+var th = 720 / 2;
+// tw = 320;
+// th = 240;
+
+var hdConstraints = {
+	audio: false,
+	video: {
+		mandatory: {
+			maxWidth: tw,
+			maxHeight: th
+    	}
+  	}
+};
+
+// var constraints = { video: { frameRate: { ideal: 10, max: 15 } } };
+// var constraints = { video: { facingMode: (front? "user" : "environment") } };
+// video.webkitDecodedFrameCount
+// https://webrtchacks.com/mirror-framerate/
+
+
+if (navigator.getUserMedia) {
+	navigator.getUserMedia(hdConstraints, success, errorCallback);
+} else {
+	errorCallback('');
+}
+
+function errorCallback(e) {
+	console.log('cant acceess user media', e);
+}
+
+
+function success(stream) {
+	video.src = window.URL.createObjectURL(stream);
+	video.play();
+
+	console.log('success', stream);
+
+	onReady(function() {
+		arSetup(tw, th);
+		debugSetup();
+
+		document.body.appendChild(canvas);
+
+		interval = setInterval(getFrame, 250);
+	});
+
+}
+
+function getFrame() {
+	process(video);
+}
+</script>
+
+</body>
+</html>

@@ -38,7 +38,9 @@
 #include <ARWrapper/Platform.h>
 #include <ARWrapper/VideoSource.h>
 #include <ARWrapper/Error.h>
-#if TARGET_PLATFORM_ANDROID
+#ifdef __EMSCRIPTEN__
+#  include <ARWrapper/EMVideoSource.h>
+#elif TARGET_PLATFORM_ANDROID
 #  include <ARWrapper/AndroidVideoSource.h>
 #endif
 #include <ARWrapper/ARToolKitVideoSource.h>
@@ -57,16 +59,18 @@
 #define CLAMP(x,r1,r2) (MIN(MAX(x,r1),r2))
 
 VideoSource* VideoSource::newVideoSource()
-{    
-#if TARGET_PLATFORM_ANDROID
+{
+#ifdef __EMSCRIPTEN__
+   return new EMVideoSource();
+#elif TARGET_PLATFORM_ANDROID
 	return new AndroidVideoSource();
 #else
 	return new ARToolKitVideoSource();
 #endif
-    
+
 }
 
-VideoSource::VideoSource() : 
+VideoSource::VideoSource() :
     deviceState(DEVICE_CLOSED),
 	cameraParam(NULL),
     cameraParamBuffer(NULL),
@@ -89,7 +93,7 @@ VideoSource::VideoSource() :
     frameStamp(0),
     m_error(ARW_ERROR_NONE)
 {
-        
+
 }
 
 VideoSource::~VideoSource() {
@@ -168,7 +172,7 @@ ARParamLT* VideoSource::getCameraParameters() {
 int VideoSource::getVideoWidth() {
 	return videoWidth;
 }
-	
+
 int VideoSource::getVideoHeight() {
 	return videoHeight;
 }
@@ -186,16 +190,16 @@ int VideoSource::getFrameStamp() {
 }
 
 bool VideoSource::updateTexture(Color* buffer) {
-	
+
 	static int lastFrameStamp = 0;
 
     if (!buffer) return false; // Sanity check.
-    
+
     if (!frameBuffer) return false; // Check that a frame is actually available.
-	
+
     // Extra check: don't update the array if the current frame is the same is previous one.
 	if (lastFrameStamp == frameStamp) return false;
-    
+
     int pixelSize = arUtilGetPixelSize(pixelFormat);
     switch (pixelFormat) {
         case AR_PIXEL_FORMAT_BGRA:
@@ -272,7 +276,7 @@ bool VideoSource::updateTexture(Color* buffer) {
             return false;
             break;
     }
-    
+
     lastFrameStamp = frameStamp; // Record the new framestamp
     return true;
 
@@ -502,16 +506,16 @@ bool VideoSource::fastPath()
 #endif // HAVE_ARM_NEON
 
 bool VideoSource::updateTexture32(uint32_t *buffer) {
-    
+
     static int lastFrameStamp = 0;
-    
+
     if (!buffer) return false; // Sanity check.
-    
+
     if (!frameBuffer) return false; // Check that a frame is actually available.
-    
+
     // Extra check: don't update the array if the current frame is the same is previous one.
     if (lastFrameStamp == frameStamp) return false;
-    
+
     int pixelSize = arUtilGetPixelSize(pixelFormat);
     switch (pixelFormat) {
         case AR_PIXEL_FORMAT_BGRA:
@@ -728,10 +732,10 @@ bool VideoSource::updateTexture32(uint32_t *buffer) {
             return false;
             break;
     }
-    
+
     lastFrameStamp = frameStamp; // Record the new framestamp
     return true;
-    
+
 }
 
 #ifndef _WINRT
@@ -746,7 +750,7 @@ void VideoSource::updateTextureGL(int textureID) {
 	lastFrameStamp = frameStamp;
 
 	if (textureID && frameBuffer) { // Could also chcek glIsTexture(textureID), but it is slow.
-		
+
 		//int val;
 		//glGetIntegerv(GL_TEXTURE_BINDING_2D, &val);
 		glBindTexture(GL_TEXTURE_2D, textureID);

@@ -1,0 +1,292 @@
+// WebIDL Bindings for ARToolKit / ARController
+
+enum AR_MATRIX_CODE_TYPE {
+	"AR_MATRIX_CODE_3x3",
+	"AR_MATRIX_CODE_3x3_HAMMING63",
+	"AR_MATRIX_CODE_3x3_PARITY65",
+	"AR_MATRIX_CODE_4x4",
+	"AR_MATRIX_CODE_4x4_BCH_13_9_3",
+	"AR_MATRIX_CODE_4x4_BCH_13_5_5",
+};
+
+enum AR_LABELING_THRESH_MODE {
+	"AR_LABELING_THRESH_MODE_MANUAL",
+	"AR_LABELING_THRESH_MODE_AUTO_MEDIAN",
+	"AR_LABELING_THRESH_MODE_AUTO_OTSU",
+	"AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE",
+};
+
+enum AR_MARKER_INFO_CUTOFF_PHASE {
+	"AR_MARKER_INFO_CUTOFF_PHASE_NONE",
+	"AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION",
+	"AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC",
+	"AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST",
+	"AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND",
+	"AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_EDC_FAIL",
+	"AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONFIDENCE",
+	"AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR",
+	"AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI",
+	"AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES",
+};
+
+/* Conversions
+
+int -> long, bool -> boolean, const -> [Const]
+ARdouble -> double
+const char*  -> [Const] string
+
+*/
+
+interface ARController {
+	void ARController();
+	[Const] DOMString getARToolKitVersion(); // const char*
+
+	long getError();
+
+	/* APIS NOT INCLUDED YET
+	TODO
+	- logv
+	- startRunningStereo
+	- videoParameters
+	- updateDebugTexture
+	- updateDebugTextureB
+	*/
+
+
+	/**
+	 * Start marker management so markers can be added and removed.
+     * @param patternSize For any square template (pattern) markers, the number of rows and columns in the template.
+     * @param patternCountMax For any square template (pattern) markers, the maximum number of markers that may be loaded for a single matching pass. Must be > 0.
+     * @return       true if initialisation was OK, false if an error occured.
+	 */
+	boolean initialiseBase([Const] long patternSize, [Const] long patternCountMax);
+
+	/**
+	 * Report whether a marker can be added. Markers can be added once basic
+	 * initialisation has occurred.
+	 * @return       true if adding a marker is currently possible
+	 */
+	boolean canAddMarker();
+
+	void setProjectionNearPlane([Const] double projectionNearPlane);
+	void setProjectionFarPlane([Const] double projectionFarPlane);
+
+	/**
+	 * Start video capture and marker detection. (AR/NFT initialisation will begin on a subsequent call to update().)
+	 * @param vconf			Video configuration string.
+	 * @param cparaName		Camera parameters filename, or NULL if camera parameters file not being used.
+	 * @param cparaBuff		A byte-buffer containing contents of a camera parameters file, or NULL if a camera parameters file is being used.
+	 * @param cparaBuffLen	Length (in bytes) of cparaBuffLen, or 0 if a camera parameters file is being used.
+	 * @return				true if video capture and marker detection was started, otherwise false.
+	 */
+	boolean startRunning([Const] DOMString vconf, [Const] DOMString cparaName, [Const] DOMString cparaBuff, [Const] long cparaBuffLen);
+
+	/**
+	 * Returns true if video capture and marker detection is running.
+	 * @return		true if the video source(s) is/are open and returning frames, otherwise false.
+	 */
+	boolean isRunning();
+
+	/**
+	 * Video capture and marker detection stops, but markers are still valid and can be configured.
+	 * @return				true if video capture and marker detection was stopped, otherwise false.
+	 */
+	boolean stopRunning();
+
+	/**
+	 * Stop, if running. Remove all markers, clean up all memory.
+	 * Starting again from this state requires initialiseBase() to be called again.
+	 * @return				true if shutdown was successful, otherwise false
+	 */
+	boolean shutdown();
+
+	/**
+	 * Populates the provided array with the ARToolKit projection matrix. The projection matrix is computed
+	 * once the video source has been opened, and camera parameters become available. If this method is called
+	 * before this happens, then the passed array is untouched and the method will return false.
+	 * @param videoSourceIndex Index into an array of video sources, specifying which source should be queried.
+	 * @param proj		Array to populate with OpenGL compatible projection matrix
+	 * @return			true if the projection matrix has been computed, otherwise false
+	 */
+	 // TODO
+	// boolean getProjectionMatrix([Const] long videoSourceIndex, [Const] double[] proj);
+	// ??? ARdouble[16]
+
+	/**
+	 * Adds a marker as specified in the given configuration string. The format of the string can be
+	 * one of:
+	 *
+     * - Single marker:		"single;pattern_file;pattern_width", e.g. "single;data/patt.hiro;80"
+     * - Multi marker:		"multi;config_file", e.g. "multi;data/multi/marker.dat"
+     * - NFT marker:        "nft;nft_dataset_pathname", e.g. "nft;gibraltar"
+     *
+	 * @param cfg		The configuration string
+	 * @return			The UID of the marker instantiated based on the configuration string, or -1 if an error occurred.
+	 */
+	long addMarker([Const] DOMString cfg);
+
+	/**
+	 * Removes the marker with the given ID.
+	 * @param UID			The UID of the marker to remove
+	 * @return				true if the marker was removed, false if an error occurred.
+	 */
+	boolean removeMarker(long UID);
+
+	/**
+	 * Clears the collection of markers.
+	 * @return				The number of markers removed
+	 */
+	long removeAllMarkers();
+
+	/**
+	 * Returns the number of currently loaded markers.
+	 * @return				The number of currently loaded markers.
+	 */
+	long countMarkers();
+
+
+	/**
+	 * Searches the collection of markers for the given ID.
+	 * @param UID			The UID of the marker to find
+	 * @return				The found marker, or NULL if no matching ID was found.
+	 */
+	// TODO ARMarker* findMarker(int UID);
+
+	boolean capture();
+	/**
+	 * Asks the video source to push the most recent frame into the passed-in buffer.
+	 * @param videoSourceIndex Index into an array of video sources, specifying which source should be queried.
+	 * @param buffer Pointer to a buffer of pixels (of type 'Color') to be filled. It is the caller's responsibility to ensure that the buffer is of sufficient size.
+	 */
+	// TODO bool updateTexture(const int videoSourceIndex, Color* buffer);
+
+	// TODO bool updateTexture32(const int videoSourceIndex, uint32_t *buffer);
+
+	// TODO Not working yet. Need to figure out the video streams
+	/**
+	 * Performs marker detection and updates all markers. The latest frame from the current
+	 * video source is retrieved and analysed. Each marker in the collection is updated with
+	 * new tracking information. The marker info array is
+	 * iterated over, and detected markers are matched up with those in the marker collection. Each matched
+	 * marker is updated with visibility and transformation information. Any markers not detected are considered
+	 * not currently visible.
+     *
+	 * @return				true if update completed successfully, false if an error occurred
+	 */
+	void update();
+
+
+
+	double projectionNearPlane();
+	double projectionFarPlane();
+
+
+	/**
+	 * Enables or disables debug mode in the tracker. When enabled, a black and white debug
+	 * image is generated during marker detection. The debug image is useful for visualising
+	 * the binarization process and choosing a threshold value.
+	 * @param	debug		true to enable debug mode, false to disable debug mode
+	 * @see					getDebugMode()
+	 */
+	void setDebugMode(boolean debug);
+
+	/**
+	 * Returns whether debug mode is currently enabled.
+	 * @return				true when debug mode is enabled, false when debug mode is disabled
+	 * @see					setDebugMode()
+	 */
+	[Const] boolean getDebugMode();
+
+	void setImageProcMode(long mode);
+	[Const] long getImageProcMode();
+
+	/**
+	 * Sets the threshold value used for image binarization.
+	 * @param	thresh	The new threshold value to use
+	 * @see					getThreshold()
+	 */
+	void setThreshold(long thresh);
+
+	/**
+	 * Returns the current threshold value used for image binarization.
+	 * @return				The current threshold value
+	 * @see					setThreshold()
+	 */
+	[Const] long getThreshold();
+
+	/**
+	 * Sets the thresholding mode to use.
+	 * @param mode			The new thresholding mode to use.
+	 * @see					getThresholdMode()
+	 */
+	void setThresholdMode(long mode);
+
+	/**
+	 * Returns the current thresholding mode.
+	 * @return				The current thresholding mode.
+	 * @see					setThresholdMode()
+	 */
+	[Const] long getThresholdMode();
+
+	/**
+	 * Sets the labeling mode to use.
+	 * @param mode			The new labeling mode to use.
+	 * @see					getLabelingMode()
+	 */
+	void setLabelingMode(long mode);
+
+	/**
+	 * Returns the current labeling mode.
+	 * @return				The current labeling mode.
+	 * @see					setLabelingMode()
+	 */
+	[Const] long getLabelingMode();
+
+	void setPatternDetectionMode(long mode);
+	[Const] long getPatternDetectionMode();
+
+	void setPattRatio(float ratio);
+	[Const] float getPattRatio();
+
+	void setMatrixCodeType(long type);
+	[Const] long getMatrixCodeType();
+
+	void setNFTMultiMode(boolean on);
+
+	[Const] boolean getNFTMultiMode();
+
+	// TODO
+	/**
+	 * Populates the provided color buffer with the image for the specified pattern.
+	 * @param	patternID	The ARToolKit pattern ID to use
+	 * @param	buffer		The color buffer to populate
+	 * @return				true if successful, false if an error occurred
+	 */
+	// boolean getPatternImage(long patternID, [Ref]any buffer);
+
+	/**
+	 * Loads an optical parameters structure from file or from buffer.
+     *
+     * @param optical_param_name If supplied, points to a buffer specifying the path
+     *      to the optical parameters file (as generated by the calib_optical utility.)
+     * @param optical_param_buff If optical_param_name is NULL, the contents of this
+     *      buffer will be interpreted as containing the contents of an optical
+     *      parameters file.
+     * @param optical_param_buffLen Length of the buffer specified in optical_param_buff.
+     *      Ignored if optical_param_buff is NULL.
+     * @param fovy_p Pointer to an ARdouble, which will be filled with the
+     *      field-of-view (Y axis) component of the optical parameters.
+     * @param aspect_p Pointer to an ARdouble, which will be filled with the
+     *      aspect ratio (width / height) component of the optical parameters.
+     * @param m Pointer to an array of 16 ARdoubles, which will be filled with the
+     *      transformation matrix component of the optical parameters. Note that the
+     *      position vector (m[12], m[13], m[14]) will be scaled by the viewScale
+     *      value supplued in startRunning().
+     * @param p (Optional) May be NULL, or a pointer to an array of 16 ARdoubles,
+     *      which will be filled with the perspective matrix calculated from fovy and aspect
+     *      combined with the near and far projection values supplied in startRunning().
+     */
+    // bool loadOpticalParams(const char *optical_param_name, const char *optical_param_buff, const long optical_param_buffLen, ARdouble *fovy_p, ARdouble *aspect_p, ARdouble m[16], ARdouble p[16]);
+};
+
+// Build Constants in ARBindEM.cpp (see https://github.com/kripken/emscripten/issues/3720)

@@ -1,0 +1,37 @@
+<html>
+<body>
+<script src="common.js"></script>
+<script src="test.js"></script>
+
+<img id="v" src="tests/chalk_multi.jpg"></img>
+
+<!--
+img
+armchair
+chalk.jpg
+chalk_multi.jpg
+kuva.jpg
+ -->
+
+
+<script>
+
+// 429 × 317
+// arSetup(w, h);
+
+onReady(function() {
+
+	arSetup(v.width, v.height);
+	debugSetup();
+
+	interval = setTimeout(getFrame, 250);
+});
+
+function getFrame() {
+	process(v);
+}
+
+</script>
+
+</body>
+</html>
