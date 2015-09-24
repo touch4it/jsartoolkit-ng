@@ -23,15 +23,17 @@
 		console.log("Can't access user media", e);
 	}
 
+	artoolkit.init('../../builds')
+
 	function completeInit() {
 		// Sample WebIDL ARController usage
-		ar = new Module.ARController();
-		console.log(ar.getARToolKitVersion());
-		ar.setDebugMode(true);
-		console.log('debug mode', !!ar.getDebugMode());
+		// ar = new Module.ARController();
+		// console.log(ar.getARToolKitVersion());
+		// ar.setDebugMode(true);
+		// console.log('debug mode', !!ar.getDebugMode());
 
-		arSetup(video.videoWidth, video.videoHeight);
-		debugSetup();
+		artoolkit.setup(video.videoWidth, video.videoHeight);
+		artoolkit.debugSetup();
 
 		initThreeJS();
 
@@ -55,12 +57,12 @@
 
 		console.log('success', stream);
 
-		onReady(initProgress);
+		artoolkit.onReady(initProgress);
 
 	}
 
 	function getFrame() {
-		process(video);
+		artoolkit.process(video);
 	}
 
 	var initThreeJS = function() {
@@ -171,10 +173,10 @@
 		};
 
 		var findObjectUnderEvent = function(ev, renderer, camera, objects) {
-			var mouse3D = new THREE.Vector3( 
+			var mouse3D = new THREE.Vector3(
 				( ev.layerX / renderer.domElement.width ) * 2 - 1,
 				-( ev.layerY / renderer.domElement.height ) * 2 + 1,
-				0.5 
+				0.5
 			);
 			mouse3D.unproject( camera );
 			mouse3D.sub( camera.position );
@@ -190,7 +192,8 @@
 		Box = box;
 
 		var tick = function() {
-			if (!camera_mat) return;
+			requestAnimationFrame(tick);
+			if (!artoolkit.getCameraMatrix()) return;
 
 			var target = markerRoot;
 
@@ -198,6 +201,8 @@
 			// camera.projectionMatrix.setFromArray(camera_mat);
 			//target.matrixAutoUpdate = false;
 			// camera.matrixAutoUpdate = false;
+
+			var transform_mat = artoolkit.getTransformationMatrix();
 
 			target.position.set(transform_mat[12], transform_mat[13], transform_mat[14]);
 			box.scale.set(30, 30, 30);
@@ -218,8 +223,6 @@
 			renderer.clear();
 			renderer.render(videoScene, videoCam);
 			renderer.render(scene, camera);
-
-			requestAnimationFrame(tick);
 		};
 		tick();
 	};

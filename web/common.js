@@ -1,4 +1,5 @@
 (function() {
+	'use strict'
 
 var path = '';
 
@@ -18,7 +19,7 @@ var Module = {
 // ARToolKit JS API
 var artoolkit = {
 	init: function(p) {
-		path = p;
+		path = p.slice(-1) === '/' ? p : p + '/';
 		var script = document.createElement('script');
 		script.src = path + EMSCRIPTEN_FILE;
 		document.body.appendChild(script);
@@ -31,7 +32,13 @@ var artoolkit = {
 	onGetMarker: onGetMarker,
 	onMarkerNum: onMarkerNum,
 	debugSetup: debugSetup,
-	process: process
+	process: process,
+	getCameraMatrix: function() {
+		return camera_mat;
+	},
+	getTransformationMatrix: function() {
+		return transform_mat;
+	},
 };
 
 var framepointer = 0, framesize = 0;
@@ -42,16 +49,18 @@ var transform_mat = new Float32Array(16);
 var detected_markers = [];
 
 var ready = false;
+var w = 320, h = 240;
+var canvas, ctx, image;
 
 function onReady(ofunc) {
 	var func = function() {
 		FS.mkdir('/Data2');
 		FS.mkdir('/DataNFT');
 		var files = [
-			['../bin/Data2/markers2.dat', '/Data2/markers.dat'],
-			['../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
-			['../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
-			['../bin/DataNFT/pinball.fset', '/Data2/pinball.fset'],
+			[path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
+			[path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
+			[path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
+			[path + '../bin/DataNFT/pinball.fset', '/Data2/pinball.fset'],
 		];
 		ajaxDependencies(files, ofunc);
 		ready = true;
@@ -82,9 +91,6 @@ function onGetMarker(object, i) {
 	// console.log(marker.id, marker.idMatrix, marker.cf);
 }
 
-var w = 320, h = 240;
-var canvas, ctx;
-
 function arSetup(_w, _h) {
 	w = _w;
 	h = _h;
@@ -111,8 +117,8 @@ function debugSetup() {
 }
 
 function debugDraw() {
-	yoz = new Uint8ClampedArray(Module.HEAPU8.buffer, bwpointer, framesize);
-	id = new ImageData(yoz, w, h)
+	var yoz = new Uint8ClampedArray(Module.HEAPU8.buffer, bwpointer, framesize);
+	var id = new ImageData(yoz, w, h)
 	ctx.putImageData(id, 0, 0)
 
 	if (!marker) return;
@@ -121,6 +127,7 @@ function debugDraw() {
 }
 
 function debugMarker(marker) {
+	var vertex, pos;
 	vertex = marker.vertex;
 	ctx.strokeStyle = 'red';
 

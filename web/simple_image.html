@@ -1,9 +1,8 @@
 <html>
 <body>
 <script src="common.js"></script>
-<script src="test.js"></script>
 
-<img id="v" src="tests/chalk_multi.jpg"></img>
+<img id="v" src="tests/img.jpg"></img>
 
 <!--
 img
@@ -11,24 +10,21 @@ armchair
 chalk.jpg
 chalk_multi.jpg
 kuva.jpg
- -->
+-->
 
 
 <script>
+artoolkit.init('../builds/');
+artoolkit.onReady(function() {
 
-// 429 × 317
-// arSetup(w, h);
-
-onReady(function() {
-
-	arSetup(v.width, v.height);
-	debugSetup();
+	artoolkit.setup(v.width, v.height);
+	artoolkit.debugSetup();
 
 	interval = setTimeout(getFrame, 250);
 });
 
 function getFrame() {
-	process(v);
+	artoolkit.process(v);
 }
 
 </script>
