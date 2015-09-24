@@ -189,7 +189,7 @@ function clean_builds() {
 	catch(e) { return console.log(e); }
 }
 
-var make_bindings = format('{WEBIDL} arbindings.idl {OUTPUT_PATH}glue', WEBIDL, OUTPUT_PATH);
+var make_bindings = format('{WEBIDL} {SOURCE_PATH}arbindings.idl {OUTPUT_PATH}glue', WEBIDL, SOURCE_PATH, OUTPUT_PATH);
 
 var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
