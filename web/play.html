@@ -2,24 +2,22 @@
 <body>
 
 <script src="common.js"></script>
-<script src="test.js"></script>
 
 <video id="v" src="tests/output_4.ogg" width="320" height="240" loop="" controls="" autoplay></video>
 
 <script>
 
-
-onReady(function() {
-	var w = 320, h = 240;
-
-	arSetup(w, h);
-	debugSetup();
+artoolkit.init('../builds/')
+artoolkit.onReady(function() {
+	var video = document.getElementById('v');
+	artoolkit.setup(video.width, video.height);
+	artoolkit.debugSetup();
 
 	interval = setInterval(getFrame, 13);
-})
+});
 
 function getFrame() {
-	process(v);
+	artoolkit.process(v);
 }
 
 </script>

@@ -3,36 +3,52 @@
  * @author zz85 github.com/zz85
  */
 
-var USE_WEBIDL = 0;
-var USE_EMBIND = 0;
-var HAVE_NFT = 1;
+
+var
+	exec = require('child_process').exec,
+	fs = require('fs'),
+	child;
+
+
+var USE_WEBIDL = 1;
+var USE_EMBIND = 1;
+var HAVE_NFT = 0;
 
 var EMSCRIPTEN_PATH = '/usr/lib/emsdk_portable/emscripten/master/'
 
 var EMCC = EMSCRIPTEN_PATH + 'emcc';
 var EMPP = EMSCRIPTEN_PATH + 'em++';
 var WEBIDL = 'python ' + EMSCRIPTEN_PATH + 'tools/webidl_binder.py';
-var OPTIMIZE_FLAGS = ' -Oz '; // -Oz
-// Oz smallest
+var OPTIMIZE_FLAGS = ' -Oz '; // -Oz for smallest size
+var MEM = 256 * 1024 * 1024; // 64MB
 
-var MAIN_SOURCES = [
-	'emscripten/ARMarkerNFT.c',
-	'emscripten/trackingSub.c',
-	'emscripten/thread_sub.c',
-	'emscripten/helloar.cpp'
-].join(' ');
+var SOURCE_PATH = 'emscripten/';
+var OUTPUT_PATH = 'builds/';
+var BUILD_FILE = 'artoolkit.js';
 
-var sources = [
+var MAIN_SOURCES = HAVE_NFT ? [
+	'ARMarkerNFT.c',
+	'trackingSub.c',
+	'thread_sub.c',
+	'helloar.cpp'
+] : [
+	'ARToolKitJS.cpp'
+];
+
+MAIN_SOURCES = MAIN_SOURCES.map(function(src) {
+	return SOURCE_PATH + src;
+}).join(' ');
+
+var ar_sources = [
 	'AR/arLabelingSub/*.c',
 	'AR/*.c',
 	'ARICP/*.c',
 	'Gl/gsub_lite.c',
-	'ARWrapper/ARMarker.cpp',
-	'ARWrapper/ARMarkerMulti.cpp',
+	// 'ARWrapper/ARMarker.cpp',
+	// 'ARWrapper/ARMarkerMulti.cpp',
+	// 'ARWrapper/ARController.cpp',
 	// ARMarkerNFT // trackingSub
-	'ARWrapper/ARController.cpp',
 	// 'ARWrapper/ARPattern.cpp'
-
 ].map(function(src) {
 	return 'lib/SRC/' + src;
 });
@@ -83,35 +99,24 @@ var kpm_sources = [
 });
 
 if (HAVE_NFT) {
-	sources = sources
+	ar_sources = ar_sources
 	.concat(ar2_sources)
 	.concat(kpm_sources);
 }
 
-// if (USE_EMBIND) sources.push('ARBindEM.cpp')
-if (USE_WEBIDL) sources.push('ARBindIDL.cpp')
-// sources.push(MAIN_SOURCES)
-
-
-
-console.log('sources: ' + sources);
+// if (USE_EMBIND) ar_sources.push('ARBindEM.cpp')
+if (USE_WEBIDL) ar_sources.push(SOURCE_PATH + 'ARBindIDL.cpp')
 
 var DEFINES = ' ';
 if (HAVE_NFT) DEFINES += ' -D HAVE_NFT ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
-
-var MEM = 256 * 1024 * 1024; // 64MB
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 if (USE_EMBIND) FLAGS += ' --bind ';
-if (USE_WEBIDL) FLAGS += ' --post-js glue.js '
-
-// FLAGS += ' -s EMTERPRETIFY=1 ';
-// FLAGS += ' -s EMTERPRETIFY_ASYNC=1 ';
-// FLAGS += ' -s EMTERPRETIFY_WHITELIST="[\'_wildwebmidi\']" ';
+if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH);
 
 /* DEBUG FLAGS */
-var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
+// var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
 // FLAGS += ' -s ASSERTIONS=2 '
 // FLAGS += ' -s ASSERTIONS=1 '
 // FLAGS += ' --profiling-funcs '
@@ -119,15 +124,13 @@ var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
 // FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
 // FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
 
-// include/linux-i686/ macosx-universal linux-x86_64
-
-
 var INCLUDES = [
 	'include',
-	'lib/SRC/KPM/FreakMatcher',
-	'include/macosx-universal/',
-	'../jpeg-6b',
-	'emscripten'
+	OUTPUT_PATH,
+	SOURCE_PATH,
+	// 'lib/SRC/KPM/FreakMatcher',
+	// 'include/macosx-universal/',
+	// '../jpeg-6b',
 ].map(function(s) { return '-I' + s }).join(' ');
 
 var EXPORTED_FUNCTIONS = JSON.stringify(
@@ -141,65 +144,86 @@ var EXPORTED_FUNCTIONS = JSON.stringify(
 	].map(function(x) { return '_' + x; })
 );
 
-var make_bindings = WEBIDL + ' arbindings.idl glue';
+function format(str) {
+	for (var f = 1; f < arguments.length; f++) {
+		str = str.replace(/{\w*}/, arguments[f]);
+	}
+	return str;
+}
 
-
-var compile_arlib = EMCC + ' ' + INCLUDES + ' '
-	+ sources.join(' ')
-	+ FLAGS + ' ' + DEFINES + ' -o libar.bc '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'';
-
-var compile_kpm = EMCC + ' ' + INCLUDES + ' '
-	+ kpm_sources.join(' ')
-	+ FLAGS + ' ' + DEFINES + ' -o libkpm.bc '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'';
-
+// Lib JPEG Compilation
 
 // Memory Allocations
-// jmemansi.c
-// jmemname.c jmemnobs.c jmemdos.c jmemmac.c
-var jpegs = 'jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jchuff.c \
-        jcinit.c jcmainct.c jcmarker.c jcmaster.c jcomapi.c jcparam.c \
-        jcphuff.c jcprepct.c jcsample.c jctrans.c jdapimin.c jdapistd.c \
-        jdatadst.c jdatasrc.c jdcoefct.c jdcolor.c jddctmgr.c jdhuff.c \
-        jdinput.c jdmainct.c jdmarker.c jdmaster.c jdmerge.c jdphuff.c \
-        jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c \
-        jfdctint.c jidctflt.c jidctfst.c jidctint.c jidctred.c jquant1.c \
-        jquant2.c jutils.c jmemmgr.c \
-        jmemname.c \
-        jcapimin.c jcapistd.c jctrans.c jcparam.c \
-        jdatadst.c jcinit.c jcmaster.c jcmarker.c jcmainct.c \
-        jcprepct.c jccoefct.c jccolor.c jcsample.c jchuff.c \
-        jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c \
-        jfdctint.c'.split(/\s+/).join(' ../jpeg-6b/')
+// jmemansi.c jmemname.c jmemnobs.c jmemdos.c jmemmac.c
+var libjpeg_sources = 'jcapimin.c jcapistd.c jccoefct.c jccolor.c jcdctmgr.c jchuff.c \
+		jcinit.c jcmainct.c jcmarker.c jcmaster.c jcomapi.c jcparam.c \
+		jcphuff.c jcprepct.c jcsample.c jctrans.c jdapimin.c jdapistd.c \
+		jdatadst.c jdatasrc.c jdcoefct.c jdcolor.c jddctmgr.c jdhuff.c \
+		jdinput.c jdmainct.c jdmarker.c jdmaster.c jdmerge.c jdphuff.c \
+		jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c \
+		jfdctint.c jidctflt.c jidctfst.c jidctint.c jidctred.c jquant1.c \
+		jquant2.c jutils.c jmemmgr.c \
+		jmemname.c \
+		jcapimin.c jcapistd.c jctrans.c jcparam.c \
+		jdatadst.c jcinit.c jcmaster.c jcmarker.c jcmainct.c \
+		jcprepct.c jccoefct.c jccolor.c jcsample.c jchuff.c \
+		jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c \
+		jfdctint.c'.split(/\s+/).join(' ../jpeg-6b/')
 
-// ./android/jni/OpenCV-2.4.3-android-sdk/sdk/native/3rdparty/libs/x86/liblibjpeg.a
-// ./emscripten-libjpeg-turbo/libturbojpeg*.o
-// + '../jpeg-9a/j*.o '
-var compile_libjpeg = EMCC + ' ' + INCLUDES + ' '
-	+ '../jpeg-6b/' +  jpegs
-	+ FLAGS + ' ' + DEFINES + ' -o libjpeg.bc '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'';
+function clean_builds() {
+	try {
+		var stats = fs.statSync(OUTPUT_PATH);
+	} catch (e) {
+		fs.mkdirSync(OUTPUT_PATH);
+	}
 
-//  --preload-file bin
+	try {
+		var files = fs.readdirSync(OUTPUT_PATH);
+		if (files.length > 0)
+		for (var i = 0; i < files.length; i++) {
+			var filePath = OUTPUT_PATH + '/' + files[i];
+			if (fs.statSync(filePath).isFile())
+				fs.unlinkSync(filePath);
+		}
+	}
+	catch(e) { return console.log(e); }
+}
 
+var make_bindings = format('{WEBIDL} arbindings.idl {OUTPUT_PATH}glue', WEBIDL, OUTPUT_PATH);
 
+var compile_arlib = format(EMCC + ' ' + INCLUDES + ' '
+	+ ar_sources.join(' ')
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libar.bc '
+	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+		OUTPUT_PATH);
 
-var compile_combine = EMCC + ' ' + INCLUDES + ' '
-	+ ' libar.bc libjpeg.bc ' + MAIN_SOURCES
-	+ FLAGS + ' ' + DEFINES + ' -o web/test.html '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'';
+var compile_kpm = format(EMCC + ' ' + INCLUDES + ' '
+	+ kpm_sources.join(' ')
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libkpm.bc '
+	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+		OUTPUT_PATH);
 
-// EMPP ARBindEM.cpp
+var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
+	+ '../jpeg-6b/' +  libjpeg_sources
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}libjpeg.bc '
+	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+		OUTPUT_PATH);
 
-var compile_all = EMCC + ' ' + INCLUDES + ' '
-	+ sources.join(' ')
-	+ FLAGS + ' ' + DEFINES + ' -o web/test.html '
-	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'';
+var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
+	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} '
+	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	OUTPUT_PATH, OUTPUT_PATH, BUILD_FILE);
 
-var
-	exec = require('child_process').exec,
-	child;
+var compile_all = format(EMCC + ' ' + INCLUDES + ' '
+	+ ar_sources.join(' ')
+	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} '
+	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+		OUTPUT_PATH, BUILD_FILE);
+
+/*
+ * Run commands
+ */
 
 function onExec(error, stdout, stderr) {
 	if (stdout) console.log('stdout: ' + stdout);
@@ -207,27 +231,39 @@ function onExec(error, stdout, stderr) {
 	if (error !== null) {
 		console.log('exec error: ' + error);
 	} else {
-		nextJob();
+		runJob();
 	}
 }
 
-function nextJob() {
+function runJob() {
 	if (!jobs.length) {
 		console.log('Jobs completed');
 		return;
 	}
 	var cmd = jobs.shift();
+
+	if (typeof cmd === 'function') {
+		cmd();
+		runJob();
+		return;
+	}
+
 	console.log('\nRunning command: ' + cmd + '\n');
 	exec(cmd, onExec);
 }
 
-var jobs = [
-	// compile_all
-	compile_arlib,
-	compile_libjpeg,
-	compile_combine,
-];
+var jobs = [];
 
-if (USE_WEBIDL) jobs.unshift(make_bindings);
+function addJob(job) {
+	jobs.push(job);
+}
 
-nextJob();
+addJob(clean_builds);
+if (USE_WEBIDL) addJob(make_bindings);
+addJob(compile_arlib);
+// compile_kpm
+// addJob(compile_libjpeg);
+addJob(compile_combine);
+// addJob(compile_all);
+
+runJob();

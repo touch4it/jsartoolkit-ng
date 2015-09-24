@@ -1,6 +1,37 @@
+(function() {
+
+var path = '';
+
+var EMSCRIPTEN_FILE = 'artoolkit.js';
+var EMSCRIPTEN_MEM_FILE = 'artoolkit.js.mem';
+
 // Emscripten Module
 var Module = {
-	onRuntimeInitialized: allReady
+	onRuntimeInitialized: function() {
+		ready = true;
+	},
+	locateFile: function(mem_file) {
+		return path + EMSCRIPTEN_MEM_FILE;
+	}
+};
+
+// ARToolKit JS API
+var artoolkit = {
+	init: function(p) {
+		path = p;
+		var script = document.createElement('script');
+		script.src = path + EMSCRIPTEN_FILE;
+		document.body.appendChild(script);
+
+		return this;
+	},
+	onReady: onReady,
+	setup: arSetup,
+	onFrameMalloc: onFrameMalloc,
+	onGetMarker: onGetMarker,
+	onMarkerNum: onMarkerNum,
+	debugSetup: debugSetup,
+	process: process
 };
 
 var framepointer = 0, framesize = 0;
@@ -11,10 +42,6 @@ var transform_mat = new Float32Array(16);
 var detected_markers = [];
 
 var ready = false;
-
-function allReady() {
-	ready = true;
-}
 
 function onReady(ofunc) {
 	var func = function() {
@@ -52,7 +79,7 @@ function onMarkerNum(number) {
 function onGetMarker(object, i) {
 	marker = object;
 	detected_markers[i] = marker;
-	console.log(marker.id, marker.idMatrix, marker.cf);
+	// console.log(marker.id, marker.idMatrix, marker.cf);
 }
 
 var w = 320, h = 240;
@@ -142,9 +169,9 @@ function process(target) {
 	dataHeap.set( new Uint8Array(data.buffer) );
 	console.timeEnd('transferImage');
 
-	console.time('process')
+	// console.time('process')
 	_process();
-	console.timeEnd('process')
+	// console.timeEnd('process')
 
 	debugDraw();
 }
@@ -181,3 +208,11 @@ function ajaxDependencies(files, callback) {
 		callback();
 	}
 }
+
+/* Exports */
+
+window.Module = Module;
+window.artoolkit = artoolkit;
+
+
+})();
