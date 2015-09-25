@@ -5,9 +5,28 @@ using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(constant_bindings) {
 
-	function("setMatrixCodeType", &setMatrixCodeType);
 	function("setup", &setup);
+	function("process", &process);
+	function("teardown", &teardown);
+	function("startSetupMarker", &startSetupMarker);
+
+	// TODO: handle pointer return
+	function("setDebugMode", &setDebugMode);
+	// allow_raw_pointer<arg<?>>
+
+
+	/* AR Toolkit C APIS */
+	function("setProjectionNearPlane", &setProjectionNearPlane);
+	function("setProjectionFarPlane", &setProjectionFarPlane);
+
+	function("setThresholdMode", &setThresholdMode);
+	function("setThreshold", &setThreshold);
+
+	function("setLabelingMode", &setLabelingMode);
 	function("setPatternDetectionMode", &setPatternDetectionMode);
+
+	function("setMatrixCodeType", &setMatrixCodeType);
+	function("setImageProcMode", &setImageProcMode);
 
 	/* arDebug */
 	constant("AR_DEBUG_DISABLE", AR_DEBUG_DISABLE);

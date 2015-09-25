@@ -158,6 +158,7 @@ const char*  -> [Const] string
 // 	 * @param videoSourceIndex Index into an array of video sources, specifying which source should be queried.
 // 	 * @param buffer Pointer to a buffer of pixels (of type 'Color') to be filled. It is the caller's responsibility to ensure that the buffer is of sufficient size.
 
+
 // 	// TODO bool updateTexture(const int videoSourceIndex, Color* buffer);
 
 // 	// TODO bool updateTexture32(const int videoSourceIndex, uint32_t *buffer);

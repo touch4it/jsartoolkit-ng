@@ -20,8 +20,8 @@ static int transformContinue = 0;
 
 static ARdouble width = 40.0;
 static ARdouble CAMERA_VIEW_SCALE = 2.0;
-static const ARdouble NEAR_PLANE = 0.0001;    ///< Near plane d	istance for projection matrix calculation
-static const ARdouble FAR_PLANE = 10000.0;   ///< Far plane distance for projection matrix calculation
+static ARdouble NEAR_PLANE = 0.0001;    ///< Near plane d	istance for projection matrix calculation
+static ARdouble FAR_PLANE = 10000.0;   ///< Far plane distance for projection matrix calculation
 
 static ARdouble cameraLens[16];
 static ARdouble modelView[16];
@@ -30,16 +30,46 @@ static char patt_name[]  = "/patt.hiro";
 static int			gPatt_id;				// Per-marker, but we are using only 1 marker.
 static ARPattHandle	*gARPattHandle = NULL;
 
+int patternDetectionMode = 0;
+AR_MATRIX_CODE_TYPE matrixType = AR_MATRIX_CODE_3x3;
+
 extern "C" {
-	void setMatrixCodeType() {
+	void setProjectionNearPlane(const ARdouble projectionNearPlane) {
+		NEAR_PLANE = projectionNearPlane;
+	}
+
+	void setProjectionFarPlane(const ARdouble projectionFarPlane) {
+		FAR_PLANE = projectionFarPlane;
+	}
+
+	void setPatternDetectionMode(int mode) {
+		patternDetectionMode = mode;
+		if (arSetPatternDetectionMode(arhandle, patternDetectionMode) == 0) {
+			printf("Pattern detection mode set to %d.", patternDetectionMode);
+		}
+	}
+
+	void setMatrixCodeType(int type) {
+		matrixType = (AR_MATRIX_CODE_TYPE)type;
+		arSetMatrixCodeType(arhandle, matrixType);
+	}
+
+	void initMatrixCodeType() {
 		printf("setting matrix mode\n");
 		arSetPatternDetectionMode(arhandle, AR_MATRIX_CODE_DETECTION);
 		arSetMatrixCodeType(arhandle, AR_MATRIX_CODE_4x4);
 	}
 
-	void setPatternDetectionMode(AR_MATRIX_CODE_TYPE type) {
-		arSetMatrixCodeType(arhandle, type);
+	void setLabelingMode(int mode) {
+		int labelingMode = mode;
+
+		if (arSetLabelingMode(arhandle, labelingMode) == 0) {
+			printf("Labeling mode set to %d", labelingMode);
+		}
 	}
+
+
+
 
 	int setup(int width, int height) {
 		// setup parameters
@@ -81,7 +111,7 @@ extern "C" {
 			modelView
 		);
 
-		setMatrixCodeType();
+		initMatrixCodeType();
 
 		return 0;
 	}
@@ -130,16 +160,36 @@ extern "C" {
 	}
 
 	void setThreshold(int threshold) {
-		arSetLabelingThresh(arhandle, threshold);
+		if (threshold < 0 || threshold > 255) return;
+		if (arSetLabelingThresh(arhandle, threshold) == 0) {
+			printf("Threshold set to %d", threshold);
+		};
 		// default 100
 		// arSetLabelingThreshMode
 		// AR_LABELING_THRESH_MODE_MANUAL, AR_LABELING_THRESH_MODE_AUTO_MEDIAN, AR_LABELING_THRESH_MODE_AUTO_OTSU, AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE
 	}
 
-	ARUint8* setDebugMode(int enable) {
-		arSetDebugMode(arhandle, enable ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
+	void setThresholdMode(int mode) {
+		AR_LABELING_THRESH_MODE thresholdMode = (AR_LABELING_THRESH_MODE)mode;
 
-		return arhandle->labelInfo.bwImage;
+		if (arSetLabelingThreshMode(arhandle, thresholdMode) == 0) {
+			printf("Threshold mode set to %d", (int)thresholdMode);
+		}
+	}
+
+	// ARUint8*
+	void setDebugMode(int enable) {
+		arSetDebugMode(arhandle, enable ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
+		printf("Debug mode set to %s", enable ? "on." : "off.");
+
+		// return arhandle->labelInfo.bwImage;
+	}
+
+	void setImageProcMode(int mode) {
+		int imageProcMode = mode;
+		if (arSetImageProcMode(arhandle, mode) == 0) {
+			printf("Image proc. mode set to %d.", imageProcMode);
+		}
 	}
 
 	void transferMarker(ARMarkerInfo* markerInfo, int index) {
