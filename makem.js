@@ -14,7 +14,7 @@ var USE_WEBIDL = 1;
 var USE_EMBIND = 1;
 var HAVE_NFT = 0;
 
-var EMSCRIPTEN_PATH = '/usr/lib/emsdk_portable/emscripten/master/'
+var EMSCRIPTEN_PATH = process.env.EMSCRIPTEN.replace(/\/?$/, '/');
 
 var EMCC = EMSCRIPTEN_PATH + 'emcc';
 var EMPP = EMSCRIPTEN_PATH + 'em++';
