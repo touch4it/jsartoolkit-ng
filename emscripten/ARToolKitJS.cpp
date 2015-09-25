@@ -50,15 +50,19 @@ extern "C" {
 		}
 	}
 
+	void setPattRatio(float ratio) {
+		if (ratio <= 0.0f || ratio >= 1.0f) return;
+		ARdouble pattRatio = (ARdouble)ratio;
+		if (arhandle) {
+			if (arSetPattRatio(arhandle, pattRatio) == 0) {
+				printf("Pattern ratio size set to %f.", pattRatio);
+			}
+		}
+	}
+
 	void setMatrixCodeType(int type) {
 		matrixType = (AR_MATRIX_CODE_TYPE)type;
 		arSetMatrixCodeType(arhandle, matrixType);
-	}
-
-	void initMatrixCodeType() {
-		printf("init matrix mode\n");
-		setPatternDetectionMode(AR_MATRIX_CODE_DETECTION);
-		setMatrixCodeType(AR_MATRIX_CODE_4x4);
 	}
 
 	void setLabelingMode(int mode) {
@@ -109,7 +113,7 @@ extern "C" {
 			modelView
 		);
 
-		initMatrixCodeType();
+		// initMatrixCodeType();
 
 		return 0;
 	}

@@ -26,13 +26,20 @@
 
 			return this;
 		},
+
 		onReady: onReady,
 		setup: setup,
+		process: process,
+
 		onFrameMalloc: onFrameMalloc,
 		onGetMarker: onGetMarker,
 		onMarkerNum: onMarkerNum,
 		debugSetup: debugSetup,
-		process: process,
+
+		getDetectedMarkers: function() {
+			return detected_markers;
+		},
+
 		getCameraMatrix: function() {
 			return camera_mat;
 		},
@@ -53,22 +60,59 @@
 	var w = 320, h = 240;
 	var canvas, ctx, image;
 
-	function onReady(ofunc) {
-		var func = function() {
-			// FS.mkdir('/Data2');
-			// FS.mkdir('/DataNFT');
-			var files = [
-				['../bin/Data/patt.hiro', '/patt.hiro'],
-				// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
-				// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
-				// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
-				// [path + '../bin/DataNFT/pinball.fset', '/Data2/pinball.fset'],
-			];
-			ajaxDependencies(files, ofunc);
-			ready = true;
+	var FUNCTIONS = [
+		// 'process',
+		// 'teardown',
+		// 'setDebugMode',
+
+		'startSetupMarker',
+		'setProjectionNearPlane',
+		'setProjectionFarPlane',
+
+		'setThresholdMode',
+		'setThreshold',
+		'setLabelingMode',
+		'setPatternDetectionMode',
+		'setMatrixCodeType',
+		'setImageProcMode',
+
+		'setPattRatio',
+	];
+
+	var readyFunc;
+	function runWhenLoaded() {
+		FUNCTIONS.forEach(function(n) {
+			artoolkit[n] = Module[n];
+		})
+
+		artoolkit.CONSTANTS = {};
+
+		for (var m in Module) {
+			if (m.match(/^AR/))
+			artoolkit.CONSTANTS[m] = Module[m];
 		}
-		if (ready) func();
-		else Module.onRuntimeInitialized = func;
+
+		// FS.mkdir('/Data2');
+		// FS.mkdir('/DataNFT');
+		var files = [
+			['../bin/Data/patt.hiro', '/patt.hiro'],
+			// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
+			// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
+			// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
+			// [path + '../bin/DataNFT/pinball.fset', '/Data2/pinball.fset'],
+		];
+
+		ajaxDependencies(files, function() {
+			if (readyFunc) readyFunc();
+		});
+
+		ready = true;
+	}
+
+	function onReady(ofunc) {
+		readyFunc = ofunc;
+		if (ready) runWhenLoaded();
+		else Module.onRuntimeInitialized = runWhenLoaded;
 	}
 
 	function onFrameMalloc(params) {
@@ -97,7 +141,7 @@
 		w = _w;
 		h = _h;
 
-		Module.setup(w, h);
+		_setup(w, h);
 
 		// setup canvas
 		canvas = document.createElement('canvas');
@@ -105,10 +149,10 @@
 		canvas.height = h;
 		ctx = canvas.getContext('2d')
 
-		console.log('setup marker');
-		var id = Module.startSetupMarker('/patt.hiro');
-		console.log('marker id', id);
-		_setThreshold(50);
+		// console.log('setup marker');
+		// var id = Module.startSetupMarker('/patt.hiro');
+		// console.log('marker id', id);
+		// _setThreshold(50);
 	}
 
 	var bwpointer;
@@ -119,8 +163,8 @@
 	}
 
 	function debugDraw() {
-		var yoz = new Uint8ClampedArray(Module.HEAPU8.buffer, bwpointer, framesize);
-		var id = new ImageData(yoz, w, h)
+		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, bwpointer, framesize);
+		var id = new ImageData(debugBuffer, w, h)
 		ctx.putImageData(id, 0, 0)
 
 		if (!marker) return;
