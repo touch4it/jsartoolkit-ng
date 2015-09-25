@@ -8,11 +8,10 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	function("setup", &setup);
 	function("process", &process);
 	function("teardown", &teardown);
-	function("startSetupMarker", &startSetupMarker);
+	function("startSetupMarker", startSetupMarker);
 
 	// TODO: handle pointer return
-	function("setDebugMode", &setDebugMode);
-	// allow_raw_pointer<arg<?>>
+	function("setDebugMode", &setDebugMode, allow_raw_pointers());
 
 
 	/* AR Toolkit C APIS */
@@ -27,6 +26,7 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 
 	function("setMatrixCodeType", &setMatrixCodeType);
 	function("setImageProcMode", &setImageProcMode);
+
 
 	/* arDebug */
 	constant("AR_DEBUG_DISABLE", AR_DEBUG_DISABLE);

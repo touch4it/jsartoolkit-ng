@@ -27,7 +27,7 @@
 			return this;
 		},
 		onReady: onReady,
-		setup: arSetup,
+		setup: setup,
 		onFrameMalloc: onFrameMalloc,
 		onGetMarker: onGetMarker,
 		onMarkerNum: onMarkerNum,
@@ -58,6 +58,7 @@
 			// FS.mkdir('/Data2');
 			// FS.mkdir('/DataNFT');
 			var files = [
+				['../bin/Data/patt.hiro', '/patt.hiro'],
 				// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
 				// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
 				// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
@@ -77,8 +78,8 @@
 		camera_mat = new Float64Array(Module.HEAPU8.buffer, params.camera, 16);
 		transform_mat = new Float64Array(Module.HEAPU8.buffer, params.modelView, 16);
 
-		console.log('onMalloc', params);
-		console.log('camera_mat', camera_mat);
+		// console.log('onMalloc', params);
+		// console.log('matrices', camera_mat, transform_mat);
 	}
 
 	function onMarkerNum(number) {
@@ -92,7 +93,7 @@
 		// console.log(marker.id, marker.idMatrix, marker.cf);
 	}
 
-	function arSetup(_w, _h) {
+	function setup(_w, _h) {
 		w = _w;
 		h = _h;
 
@@ -104,9 +105,9 @@
 		canvas.height = h;
 		ctx = canvas.getContext('2d')
 
-		// console.log('setup marker');
-		// _startSetupMarker();
-
+		console.log('setup marker');
+		var id = Module.startSetupMarker('/patt.hiro');
+		console.log('marker id', id);
 		_setThreshold(50);
 	}
 

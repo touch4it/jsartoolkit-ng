@@ -135,9 +135,10 @@ var INCLUDES = [
 
 var EXPORTED_FUNCTIONS = JSON.stringify(
 	[
-		// 'setup',
+		'setup',
 		'process',
 		'teardown',
+
 		'setDebugMode',
 		'setThreshold',
 		'startSetupMarker'

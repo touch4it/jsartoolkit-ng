@@ -2,6 +2,7 @@
 #include <AR/ar.h>
 #include <AR/gsub_lite.h>
 #include <emscripten.h>
+#include <string>
 
 // ============================================================================
 //	Global variables
@@ -55,9 +56,9 @@ extern "C" {
 	}
 
 	void initMatrixCodeType() {
-		printf("setting matrix mode\n");
-		arSetPatternDetectionMode(arhandle, AR_MATRIX_CODE_DETECTION);
-		arSetMatrixCodeType(arhandle, AR_MATRIX_CODE_4x4);
+		printf("init matrix mode\n");
+		setPatternDetectionMode(AR_MATRIX_CODE_DETECTION);
+		setMatrixCodeType(AR_MATRIX_CODE_4x4);
 	}
 
 	void setLabelingMode(int mode) {
@@ -67,9 +68,6 @@ extern "C" {
 			printf("Labeling mode set to %d", labelingMode);
 		}
 	}
-
-
-
 
 	int setup(int width, int height) {
 		// setup parameters
@@ -150,13 +148,16 @@ extern "C" {
 		return (TRUE);
 	}
 
-	void startSetupMarker() {
+	int startSetupMarker(std::string patt_name) {
+		// const char *patt_name
 		// Load marker(s).
-		if (!setupMarker(patt_name, &gPatt_id, arhandle, &gARPattHandle)) {
+		if (!setupMarker(patt_name.c_str(), &gPatt_id, arhandle, &gARPattHandle)) {
 			ARLOGe("main(): Unable to set up AR marker.\n");
 			teardown();
 			exit(-1);
 		}
+
+		return gPatt_id;
 	}
 
 	void setThreshold(int threshold) {
@@ -177,12 +178,12 @@ extern "C" {
 		}
 	}
 
-	// ARUint8*
-	void setDebugMode(int enable) {
+
+	ARUint8* setDebugMode(int enable) {
 		arSetDebugMode(arhandle, enable ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
 		printf("Debug mode set to %s", enable ? "on." : "off.");
 
-		// return arhandle->labelInfo.bwImage;
+		return arhandle->labelInfo.bwImage;
 	}
 
 	void setImageProcMode(int mode) {
