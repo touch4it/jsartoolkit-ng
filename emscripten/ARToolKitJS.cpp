@@ -113,7 +113,10 @@ extern "C" {
 			modelView
 		);
 
-		// initMatrixCodeType();
+		ar3DHandle = ar3DCreateHandle(&paramLT->param);
+		if (ar3DHandle == NULL) {
+			ARLOGe("Error creating 3D handle");
+		}
 
 		return 0;
 	}
@@ -307,13 +310,15 @@ extern "C" {
 		k = -1;
 		for (j = 0; j < arhandle->marker_num; j++) {
 			transferMarker(&arhandle->markerInfo[j], j);
-			if (arhandle->markerInfo[j].id == gPatt_id) {
-				if (k == -1) k = j; // First marker detected.
-				else if (arhandle->markerInfo[j].cf > arhandle->markerInfo[k].cf) k = j; // Higher confidence marker detected.
-			}
+			// if (arhandle->markerInfo[j].id == gPatt_id) {
+			// 	if (k == -1) k = j; // First marker detected.
+			// 	else if (arhandle->markerInfo[j].cf > arhandle->markerInfo[k].cf) k = j; // Higher confidence marker detected.
+			// }
 		}
 
 		// printf("Best match: %d\n", k);
+
+		arglCameraFrustumRH(&paramLT->param, NEAR_PLANE, FAR_PLANE, cameraLens);
 
 		if (!markerNum) {
 			transformContinue = 0;
@@ -326,7 +331,7 @@ extern "C" {
 			}
 
 			// Create the OpenGL projection from the calibrated camera parameters.
-			arglCameraFrustumRH(&paramLT->param, NEAR_PLANE, FAR_PLANE, cameraLens);
+
 			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 		}
 	}
