@@ -326,6 +326,8 @@ extern "C" {
 
 		k = -1;
 		for (j = 0; j < arhandle->marker_num; j++) {
+			arGetTransMatSquare(ar3DHandle, &(arhandle->markerInfo[j]), width, transform);
+			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 			transferMarker(&arhandle->markerInfo[j], j);
 			// if (arhandle->markerInfo[j].id == gPatt_id) {
 			// 	if (k == -1) k = j; // First marker detected.

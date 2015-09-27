@@ -45,7 +45,7 @@
 		},
 		getTransformationMatrix: function() {
 			return transform_mat;
-		},
+		}
 	};
 
 	var framepointer = 0, framesize = 0;
