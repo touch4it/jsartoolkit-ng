@@ -26,18 +26,10 @@
 	artoolkit.init('../../builds')
 
 	function completeInit() {
-		// Sample WebIDL ARController usage
-		// ar = new Module.ARController();
-		// console.log(ar.getARToolKitVersion());
-		// ar.setDebugMode(true);
-		// console.log('debug mode', !!ar.getDebugMode());
-
 		artoolkit.setup(video.videoWidth, video.videoHeight);
 		artoolkit.debugSetup();
 
 		initThreeJS();
-
-		// document.body.appendChild(canvas);
 	}
 
 	var initWaitCount = 2;
@@ -98,17 +90,22 @@
 		videoScene.add(videoCam);
 
 
+		// Create the scene and the camera for the AR 3D scene.
 		var scene = new THREE.Scene();
 		var camera = new THREE.PerspectiveCamera(45, renderer.domElement.width / renderer.domElement.height, 1, 1000);
 		scene.add(camera);
 
 		camera.position.z = 10;
 
+		// Create an object that tracks the marker transform.
 		var markerRoot = new THREE.Object3D();
+		scene.add(markerRoot);
 
+		// We're updating these manually with the matrices from ARToolKit, so turn auto-update off.
 		// markerRoot.matrixAutoUpdate = false;
 		// camera.matrixAutoUpdate = false;
 
+		// Create a couple of lights for our AR scene.
 		var light = new THREE.PointLight(0xffffff);
 		light.position.set(40, 40, 40);
 		scene.add(light);
@@ -117,6 +114,12 @@
 		light.position.set(-40, -20, -30);
 		scene.add(light);
 
+		// The AR scene.
+		//
+		// The box object is going to be placed on top of the marker in the video.
+		// I'm adding it to the markerRoot object and when the markerRoot moves,
+		// the box and its children move with it.
+		//
 		var box = new THREE.Object3D();
 		var boxWall = new THREE.Mesh(
 			new THREE.BoxGeometry(1, 1, 0.1, 1, 1, 1),
@@ -146,27 +149,28 @@
 		boxWall.rotation.x = Math.PI/2;
 		box.add(boxWall);
 
+		// Keep track of the box walls to test if the mouse clicks happen on top of them.
 		var walls = box.children.slice();
 
+		// Create a pivot for the lid of the box to make it rotate around its "hinge".
 		var pivot = new THREE.Object3D();
 		pivot.position.y = 0.5;
 		pivot.position.x = 0.5;
 
+		// The lid of the box is attached to the pivot and the pivot is attached to the box.
 		boxWall = boxWall.clone();
 		boxWall.position.y = 0;
 		boxWall.position.x = -0.5;
 		pivot.add(boxWall);
-
 		box.add(pivot);
-
-		markerRoot.add(box);
-
-		scene.add(markerRoot);
 
 		walls.push(boxWall);
 
+		// Add the box to the markerRoot object to make it track the marker.
+		markerRoot.add(box);
+
 		var open = false;
-		onclick = function(ev) {
+		renderer.domElement.onclick = function(ev) {
 			if (findObjectUnderEvent(ev, renderer, camera, walls)) {
 				open = !open;
 			}
@@ -203,6 +207,12 @@
 			// camera.matrixAutoUpdate = false;
 
 			var transform_mat = artoolkit.getTransformationMatrix();
+			// ??? How to track several markers?
+			
+			// How to track barcode markers?
+			// How to track square image markers?
+			// How to track multimarkers?
+			// How to track NFT?
 
 			target.position.set(transform_mat[12], transform_mat[13], transform_mat[14]);
 			box.scale.set(30, 30, 30);
