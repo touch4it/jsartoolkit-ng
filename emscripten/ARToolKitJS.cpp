@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <AR/ar.h>
 #include <AR/gsub_lite.h>
+// #include <AR/gsub_es2.h>
 #include <emscripten.h>
 #include <string>
 
@@ -18,11 +19,10 @@ static AR3DHandle* ar3DHandle;
 static ARdouble	transform[3][4];
 static int transformContinue = 0;
 
-
 static ARdouble width = 40.0;
-static ARdouble CAMERA_VIEW_SCALE = 2.0;
+static ARdouble CAMERA_VIEW_SCALE = 1.0;
 static ARdouble NEAR_PLANE = 0.0001;    ///< Near plane d	istance for projection matrix calculation
-static ARdouble FAR_PLANE = 10000.0;   ///< Far plane distance for projection matrix calculation
+static ARdouble FAR_PLANE = 1000.0;   ///< Far plane distance for projection matrix calculation
 
 static ARdouble cameraLens[16];
 static ARdouble modelView[16];
@@ -34,7 +34,17 @@ static ARPattHandle	*gARPattHandle = NULL;
 int patternDetectionMode = 0;
 AR_MATRIX_CODE_TYPE matrixType = AR_MATRIX_CODE_3x3;
 
+char cparam_name[] = "/camera_para.dat";
+
 extern "C" {
+	void setScale(ARdouble tmp) {
+		CAMERA_VIEW_SCALE = tmp;
+	}
+
+	void setWidth(ARdouble tmp) {
+		width = tmp;
+	}
+
 	void setProjectionNearPlane(const ARdouble projectionNearPlane) {
 		NEAR_PLANE = projectionNearPlane;
 	}
@@ -99,6 +109,18 @@ extern "C" {
 		gVideoFrameSize = width * height * 4 * sizeof(ARUint8);
 		gVideoFrame = (ARUint8*) malloc(gVideoFrameSize);
 
+
+		ar3DHandle = ar3DCreateHandle(&paramLT->param);
+		if (ar3DHandle == NULL) {
+			ARLOGe("Error creating 3D handle");
+		}
+
+		if (arParamLoad(cparam_name, 1, &paramLT->param) < 0) {
+			ARLOGe("setupCamera(): Error loading parameter file %s for camera.\n", cparam_name);
+			// arVideoClose();
+			return (FALSE);
+	    }
+
 		printf("Allocated gVideoFrameSize %d\n", gVideoFrameSize);
 
 		EM_ASM_({
@@ -112,11 +134,6 @@ extern "C" {
 			cameraLens,
 			modelView
 		);
-
-		ar3DHandle = ar3DCreateHandle(&paramLT->param);
-		if (ar3DHandle == NULL) {
-			ARLOGe("Error creating 3D handle");
-		}
 
 		return 0;
 	}
@@ -331,7 +348,7 @@ extern "C" {
 			}
 
 			// Create the OpenGL projection from the calibrated camera parameters.
-
+			// arglCameraViewRH
 			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 		}
 	}

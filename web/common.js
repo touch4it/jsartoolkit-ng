@@ -85,6 +85,12 @@
 			artoolkit[n] = Module[n];
 		})
 
+		// for quick adjustments here. TODO cleanup
+		Module.setScale(0.25);
+		Module.setWidth(20);
+		artoolkit.setProjectionNearPlane(0.01)
+		artoolkit.setProjectionFarPlane(1000);
+
 		artoolkit.CONSTANTS = {};
 
 		for (var m in Module) {
@@ -96,6 +102,7 @@
 		// FS.mkdir('/DataNFT');
 		var files = [
 			['../bin/Data/patt.hiro', '/patt.hiro'],
+			['../bin/Data/camera_para.dat', '/camera_para.dat'],
 			// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
 			// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
 			// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],

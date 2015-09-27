@@ -44,6 +44,8 @@ var ar_sources = [
 	'AR/*.c',
 	'ARICP/*.c',
 	'Gl/gsub_lite.c',
+	// 'Gl/gsub_es2.c',
+
 	// 'ARWrapper/ARMarker.cpp',
 	// 'ARWrapper/ARMarkerMulti.cpp',
 	// 'ARWrapper/ARController.cpp',
@@ -112,6 +114,7 @@ if (HAVE_NFT) DEFINES += ' -D HAVE_NFT ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
+FLAGS += ' -s FULL_ES2=1 '
 if (USE_EMBIND) FLAGS += ' --bind ';
 if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH);
 

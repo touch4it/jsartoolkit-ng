@@ -12,7 +12,9 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	// function("setDebugMode", &setDebugMode, allow_raw_pointers());
 
 
-	function("startSetupMarker", startSetupMarker);
+	function("setScale", &setScale);
+	function("setWidth", &setWidth);
+	function("startSetupMarker", &startSetupMarker);
 
 
 	/* AR Toolkit C APIS */

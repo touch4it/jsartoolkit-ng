@@ -45,15 +45,15 @@ camera.matrixAutoUpdate = false;
 // Add the marker models and suchlike into your marker root object.
 
 var cube = new THREE.Mesh(
-  new THREE.CubeGeometry(100,100,100),
+  new THREE.CubeGeometry(10,10,10),
   new THREE.MeshBasicMaterial({
   	color: 0|(0xffffff * Math.random())
   	// color: 0xff00ff,
-  	// wireframe: true
+	, wireframe: true
   })
 
 );
-cube.position.z = -50;
+cube.position.z = -45;
 markerRoot.add(cube);
 
 // Add the marker root to your scene.
