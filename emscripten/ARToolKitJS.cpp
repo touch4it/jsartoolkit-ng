@@ -174,7 +174,7 @@ extern "C" {
 		return (TRUE);
 	}
 
-	int startSetupMarker(std::string patt_name) {
+	int addMarker(std::string patt_name) {
 		// const char *patt_name
 		// Load marker(s).
 		if (!setupMarker(patt_name.c_str(), &gPatt_id, arhandle, &gARPattHandle)) {

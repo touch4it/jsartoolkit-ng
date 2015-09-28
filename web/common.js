@@ -31,6 +31,8 @@
 		setup: setup,
 		process: process,
 
+		addMarker: addMarker,
+
 		onFrameMalloc: onFrameMalloc,
 		onGetMarker: onGetMarker,
 		onMarkerNum: onMarkerNum,
@@ -69,7 +71,7 @@
 		// 'teardown',
 		// 'setDebugMode',
 
-		'startSetupMarker',
+		// 'startSetupMarker',
 		'setProjectionNearPlane',
 		'setProjectionFarPlane',
 
@@ -164,6 +166,15 @@
 		// var id = Module.startSetupMarker('/patt.hiro');
 		// console.log('marker id', id);
 		// _setThreshold(50);
+	}
+
+	var marker_count = 0;
+	function addMarker(url, callback) {
+		var filename = '/marker_' + marker_count++;
+		ajax(url, filename, function() {
+			var id = Module._addMarker(filename);
+			if (callback) callback(id);
+		});
 	}
 
 	var bwpointer;
