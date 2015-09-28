@@ -133,10 +133,7 @@ artoolkit.loadMarker = function(url, onSuccess, onError) {
 			console.log(err);
 		};
 	}
-	setTimeout(function() {
-		var id = artoolkit.registerMarker(url);
-		onSuccess(id);
-	}, 100);
+	artoolkit.addMarker('/bin/Data/patt.hiro', onSuccess, onError);
 }
 
 artoolkit.createThreeMarker = function(marker) {
