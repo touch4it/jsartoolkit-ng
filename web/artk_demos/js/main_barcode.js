@@ -84,83 +84,53 @@ var createBox = function() {
 
 (function() {
 
-	artoolkit.getUserMediaThreeScene(640, 360, function(arScene) {
+	var tw = 1280 / 2;
+	var th = 720 / 2;
 
+	var initThreeJS = function(arScene) {
 		var renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
 		document.body.appendChild(renderer.domElement);
 
+		// Create a couple of lights for our AR scene.
+		var light = new THREE.PointLight(0xffffff);
+		light.position.set(40, 40, 40);
+		arScene.scene.add(light);
+
+		var light = new THREE.PointLight(0xff8800);
+		light.position.set(-40, -20, -30);
+		arScene.scene.add(light);
+
+
 		// Create an object that tracks the marker transform.
-		artoolkit.loadMarker('patt.hiro', function(marker) {
+		var marker = 'patt.hiro';
+		var markerRoot = artoolkit.createThreeMarker(marker);
+		arScene.scene.add(markerRoot);
 
-			var markerRoot = artoolkit.createThreeMarker(marker);
-			arScene.scene.add(markerRoot);
+		// Create the openable box object for our AR scene.
+		var boxAndWalls = createBox();
 
-			var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshNormalMaterial() );
-			cube.position.z = 0.5;
-			markerRoot.add(cube);
+		// Add the box to the markerRoot object to make it track the marker.
+		markerRoot.add(boxAndWalls.box);
 
-		});
+		var open = false;
+		renderer.domElement.onclick = function(ev) {
+			if (findObjectUnderEvent(ev, renderer, arScene.camera, boxAndWalls.walls)) {
+				boxAndWalls.box.open = !boxAndWalls.box.open;
+			}
+		};
 
 		var tick = function() {
-			arScene.process();
-			arScene.renderOn(renderer);
-
 			requestAnimationFrame(tick);
+			arScene.process();
+
+			boxAndWalls.box.tick();
+			arScene.renderOn(renderer);
 		};
 		tick();
+	};
 
-	});
-
-	// var tw = 1280 / 2;
-	// var th = 720 / 2;
-
-	// var initThreeJS = function(arScene) {
-	// 	var renderer = new THREE.WebGLRenderer({antialias: true});
-	// 	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
-	// 	document.body.appendChild(renderer.domElement);
-
-	// 	// Create a couple of lights for our AR scene.
-	// 	var light = new THREE.PointLight(0xffffff);
-	// 	light.position.set(40, 40, 40);
-	// 	arScene.scene.add(light);
-
-	// 	var light = new THREE.PointLight(0xff8800);
-	// 	light.position.set(-40, -20, -30);
-	// 	arScene.scene.add(light);
-
-
-	// 	// Create an object that tracks the marker transform.
-	// 	var marker = 'patt.hiro';
-	// 	var markerRoot = artoolkit.createThreeMarker(marker);
-	// 	arScene.scene.add(markerRoot);
-
-	// 	// Create the openable box object for our AR scene.
-	// 	var boxAndWalls = createBox();
-
-	// 	// Add the box to the markerRoot object to make it track the marker.
-	// 	markerRoot.add(boxAndWalls.box);
-
-	// 	var open = false;
-	// 	renderer.domElement.onclick = function(ev) {
-	// 		if (findObjectUnderEvent(ev, renderer, arScene.camera, boxAndWalls.walls)) {
-	// 			boxAndWalls.box.open = !boxAndWalls.box.open;
-	// 		}
-	// 	};
-
-	// 	var tick = function() {
-	// 		requestAnimationFrame(tick);
-	// 		arScene.process();
-
-	// 		boxAndWalls.box.tick();
-	// 		arScene.renderOn(renderer);
-	// 	};
-	// 	tick();
-	// };
-
-
-	// artoolkit.init('../../builds');
-	// artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);
+	artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);
 
 
 })();
