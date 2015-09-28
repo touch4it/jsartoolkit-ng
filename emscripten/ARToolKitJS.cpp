@@ -84,42 +84,44 @@ extern "C" {
 	}
 
 	int setup(int width, int height) {
-		// setup parameters
-		arParamClear(&param, width, height, AR_DIST_FUNCTION_VERSION_DEFAULT);
+		gVideoFrameSize = width * height * 4 * sizeof(ARUint8);
+		gVideoFrame = (ARUint8*) malloc(gVideoFrameSize);
+
+		if (arParamLoad(cparam_name, 1, &param) < 0) {
+			ARLOGe("setupCamera(): Error loading parameter file %s for camera.\n", cparam_name);
+			// arVideoClose();
+			return (FALSE);
+	    }
+	    if (param.xsize != width || param.ysize != height) {
+	        ARLOGw("*** Camera Parameter resized from %d, %d. ***\n", param.xsize, param.ysize);
+	        arParamChangeSize(&param, width, height, &param);
+	    }
+	    ARLOG("*** Camera Parameter ***\n");
+	    arParamDisp(&param);
 
 		if ((paramLT = arParamLTCreate(&param, AR_PARAM_LT_DEFAULT_OFFSET)) == NULL) {
 			ARLOGe("setupCamera(): Error: arParamLTCreate.\n");
 			return (FALSE);
 		}
 
-		printf("arParamLTCreated\n..%d, %d\n", (paramLT->param).xsize, param.ysize);
+		printf("arParamLTCreated\n..%d, %d\n", (paramLT->param).xsize, (paramLT->param).ysize);
+
 
 		// setup camera
 		if ((arhandle = arCreateHandle(paramLT)) == NULL) {
 			ARLOGe("setupCamera(): Error: arCreateHandle.\n");
 			return (FALSE);
 		}
-
-		printf("arCreateHandle done\n");
-
 		// AR_DEFAULT_PIXEL_FORMAT
 		int set = arSetPixelFormat(arhandle, AR_PIXEL_FORMAT_RGBA);
 
+		printf("arCreateHandle done\n");
 
-		gVideoFrameSize = width * height * 4 * sizeof(ARUint8);
-		gVideoFrame = (ARUint8*) malloc(gVideoFrameSize);
-
-
-		ar3DHandle = ar3DCreateHandle(&paramLT->param);
+		ar3DHandle = ar3DCreateHandle(&param);
 		if (ar3DHandle == NULL) {
 			ARLOGe("Error creating 3D handle");
 		}
 
-		if (arParamLoad(cparam_name, 1, &paramLT->param) < 0) {
-			ARLOGe("setupCamera(): Error loading parameter file %s for camera.\n", cparam_name);
-			// arVideoClose();
-			return (FALSE);
-	    }
 
 		printf("Allocated gVideoFrameSize %d\n", gVideoFrameSize);
 

@@ -86,9 +86,9 @@
 		})
 
 		// for quick adjustments here. TODO cleanup
-		Module.setScale(0.25);
-		Module.setWidth(20);
-		artoolkit.setProjectionNearPlane(0.01)
+		Module.setScale(1);
+		Module.setWidth(1);
+		artoolkit.setProjectionNearPlane(0.1)
 		artoolkit.setProjectionFarPlane(1000);
 
 		artoolkit.CONSTANTS = {};
