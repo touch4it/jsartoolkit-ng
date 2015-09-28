@@ -14,7 +14,7 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 
 	function("setScale", &setScale);
 	function("setWidth", &setWidth);
-	function("startSetupMarker", &startSetupMarker);
+	function("_addMarker", &addMarker);
 
 
 	/* AR Toolkit C APIS */
