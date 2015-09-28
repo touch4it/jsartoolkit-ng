@@ -45,6 +45,8 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 var cMat = new THREE.Matrix4();
 var tMat = new THREE.Matrix4();
 
+var USE_SHADER = true;
+
 var shaderMaterial = new THREE.ShaderMaterial({
 	uniforms: {
 		cameraMatrix: {type: 'm4', value: cMat },
@@ -81,19 +83,15 @@ camera.matrixAutoUpdate = false;
 // Add the marker models and suchlike into your marker root object.
 
 var cube = new THREE.Mesh(
-  new THREE.CubeGeometry(1,1,1),
-  shaderMaterial
-//  new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
+	new THREE.CubeGeometry(1,1,1),
+	USE_SHADER ?
+		shaderMaterial :
+		new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
 );
 markerRoot.add(cube);
 
 // Add the marker root to your scene.
 scene.add(markerRoot);
-
-
-artoolkit.onGetMarker = function(marker) {
-	shaderMaterial.uniforms.transformationMatrix.value.setFromArray(artoolkit.getTransformationMatrix());
-};
 
 // On every frame do the following:
 function tick() {
@@ -102,9 +100,17 @@ function tick() {
 	var camera_mat = artoolkit.getCameraMatrix();
 	if (!camera_mat) return;
 
+
+
 	getFrame();
 
-	shaderMaterial.uniforms.cameraMatrix.value.setFromArray(camera_mat);
+	if (USE_SHADER) {
+		shaderMaterial.uniforms.transformationMatrix.value.setFromArray(artoolkit.getTransformationMatrix());
+		shaderMaterial.uniforms.cameraMatrix.value.setFromArray(camera_mat);
+	} else {
+		markerRoot.matrix.setFromArray(artoolkit.getTransformationMatrix());
+		camera.projectionMatrix.setFromArray(camera_mat);
+	}
 
 	// Render the scene.
 	renderer.autoClear = false;
