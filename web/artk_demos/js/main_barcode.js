@@ -1,139 +1,3 @@
-/* THREE.js ARToolKit integration */
-
-THREE.Matrix4.prototype.setFromArray = function(m) {
-	return this.elements.set(m);
-};
-
-artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
-	if (!onError) {
-		onError = function(err) {
-			console.log("ERROR: artoolkit.getUserMediaThreeScene");
-			console.log(err);
-		};
-	}
-	var video = document.createElement('video');
-	navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-	var hdConstraints = {
-		audio: false,
-		video: {
-			mandatory: {
-				maxWidth: width,
-				maxHeight: height
-	    	}
-	  	}
-	};
-
-	var completeInit = function() {
-		artoolkit.setup(video.videoWidth, video.videoHeight);
-		// artoolkit.debugSetup();
-
-		var scenes = artoolkit.createThreeScene(video);
-		onSuccess(scenes);
-	};
-
-	var initWaitCount = 2;
-	var initProgress = function() {
-		initWaitCount--;
-		if (initWaitCount === 0) {
-			completeInit();
-		}
-	};
-
-	var success = function(stream) {
-		video.addEventListener('loadedmetadata', initProgress, false);
-
-		video.src = window.URL.createObjectURL(stream);
-		video.play();
-
-		artoolkit.onReady(initProgress);
-
-	};
-
-	if (navigator.getUserMedia) {
-		navigator.getUserMedia(hdConstraints, success, onError);
-	} else {
-		onError('');
-	}
-};
-
-artoolkit.createThreeScene = function(video) {
-	// To display the video, first create a texture from it.
-	var videoTex = new THREE.Texture(video);
-
-	videoTex.minFilter = THREE.LinearFilter;
-	videoTex.flipY = false;
-
-	// Then create a plane textured with the video.
-	var plane = new THREE.Mesh(
-	  new THREE.PlaneGeometry(2, 2),
-	  new THREE.MeshBasicMaterial({map: videoTex, side: THREE.DoubleSide})
-	);
-
-	// The video plane shouldn't care about the z-buffer.
-	plane.material.depthTest = false;
-	plane.material.depthWrite = false;
-
-	// Create a camera and a scene for the video plane and
-	// add the camera and the video plane to the scene.
-	var videoCamera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
-	var videoScene = new THREE.Scene();
-	videoScene.add(plane);
-	videoScene.add(videoCamera);
-
-	var scene = new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera(45, 1, 1, 1000)
-	scene.add(camera);
-
-	camera.matrixAutoUpdate = false;
-
-	return {
-		scene: scene,
-		videoScene: videoScene,
-		camera: camera,
-		videoCamera: videoCamera,
-
-		video: video,
-
-		process: function() {
-			artoolkit.process(video);
-			camera.projectionMatrix.setFromArray(artoolkit.getCameraMatrix());
-		},
-
-		renderOn: function(renderer) {
-			videoTex.needsUpdate = true;
-
-			var ac = renderer.autoClear;
-			renderer.autoClear = false;
-			renderer.clear();
-			renderer.render(this.videoScene, this.videoCamera);
-			renderer.render(this.scene, this.camera);
-			renderer.autoClear = ac;
-		}
-	};
-};
-
-artoolkit.onGetMarker = function(marker) {
-	var obj = this.markers[marker.id];
-	if (obj) {
-		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
-	}
-};
-
-artoolkit.markers = {};
-
-artoolkit.createThreeMarker = function(marker) {
-	var id = this.registerMarker(marker);
-	var obj = new THREE.Object3D();
-	obj.matrixAutoUpdate = false;
-	this.markers[id] = obj;
-	return obj;
-};
-
-
-
-
-
-
 var findObjectUnderEvent = function(ev, renderer, camera, objects) {
 	var mouse3D = new THREE.Vector3(
 		( ev.layerX / renderer.domElement.width ) * 2 - 1,
@@ -219,55 +83,84 @@ var createBox = function() {
 
 
 (function() {
-	var tw = 1280 / 2;
-	var th = 720 / 2;
 
-	var initThreeJS = function(arScene) {
+	artoolkit.getUserMediaThreeScene(640, 360, function(arScene) {
+
 		var renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
 		document.body.appendChild(renderer.domElement);
 
-		// Create a couple of lights for our AR scene.
-		var light = new THREE.PointLight(0xffffff);
-		light.position.set(40, 40, 40);
-		arScene.scene.add(light);
-
-		var light = new THREE.PointLight(0xff8800);
-		light.position.set(-40, -20, -30);
-		arScene.scene.add(light);
-
-
 		// Create an object that tracks the marker transform.
-		var marker = 'patt.hiro';
-		var markerRoot = artoolkit.createThreeMarker(marker);
-		arScene.scene.add(markerRoot);
+		artoolkit.loadMarker('patt.hiro', function(marker) {
 
-		// Create the openable box object for our AR scene.
-		var boxAndWalls = createBox();
+			var markerRoot = artoolkit.createThreeMarker(marker);
+			arScene.scene.add(markerRoot);
 
-		// Add the box to the markerRoot object to make it track the marker.
-		markerRoot.add(boxAndWalls.box);
+			var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshNormalMaterial() );
+			cube.position.z = 0.5;
+			markerRoot.add(cube);
 
-		var open = false;
-		renderer.domElement.onclick = function(ev) {
-			if (findObjectUnderEvent(ev, renderer, arScene.camera, boxAndWalls.walls)) {
-				boxAndWalls.box.open = !boxAndWalls.box.open;
-			}
-		};
+		});
 
 		var tick = function() {
-			requestAnimationFrame(tick);
 			arScene.process();
-
-			boxAndWalls.box.tick();
 			arScene.renderOn(renderer);
+
+			requestAnimationFrame(tick);
 		};
 		tick();
-	};
+
+	});
+
+	// var tw = 1280 / 2;
+	// var th = 720 / 2;
+
+	// var initThreeJS = function(arScene) {
+	// 	var renderer = new THREE.WebGLRenderer({antialias: true});
+	// 	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
+	// 	document.body.appendChild(renderer.domElement);
+
+	// 	// Create a couple of lights for our AR scene.
+	// 	var light = new THREE.PointLight(0xffffff);
+	// 	light.position.set(40, 40, 40);
+	// 	arScene.scene.add(light);
+
+	// 	var light = new THREE.PointLight(0xff8800);
+	// 	light.position.set(-40, -20, -30);
+	// 	arScene.scene.add(light);
 
 
-	artoolkit.init('../../builds');
-	artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);
+	// 	// Create an object that tracks the marker transform.
+	// 	var marker = 'patt.hiro';
+	// 	var markerRoot = artoolkit.createThreeMarker(marker);
+	// 	arScene.scene.add(markerRoot);
+
+	// 	// Create the openable box object for our AR scene.
+	// 	var boxAndWalls = createBox();
+
+	// 	// Add the box to the markerRoot object to make it track the marker.
+	// 	markerRoot.add(boxAndWalls.box);
+
+	// 	var open = false;
+	// 	renderer.domElement.onclick = function(ev) {
+	// 		if (findObjectUnderEvent(ev, renderer, arScene.camera, boxAndWalls.walls)) {
+	// 			boxAndWalls.box.open = !boxAndWalls.box.open;
+	// 		}
+	// 	};
+
+	// 	var tick = function() {
+	// 		requestAnimationFrame(tick);
+	// 		arScene.process();
+
+	// 		boxAndWalls.box.tick();
+	// 		arScene.renderOn(renderer);
+	// 	};
+	// 	tick();
+	// };
+
+
+	// artoolkit.init('../../builds');
+	// artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);
 
 
 })();
