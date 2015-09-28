@@ -83,21 +83,24 @@ extern "C" {
 		}
 	}
 
-	int setup(int width, int height) {
+	int setup(int width, int height, int load_camera) {
 		gVideoFrameSize = width * height * 4 * sizeof(ARUint8);
 		gVideoFrame = (ARUint8*) malloc(gVideoFrameSize);
 
-		if (arParamLoad(cparam_name, 1, &param) < 0) {
-			ARLOGe("setupCamera(): Error loading parameter file %s for camera.\n", cparam_name);
-			// arVideoClose();
-			return (FALSE);
-	    }
-	    if (param.xsize != width || param.ysize != height) {
-	        ARLOGw("*** Camera Parameter resized from %d, %d. ***\n", param.xsize, param.ysize);
-	        arParamChangeSize(&param, width, height, &param);
-	    }
-	    ARLOG("*** Camera Parameter ***\n");
-	    arParamDisp(&param);
+		if (load_camera) {
+			if (arParamLoad(cparam_name, 1, &param) < 0) {
+				ARLOGe("setupCamera(): Error loading parameter file %s for camera.\n", cparam_name);
+				return (FALSE);
+			}
+
+			if (param.xsize != width || param.ysize != height) {
+				ARLOGw("*** Camera Parameter resized from %d, %d. ***\n", param.xsize, param.ysize);
+				arParamChangeSize(&param, width, height, &param);
+			}
+
+			ARLOG("*** Camera Parameter ***\n");
+			arParamDisp(&param);
+		}
 
 		if ((paramLT = arParamLTCreate(&param, AR_PARAM_LT_DEFAULT_OFFSET)) == NULL) {
 			ARLOGe("setupCamera(): Error: arParamLTCreate.\n");
