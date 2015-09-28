@@ -157,7 +157,7 @@ extern "C" {
 	}
 
 	static int setupMarker(const char *patt_name, int *patt_id, ARHandle *arhandle, ARPattHandle **pattHandle_p) {
-		if (*gARPattHandle != NULL) {
+		if (gARPattHandle != NULL) {
 			ARLOGe("setupMarker(): arPattCreateHandle already created.\n");
 		} else if ((*pattHandle_p = arPattCreateHandle()) == NULL) {
 			ARLOGe("setupMarker(): Error: arPattCreateHandle.\n");
