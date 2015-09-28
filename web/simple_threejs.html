@@ -36,7 +36,7 @@ void main(void)
 
 <script>
 
-artoolkit.init('../builds');
+artoolkit.init('../builds', '/bin/Data/camera_para.dat');
 
 THREE.Matrix4.prototype.setFromArray = function(m) {
 	return this.elements.set(m);

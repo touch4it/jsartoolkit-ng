@@ -18,15 +18,7 @@
 
 	// ARToolKit JS API
 	var artoolkit = {
-		init: function(p) {
-			path = p.slice(-1) === '/' ? p : p + '/';
-			var script = document.createElement('script');
-			script.src = path + EMSCRIPTEN_FILE;
-			document.body.appendChild(script);
-
-			return this;
-		},
-
+		init: init,
 		onReady: onReady,
 		setup: setup,
 		process: process,
@@ -85,7 +77,38 @@
 		'setPattRatio',
 	];
 
+	var files_to_load = [
+		// Array Tuples of [ajax path, fs path]
+		// ['bin/Data/patt.hiro', '/patt.hiro'],
+		// ['bin/Data/camera_para.dat', '/camera_para.dat'],
+		// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
+		// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
+		// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
+		// [path + '../bin/DataNFT/pinball.fset', '/Data2/pinball.fset'],
+	];
+
 	var readyFunc;
+	var camera_path;
+
+	// Initalize base path for loading emscripten
+	// Also loads path for camera info
+	function init(p, camera) {
+		path = p.slice(-1) === '/' ? p : p + '/';
+		var script = document.createElement('script');
+		script.src = path + EMSCRIPTEN_FILE;
+		document.body.appendChild(script);
+
+		if (camera) {
+			camera_path = camera;
+			files_to_load.push([camera_path, '/camera_para.dat']);
+		}
+
+		return this;
+	}
+
+
+
+
 	function runWhenLoaded() {
 		FUNCTIONS.forEach(function(n) {
 			artoolkit[n] = Module[n];
@@ -104,18 +127,10 @@
 			artoolkit.CONSTANTS[m] = Module[m];
 		}
 
-		// FS.mkdir('/Data2');
+		// FS
 		// FS.mkdir('/DataNFT');
-		var files = [
-			['/bin/Data/patt.hiro', '/patt.hiro'],
-			['/bin/Data/camera_para.dat', '/camera_para.dat'],
-			// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
-			// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
-			// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
-			// [path + '../bin/DataNFT/pinball.fset', '/Data2/pinball.fset'],
-		];
 
-		ajaxDependencies(files, function() {
+		ajaxDependencies(files_to_load, function() {
 			if (readyFunc) readyFunc();
 		});
 
@@ -154,7 +169,7 @@
 		w = _w;
 		h = _h;
 
-		_setup(w, h);
+		_setup(w, h, camera_path ? 1 : 0);
 
 		// setup canvas
 		canvas = document.createElement('canvas');
