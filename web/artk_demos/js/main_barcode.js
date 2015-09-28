@@ -101,33 +101,36 @@ var createBox = function() {
 		light.position.set(-40, -20, -30);
 		arScene.scene.add(light);
 
+		// Load the marker to use.
+		artoolkit.loadMarker('/bin/Data/patt.hiro', function(marker) {
 
-		// Create an object that tracks the marker transform.
-		var marker = 'patt.hiro';
-		var markerRoot = artoolkit.createThreeMarker(marker);
-		arScene.scene.add(markerRoot);
+			// Create an object that tracks the marker transform.
+			var markerRoot = artoolkit.createThreeMarker(marker);
+			arScene.scene.add(markerRoot);
 
-		// Create the openable box object for our AR scene.
-		var boxAndWalls = createBox();
+			// Create the openable box object for our AR scene.
+			var boxAndWalls = createBox();
 
-		// Add the box to the markerRoot object to make it track the marker.
-		markerRoot.add(boxAndWalls.box);
+			// Add the box to the markerRoot object to make it track the marker.
+			markerRoot.add(boxAndWalls.box);
 
-		var open = false;
-		renderer.domElement.onclick = function(ev) {
-			if (findObjectUnderEvent(ev, renderer, arScene.camera, boxAndWalls.walls)) {
-				boxAndWalls.box.open = !boxAndWalls.box.open;
-			}
-		};
+			renderer.domElement.onclick = function(ev) {
+				if (findObjectUnderEvent(ev, renderer, arScene.camera, boxAndWalls.walls)) {
+					boxAndWalls.box.open = !boxAndWalls.box.open;
+				}
+			};
 
-		var tick = function() {
-			requestAnimationFrame(tick);
-			arScene.process();
+			var tick = function() {
+				requestAnimationFrame(tick);
+				arScene.process();
 
-			boxAndWalls.box.tick();
-			arScene.renderOn(renderer);
-		};
-		tick();
+				boxAndWalls.box.tick();
+				arScene.renderOn(renderer);
+			};
+			tick();
+
+		});
+
 	};
 
 	artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);

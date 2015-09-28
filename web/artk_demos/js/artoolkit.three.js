@@ -66,7 +66,7 @@ artoolkit.createThreeScene = function(video) {
 
 	// Then create a plane textured with the video.
 	var plane = new THREE.Mesh(
-	  new THREE.PlaneGeometry(2, 2),
+	  new THREE.PlaneBufferGeometry(2, 2),
 	  new THREE.MeshBasicMaterial({map: videoTex, side: THREE.DoubleSide})
 	);
 
