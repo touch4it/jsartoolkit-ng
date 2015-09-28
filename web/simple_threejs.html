@@ -5,6 +5,35 @@
 <script src="common.js"></script>
 
 <video id="v" src="tests/output_4.ogg" width="320" height="240" loop="" controls="" autoplay webkit-playsinline></video>
+
+<script id="vert" type="glsl-vertex">
+precision highp float;
+precision lowp int;
+
+uniform mat4 cameraMatrix;
+uniform mat4 transformationMatrix;
+
+varying vec2 vUv;
+
+void main(void)
+{
+	vUv = uv;
+	gl_Position = cameraMatrix * transformationMatrix * vec4(position, 1.0);
+}
+</script>
+
+<script id="frag" type="glsl-fragment">
+precision highp float;
+precision lowp int;
+
+varying vec2 vUv;
+
+void main(void)
+{
+	gl_FragColor = vec4(vUv, 1.0, 1.0);
+}
+</script>
+
 <script>
 
 artoolkit.init('../builds');
@@ -12,6 +41,20 @@ artoolkit.init('../builds');
 THREE.Matrix4.prototype.setFromArray = function(m) {
 	return this.elements.set(m);
 };
+
+var cMat = new THREE.Matrix4();
+var tMat = new THREE.Matrix4();
+
+var shaderMaterial = new THREE.ShaderMaterial({
+	uniforms: {
+		cameraMatrix: {type: 'm4', value: cMat },
+		transformationMatrix: {type: 'm4', value: tMat }
+	},
+	vertexShader: vert.text,
+	fragmentShader: frag.text,
+	wireframe: true
+});
+
 
 var renderer = new THREE.WebGLRenderer();
 var scene = new THREE.Scene();
@@ -40,9 +83,9 @@ camera.matrixAutoUpdate = false;
 
 var cube = new THREE.Mesh(
   new THREE.CubeGeometry(1,1,1),
-  new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
+  shaderMaterial
+//  new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false })
 );
-cube.position.z = -10;
 markerRoot.add(cube);
 
 // Add the marker root to your scene.
@@ -50,7 +93,7 @@ scene.add(markerRoot);
 
 
 artoolkit.onGetMarker = function(marker) {
-	markerRoot.matrix.setFromArray(artoolkit.getTransformationMatrix());
+	shaderMaterial.uniforms.transformationMatrix.value.setFromArray(artoolkit.getTransformationMatrix());
 };
 
 // On every frame do the following:
@@ -60,10 +103,9 @@ function tick() {
 	var camera_mat = artoolkit.getCameraMatrix();
 	if (!camera_mat) return;
 
-	camera.projectionMatrix.setFromArray(camera_mat);
-	camera.matrixWorld.identity();
-	camera.matrix.identity();
 	getFrame();
+
+	shaderMaterial.uniforms.cameraMatrix.value.setFromArray(camera_mat);
 
 	// Render the scene.
 	renderer.autoClear = false;
