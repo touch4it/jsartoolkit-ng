@@ -45,6 +45,10 @@
 		},
 		getTransformationMatrix: function() {
 			return transform_mat;
+		},
+
+		registerMarker: function(marker) {
+			return -1;
 		}
 	};
 

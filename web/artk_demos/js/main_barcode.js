@@ -5,6 +5,12 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 };
 
 artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
+	if (!onError) {
+		onError = function(err) {
+			console.log("ERROR: artoolkit.getUserMediaThreeScene");
+			console.log(err);
+		};
+	}
 	var video = document.createElement('video');
 	navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 	var hdConstraints = {
@@ -19,7 +25,7 @@ artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
 
 	var completeInit = function() {
 		artoolkit.setup(video.videoWidth, video.videoHeight);
-		artoolkit.debugSetup();
+		// artoolkit.debugSetup();
 
 		var scenes = artoolkit.createThreeScene(video);
 		onSuccess(scenes);
@@ -62,7 +68,6 @@ artoolkit.createThreeScene = function(video) {
 	  new THREE.PlaneGeometry(2, 2),
 	  new THREE.MeshBasicMaterial({map: videoTex, side: THREE.DoubleSide})
 	);
-	plane.rotation.y = Math.PI;
 
 	// The video plane shouldn't care about the z-buffer.
 	plane.material.depthTest = false;
@@ -70,26 +75,30 @@ artoolkit.createThreeScene = function(video) {
 
 	// Create a camera and a scene for the video plane and
 	// add the camera and the video plane to the scene.
-	var videoCam = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
+	var videoCamera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
 	var videoScene = new THREE.Scene();
 	videoScene.add(plane);
-	videoScene.add(videoCam);
+	videoScene.add(videoCamera);
 
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera(45, 1, 1, 1000)
 	scene.add(camera);
 
 	camera.matrixAutoUpdate = false;
-	camera.matrix.setFromArray(this.getCameraMatrix());
 
 	return {
 		scene: scene,
 		videoScene: videoScene,
 		camera: camera,
 		videoCamera: videoCamera,
+
+		video: video,
+
 		process: function() {
 			artoolkit.process(video);
+			camera.projectionMatrix.setFromArray(artoolkit.getCameraMatrix());
 		},
+
 		renderOn: function(renderer) {
 			videoTex.needsUpdate = true;
 
@@ -103,15 +112,27 @@ artoolkit.createThreeScene = function(video) {
 	};
 };
 
+artoolkit.onGetMarker = function(marker) {
+	var obj = this.markers[marker.id];
+	if (obj) {
+		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
+	}
+};
+
+artoolkit.markers = {};
+
 artoolkit.createThreeMarker = function(marker) {
 	var id = this.registerMarker(marker);
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
-	this.onMarkerNum(id, function(transform) {
-		obj.matrix.setFromArray(transform);
-	})
+	this.markers[id] = obj;
 	return obj;
 };
+
+
+
+
+
 
 var findObjectUnderEvent = function(ev, renderer, camera, objects) {
 	var mouse3D = new THREE.Vector3(
@@ -183,6 +204,16 @@ var createBox = function() {
 
 	walls.push(boxWall);
 
+	box.position.z = 0.5;
+	box.rotation.x = Math.PI/2;
+
+	box.open = false;
+
+	box.tick = function() {
+		// Animate the box lid to open rotation or closed rotation, depending on the value of the open variable. 
+		pivot.rotation.z += ((box.open ? -Math.PI/1.5 : 0) - pivot.rotation.z) * 0.1;
+	};
+
 	return {box: box, walls: walls};
 };
 
@@ -191,12 +222,9 @@ var createBox = function() {
 	var tw = 1280 / 2;
 	var th = 720 / 2;
 
-	artoolkit.init('../../builds');
-	artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);
-
 	var initThreeJS = function(arScene) {
 		var renderer = new THREE.WebGLRenderer({antialias: true});
-		renderer.setSize(video.videoWidth, video.videoHeight);
+		renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
 		document.body.appendChild(renderer.domElement);
 
 		// Create a couple of lights for our AR scene.
@@ -210,6 +238,7 @@ var createBox = function() {
 
 
 		// Create an object that tracks the marker transform.
+		var marker = 'patt.hiro';
 		var markerRoot = artoolkit.createThreeMarker(marker);
 		arScene.scene.add(markerRoot);
 
@@ -222,20 +251,23 @@ var createBox = function() {
 		var open = false;
 		renderer.domElement.onclick = function(ev) {
 			if (findObjectUnderEvent(ev, renderer, arScene.camera, boxAndWalls.walls)) {
-				open = !open;
+				boxAndWalls.box.open = !boxAndWalls.box.open;
 			}
 		};
 
 		var tick = function() {
 			requestAnimationFrame(tick);
-			if (!artoolkit.getCameraMatrix()) return;
-
-			// Animate the box lid to open rotation or closed rotation, depending on the value of the open variable. 
-			pivot.rotation.z += ((open ? -Math.PI/1.5 : 0) - pivot.rotation.z) * 0.1;
-
 			arScene.process();
+
+			boxAndWalls.box.tick();
 			arScene.renderOn(renderer);
 		};
 		tick();
 	};
+
+
+	artoolkit.init('../../builds');
+	artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);
+
+
 })();
