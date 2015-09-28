@@ -76,7 +76,7 @@
 		  new THREE.PlaneGeometry(2, 2),
 		  new THREE.MeshBasicMaterial({map: videoTex, side: THREE.DoubleSide})
 		);
-		plane.rotation.y = Math.PI;
+		//plane.rotation.y = Math.PI;
 
 		// The video plane shouldn't care about the z-buffer.
 		plane.material.depthTest = false;
@@ -92,10 +92,8 @@
 
 		// Create the scene and the camera for the AR 3D scene.
 		var scene = new THREE.Scene();
-		var camera = new THREE.PerspectiveCamera(45, renderer.domElement.width / renderer.domElement.height, 1, 1000);
+		var camera = new THREE.Camera();
 		scene.add(camera);
-
-		camera.position.z = 10;
 
 		// Create an object that tracks the marker transform.
 		var markerRoot = new THREE.Object3D();
@@ -166,6 +164,9 @@
 
 		walls.push(boxWall);
 
+		box.position.z = 0.5;
+		box.rotation.x = Math.PI/2;
+
 		// Add the box to the markerRoot object to make it track the marker.
 		markerRoot.add(box);
 
@@ -197,16 +198,20 @@
 
 		var tick = function() {
 			requestAnimationFrame(tick);
-			if (!artoolkit.getCameraMatrix()) return;
+			var camera_mat = artoolkit.getCameraMatrix();
+			var transform_mat = artoolkit.getTransformationMatrix();
 
 			var target = markerRoot;
 
-			//target.matrix.setFromArray(transform_mat);
-			// camera.projectionMatrix.setFromArray(camera_mat);
-			//target.matrixAutoUpdate = false;
-			// camera.matrixAutoUpdate = false;
+			if (!transform_mat || !camera_mat) {
+				return;
+			}
 
-			var transform_mat = artoolkit.getTransformationMatrix();
+			target.matrix.setFromArray(transform_mat);
+			camera.projectionMatrix.setFromArray(camera_mat);
+			target.matrixAutoUpdate = false;
+			camera.matrixAutoUpdate = false;
+
 			// ??? How to track several markers?
 			
 			// How to track barcode markers?
@@ -214,17 +219,17 @@
 			// How to track multimarkers?
 			// How to track NFT?
 
-			target.position.set(transform_mat[12], transform_mat[13], transform_mat[14]);
-			box.scale.set(30, 30, 30);
-			camera.position.z = -500;
-			camera.lookAt(new THREE.Vector3(0,0,0));
+			// target.matrix.setFromArray(transformposition.set(transform_mat[12], transform_mat[13], transform_mat[14]);
+			// box.scale.set(30, 30, 30);
+			// camera.position.z = -500;
+			// camera.lookAt(new THREE.Vector3(0,0,0));
 
 			getFrame();
 
 			videoTex.needsUpdate = true;
 
-			box.rotation.y += 0.01;
-			box.rotation.x += 0.02;
+			// box.rotation.y += 0.01;
+			// box.rotation.x += 0.02;
 			// box.scale.set(0.1, 0.1, 0.1);
 
 			pivot.rotation.z += ((open ? -Math.PI/1.5 : 0) - pivot.rotation.z) * 0.1;

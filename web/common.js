@@ -101,8 +101,8 @@
 		// FS.mkdir('/Data2');
 		// FS.mkdir('/DataNFT');
 		var files = [
-			['../bin/Data/patt.hiro', '/patt.hiro'],
-			['../bin/Data/camera_para.dat', '/camera_para.dat'],
+			['/bin/Data/patt.hiro', '/patt.hiro'],
+			['/bin/Data/camera_para.dat', '/camera_para.dat'],
 			// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
 			// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
 			// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
