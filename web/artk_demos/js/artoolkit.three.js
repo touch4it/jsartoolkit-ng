@@ -32,16 +32,16 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 	}
 
 	You should use the arScene.video.videoWidth and arScene.video.videoHeight to set the width and height of your renderer.
-	
+
 	In your frame loop, use arScene.process() and arScene.renderOn(renderer) to do frame processing and 3D rendering, respectively.
-	
+
 	@param {number} width - The maximum width of the userMedia video to request.
 	@param {number} height - The maximum height of the userMedia video to request.
 	@param {function} onSuccess - Called on successful initialization with an ThreeARScene object.
 	@param {function} onError - Called if the initialization fails with the error encountered.
 */
 artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
-	artoolkit.init('/builds', '/bin/Data/camera_para.dat');
+	artoolkit.init('../../builds', '../../bin/Data/camera_para.dat');
 	if (!onError) {
 		onError = function(err) {
 			console.log("ERROR: artoolkit.getUserMediaThreeScene");
@@ -184,7 +184,7 @@ artoolkit.markers = {};
 artoolkit.loadMarker = artoolkit.addMarker;
 
 /**
-	Creates a Three.js marker Object3D for the given marker UID. 
+	Creates a Three.js marker Object3D for the given marker UID.
 	The marker Object3D tracks the marker pattern when it's detected in the video.
 
 	Use this after a successful artoolkit.loadMarker call:

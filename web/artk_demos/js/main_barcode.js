@@ -74,7 +74,7 @@ var createBox = function() {
 	box.open = false;
 
 	box.tick = function() {
-		// Animate the box lid to open rotation or closed rotation, depending on the value of the open variable. 
+		// Animate the box lid to open rotation or closed rotation, depending on the value of the open variable.
 		pivot.rotation.z += ((box.open ? -Math.PI/1.5 : 0) - pivot.rotation.z) * 0.1;
 	};
 
@@ -102,7 +102,7 @@ var createBox = function() {
 		arScene.scene.add(light);
 
 		// Load the marker to use.
-		artoolkit.loadMarker('/bin/Data/patt.hiro', function(marker) {
+		artoolkit.loadMarker('../../bin/Data/patt.hiro', function(marker) {
 
 			// Create an object that tracks the marker transform.
 			var markerRoot = artoolkit.createThreeMarker(marker);
