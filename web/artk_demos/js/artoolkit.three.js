@@ -5,7 +5,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 };
 
 artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
-	artoolkit.init('../../builds');
+	artoolkit.init('/builds', '/bin/Data/camera_para.dat');
 	if (!onError) {
 		onError = function(err) {
 			console.log("ERROR: artoolkit.getUserMediaThreeScene");
