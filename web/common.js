@@ -63,7 +63,6 @@
 		// 'teardown',
 		// 'setDebugMode',
 
-		// 'startSetupMarker',
 		'setProjectionNearPlane',
 		'setProjectionFarPlane',
 
@@ -176,11 +175,6 @@
 		canvas.width = w;
 		canvas.height = h;
 		ctx = canvas.getContext('2d')
-
-		// console.log('setup marker');
-		// var id = Module.startSetupMarker('/patt.hiro');
-		// console.log('marker id', id);
-		// _setThreshold(50);
 	}
 
 	var marker_count = 0;

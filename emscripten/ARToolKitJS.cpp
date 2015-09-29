@@ -109,6 +109,15 @@ extern "C" {
 
 		printf("arParamLTCreated\n..%d, %d\n", (paramLT->param).xsize, (paramLT->param).ysize);
 
+		if (gARPattHandle != NULL) {
+			ARLOGe("setup(): arPattCreateHandle already created.\n");
+		} else if ((gARPattHandle = arPattCreateHandle()) == NULL) {
+			ARLOGe("setup(): Error: arPattCreateHandle.\n");
+		}
+
+		arPattAttach(arhandle, gARPattHandle);
+		printf("pattern handler created.\n");
+
 		// setup camera
 		if ((arhandle = arCreateHandle(paramLT)) == NULL) {
 			ARLOGe("setupCamera(): Error: arCreateHandle.\n");
@@ -157,22 +166,13 @@ extern "C" {
 		return 0;
 	}
 
-	static int setupMarker(const char *patt_name, int *patt_id, ARHandle *arhandle, ARPattHandle **pattHandle_p) {
-		if (gARPattHandle != NULL) {
-			ARLOGe("setupMarker(): arPattCreateHandle already created.\n");
-		} else if ((*pattHandle_p = arPattCreateHandle()) == NULL) {
-			ARLOGe("setupMarker(): Error: arPattCreateHandle.\n");
-			return (FALSE);
-		}
-
+	static int loadMarker(const char *patt_name, int *patt_id, ARHandle *arhandle, ARPattHandle **pattHandle_p) {
 		// Loading only 1 pattern in this example.
 		if ((*patt_id = arPattLoad(*pattHandle_p, patt_name)) < 0) {
-			ARLOGe("setupMarker(): Error loading pattern file %s.\n", patt_name);
+			ARLOGe("loadMarker(): Error loading pattern file %s.\n", patt_name);
 			arPattDeleteHandle(*pattHandle_p);
 			return (FALSE);
 		}
-
-		arPattAttach(arhandle, *pattHandle_p);
 
 		return (TRUE);
 	}
@@ -180,7 +180,7 @@ extern "C" {
 	int addMarker(std::string patt_name) {
 		// const char *patt_name
 		// Load marker(s).
-		if (!setupMarker(patt_name.c_str(), &gPatt_id, arhandle, &gARPattHandle)) {
+		if (!loadMarker(patt_name.c_str(), &gPatt_id, arhandle, &gARPattHandle)) {
 			ARLOGe("main(): Unable to set up AR marker.\n");
 			teardown();
 			exit(-1);
