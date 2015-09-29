@@ -2,6 +2,7 @@
 #include <AR/ar.h>
 #include <AR/gsub_lite.h>
 // #include <AR/gsub_es2.h>
+#include <AR/arMulti.h>
 #include <emscripten.h>
 #include <string>
 
@@ -18,6 +19,8 @@ static int gVideoFrameSize;
 static AR3DHandle* ar3DHandle;
 static ARdouble	transform[3][4];
 static int transformContinue = 0;
+
+static ARMultiMarkerInfoT* arMultiConfig;
 
 static ARdouble width = 40.0;
 static ARdouble CAMERA_VIEW_SCALE = 1.0;
@@ -177,6 +180,24 @@ extern "C" {
 		return (TRUE);
 	}
 
+	static int loadMultiMarker(const char *patt_name, ARHandle *arHandle, ARPattHandle **pattHandle_p) {
+		if( (arMultiConfig = arMultiReadConfigFile(patt_name, *pattHandle_p)) == NULL ) {
+			ARLOGe("config data load error !!\n");
+			arPattDeleteHandle(*pattHandle_p);
+			return (FALSE);
+		}
+		if( arMultiConfig->patt_type == AR_MULTI_PATTERN_DETECTION_MODE_TEMPLATE ) {
+			arSetPatternDetectionMode( arHandle, AR_TEMPLATE_MATCHING_COLOR );
+		} else if( arMultiConfig->patt_type == AR_MULTI_PATTERN_DETECTION_MODE_MATRIX ) {
+			arSetPatternDetectionMode( arHandle, AR_MATRIX_CODE_DETECTION );
+		} else { // AR_MULTI_PATTERN_DETECTION_MODE_TEMPLATE_AND_MATRIX
+			arSetPatternDetectionMode( arHandle, AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX );
+		}
+
+		return (TRUE);
+	}
+
+
 	int addMarker(std::string patt_name) {
 		// const char *patt_name
 		// Load marker(s).
@@ -187,6 +208,18 @@ extern "C" {
 		}
 
 		return gPatt_id;
+	}
+
+	int addMultiMarker(std::string patt_name) {
+		// const char *patt_name
+		// Load marker(s).
+		if (!loadMultiMarker(patt_name.c_str(), arhandle, &gARPattHandle)) {
+			ARLOGe("main(): Unable to set up AR multimarker.\n");
+			teardown();
+			exit(-1);
+		}
+
+		return 0;
 	}
 
 	void setThreshold(int threshold) {
@@ -310,6 +343,7 @@ extern "C" {
 		);
 	}
 
+
 	void process() {
 
 		int success = arDetectMarker(
@@ -331,6 +365,8 @@ extern "C" {
 
 		k = -1;
 		for (j = 0; j < arhandle->marker_num; j++) {
+			arGetTransMatSquare(ar3DHandle, &arhandle->markerInfo[j], width, transform);
+			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 			transferMarker(&arhandle->markerInfo[j], j);
 			// if (arhandle->markerInfo[j].id == gPatt_id) {
 			// 	if (k == -1) k = j; // First marker detected.
@@ -342,19 +378,34 @@ extern "C" {
 
 		arglCameraFrustumRH(&paramLT->param, NEAR_PLANE, FAR_PLANE, cameraLens);
 
-		if (!markerNum) {
-			transformContinue = 0;
-		} else {
-			if (transformContinue) {
-				arGetTransMatSquareCont(ar3DHandle, markerInfo, transform, width, transform);
+		if (arMultiConfig != NULL) {
+			int robustFlag = 1;
+			int err = 0;
+
+			if( robustFlag ) {
+				err = arGetTransMatMultiSquareRobust( ar3DHandle, markerInfo, markerNum, arMultiConfig );
 			} else {
-				arGetTransMatSquare(ar3DHandle, markerInfo, width, transform);
-				transformContinue = 1;
+				err = arGetTransMatMultiSquare( ar3DHandle, markerInfo, markerNum, arMultiConfig );
+			}
+			arglCameraViewRH(arMultiConfig->trans, modelView, CAMERA_VIEW_SCALE);			
+
+		} else {
+
+			if (!markerNum) {
+				transformContinue = 0;
+			} else {
+				if (transformContinue) {
+					arGetTransMatSquareCont(ar3DHandle, markerInfo, transform, width, transform);
+				} else {
+					arGetTransMatSquare(ar3DHandle, markerInfo, width, transform);
+					transformContinue = 1;
+				}
+
+				// Create the OpenGL projection from the calibrated camera parameters.
+				// arglCameraViewRH
+				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 			}
 
-			// Create the OpenGL projection from the calibrated camera parameters.
-			// arglCameraViewRH
-			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 		}
 	}
 }

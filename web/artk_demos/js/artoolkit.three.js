@@ -138,7 +138,15 @@ artoolkit.createThreeScene = function(video) {
 			for (var i in artoolkit.barcodeMarkers) {
 				artoolkit.barcodeMarkers[i].visible = false;
 			}
+			for (var i in artoolkit.multiMarkers) {
+				artoolkit.multiMarkers[i].visible = false;
+			}
 			artoolkit.process(video);
+			for (var i in artoolkit.multiMarkers) {
+				var obj = artoolkit.multiMarkers[i];
+				obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
+				obj.visible = true;
+			}
 			camera.projectionMatrix.setFromArray(artoolkit.getCameraMatrix());
 		},
 
@@ -174,14 +182,19 @@ artoolkit.onGetMarker = function(marker) {
 };
 
 /**
-	Index of Three.js markers, maps markerID -> THREE.Object3D.
+	Index of Three.js pattern markers, maps markerID -> THREE.Object3D.
 */
 artoolkit.patternMarkers = {};
 
 /**
-	Index of Three.js markers, maps markerID -> THREE.Object3D.
+	Index of Three.js barcode markers, maps markerID -> THREE.Object3D.
 */
 artoolkit.barcodeMarkers = {};
+
+/**
+	Index of Three.js multimarkers, maps markerID -> THREE.Object3D.
+*/
+artoolkit.multiMarkers = {};
 
 /**
 	Loads a marker from the given URL and calls the onSuccess callback with the UID of the marker.
@@ -195,6 +208,19 @@ artoolkit.barcodeMarkers = {};
 	@param {function} onError - The error callback. Called with the encountered error if the load fails.
 */
 artoolkit.loadMarker = artoolkit.addMarker;
+
+/**
+	Loads a multimarker from the given URL and calls the onSuccess callback with the UID of the marker.
+
+	artoolkit.loadMultiMarker(markerURL, onSuccess, onError);
+
+	Synonym for artoolkit.addMultiMarker.
+
+	@param {string} markerURL - The URL of the multimarker pattern file to load.
+	@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
+	@param {function} onError - The error callback. Called with the encountered error if the load fails.
+*/
+artoolkit.loadMultiMarker = artoolkit.addMultiMarker;
 
 /**
 	Creates a Three.js marker Object3D for the given marker UID.
@@ -215,6 +241,28 @@ artoolkit.createThreeMarker = function(markerUID) {
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
 	this.patternMarkers[markerUID] = obj;
+	return obj;
+};
+
+/**
+	Creates a Three.js marker Object3D for the given multimarker UID.
+	The marker Object3D tracks the multimarker when it's detected in the video.
+
+	Use this after a successful artoolkit.loadMarker call:
+
+	artoolkit.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(markerUID) {
+		var markerRoot = artoolkit.createThreeMultiMarker(markerUID);
+		markerRoot.add(myFancyMultiMarkerModel);
+		arScene.scene.add(markerRoot);
+	});
+
+	@param {number} markerUID - The UID of the marker to track.
+	@return {THREE.Object3D} Three.Object3D that tracks the given marker.
+*/
+artoolkit.createThreeMultiMarker = function(markerUID) {
+	var obj = new THREE.Object3D();
+	obj.matrixAutoUpdate = false;
+	this.multiMarkers[markerUID] = obj;
 	return obj;
 };
 

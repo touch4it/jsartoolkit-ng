@@ -43,6 +43,7 @@ var ar_sources = [
 	'AR/arLabelingSub/*.c',
 	'AR/*.c',
 	'ARICP/*.c',
+	'ARMulti/*.c',
 	'Gl/gsub_lite.c',
 	// 'Gl/gsub_es2.c',
 

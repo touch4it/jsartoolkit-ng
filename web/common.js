@@ -24,6 +24,7 @@
 		process: process,
 
 		addMarker: addMarker,
+		addMultiMarker: addMultiMarker,
 
 		onFrameMalloc: onFrameMalloc,
 		onGetMarker: onGetMarker,
@@ -182,6 +183,15 @@
 		var filename = '/marker_' + marker_count++;
 		ajax(url, filename, function() {
 			var id = Module._addMarker(filename);
+			if (callback) callback(id);
+		});
+	}
+
+	var multi_marker_count = 0;
+	function addMultiMarker(url, callback) {
+		var filename = '/multi_marker_' + multi_marker_count++;
+		ajax(url, filename, function() {
+			var id = Module._addMultiMarker(filename);
 			if (callback) callback(id);
 		});
 	}
