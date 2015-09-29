@@ -109,15 +109,6 @@ extern "C" {
 
 		printf("arParamLTCreated\n..%d, %d\n", (paramLT->param).xsize, (paramLT->param).ysize);
 
-		if (gARPattHandle != NULL) {
-			ARLOGe("setup(): arPattCreateHandle already created.\n");
-		} else if ((gARPattHandle = arPattCreateHandle()) == NULL) {
-			ARLOGe("setup(): Error: arPattCreateHandle.\n");
-		}
-
-		arPattAttach(arhandle, gARPattHandle);
-		printf("pattern handler created.\n");
-
 		// setup camera
 		if ((arhandle = arCreateHandle(paramLT)) == NULL) {
 			ARLOGe("setupCamera(): Error: arCreateHandle.\n");
@@ -132,6 +123,15 @@ extern "C" {
 		if (ar3DHandle == NULL) {
 			ARLOGe("Error creating 3D handle");
 		}
+
+		if (gARPattHandle != NULL) {
+			ARLOGe("setup(): arPattCreateHandle already created.\n");
+		} else if ((gARPattHandle = arPattCreateHandle()) == NULL) {
+			ARLOGe("setup(): Error: arPattCreateHandle.\n");
+		}
+
+		arPattAttach(arhandle, gARPattHandle);
+		printf("pattern handler created.\n");
 
 		printf("Allocated gVideoFrameSize %d\n", gVideoFrameSize);
 
