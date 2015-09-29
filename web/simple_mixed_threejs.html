@@ -49,7 +49,24 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 	// Load the marker to use.
 	artoolkit.loadMarker('/bin/Data/patt.hiro', function(marker) {
 
+		console.log('hiro is', marker);
+
 		var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
+		greenCube.position.z = 0.5;
+
+		// Create an object that tracks the marker transform.
+		var markerRoot = artoolkit.createThreeMarker(marker);
+		arScene.scene.add(markerRoot);
+		markerRoot.add(greenCube);
+
+	});
+
+	// Load the marker to use.
+	artoolkit.loadMarker('/bin/Data/patt.kanji', function(marker) {
+
+		console.log('kanji is', marker);
+
+		var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xffcc33 }) );
 		greenCube.position.z = 0.5;
 
 		// Create an object that tracks the marker transform.
