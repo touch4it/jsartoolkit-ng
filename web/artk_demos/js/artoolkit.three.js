@@ -132,8 +132,11 @@ artoolkit.createThreeScene = function(video) {
 		video: video,
 
 		process: function() {
-			for (var i in artoolkit.markers) {
-				artoolkit.markers[i].visible = false;
+			for (var i in artoolkit.patternMarkers) {
+				artoolkit.patternMarkers[i].visible = false;
+			}
+			for (var i in artoolkit.barcodeMarkers) {
+				artoolkit.barcodeMarkers[i].visible = false;
 			}
 			artoolkit.process(video);
 			camera.projectionMatrix.setFromArray(artoolkit.getCameraMatrix());
@@ -158,7 +161,12 @@ artoolkit.createThreeScene = function(video) {
 	@param {Object} marker - The marker object received from ARToolKitJS.cpp
 */
 artoolkit.onGetMarker = function(marker) {
-	var obj = this.markers[marker.id];
+	var obj = this.patternMarkers[marker.idPatt];
+	if (obj) {
+		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
+		obj.visible = true;
+	}
+	var obj = this.barcodeMarkers[marker.idMatrix];
 	if (obj) {
 		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
 		obj.visible = true;
@@ -168,7 +176,12 @@ artoolkit.onGetMarker = function(marker) {
 /**
 	Index of Three.js markers, maps markerID -> THREE.Object3D.
 */
-artoolkit.markers = {};
+artoolkit.patternMarkers = {};
+
+/**
+	Index of Three.js markers, maps markerID -> THREE.Object3D.
+*/
+artoolkit.barcodeMarkers = {};
 
 /**
 	Loads a marker from the given URL and calls the onSuccess callback with the UID of the marker.
@@ -201,6 +214,28 @@ artoolkit.loadMarker = artoolkit.addMarker;
 artoolkit.createThreeMarker = function(markerUID) {
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
-	this.markers[markerUID] = obj;
+	this.patternMarkers[markerUID] = obj;
+	return obj;
+};
+
+/**
+	Creates a Three.js marker Object3D for the given barcode marker UID. 
+	The marker Object3D tracks the marker pattern when it's detected in the video.
+
+	var markerRoot20 = artoolkit.createThreeBarcodeMarker(20);
+	markerRoot20.add(myFancyNumber20Model);
+	arScene.scene.add(markerRoot20);
+
+	var markerRoot5 = artoolkit.createThreeBarcodeMarker(5);
+	markerRoot5.add(myFancyNumber5Model);
+	arScene.scene.add(markerRoot5);
+
+	@param {number} markerUID - The UID of the barcode marker to track.
+	@return {THREE.Object3D} Three.Object3D that tracks the given marker.
+*/
+artoolkit.createThreeBarcodeMarker = function(markerUID) {
+	var obj = new THREE.Object3D();
+	obj.matrixAutoUpdate = false;
+	this.barcodeMarkers[markerUID] = obj;
 	return obj;
 };

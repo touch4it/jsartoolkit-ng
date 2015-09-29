@@ -101,6 +101,20 @@ var createBox = function() {
 		light.position.set(-40, -20, -30);
 		arScene.scene.add(light);
 
+		var redCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xff3333 }) );
+		redCube.position.z = 0.5;
+
+		var markerRoot20 = artoolkit.createThreeBarcodeMarker(20);
+		arScene.scene.add(markerRoot20);
+		markerRoot20.add(redCube);
+
+		var blueCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x3333ff }) );
+		blueCube.position.z = 0.5;
+
+		var markerRoot5 = artoolkit.createThreeBarcodeMarker(5);
+		arScene.scene.add(markerRoot5);
+		markerRoot5.add(blueCube);
+
 		// Load the marker to use.
 		artoolkit.loadMarker('/bin/Data/patt.hiro', function(marker) {
 

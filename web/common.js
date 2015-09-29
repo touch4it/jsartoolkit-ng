@@ -245,6 +245,7 @@
 	// transfer image
 
 	function process(target) {
+
 		// console.time('draw');
 		ctx.drawImage(target, 0, 0, w, h); // draw video
 		// console.timeEnd('draw');
