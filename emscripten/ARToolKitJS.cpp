@@ -5,6 +5,8 @@
 #include <AR/arMulti.h>
 #include <emscripten.h>
 #include <string>
+#include <vector>
+#include <unordered_map>
 
 // ============================================================================
 //	Global variables
@@ -31,7 +33,17 @@ static ARdouble cameraLens[16];
 static ARdouble modelView[16];
 
 static char patt_name[]  = "/patt.hiro";
-static int			gPatt_id;				// Per-marker, but we are using only 1 marker.
+static int gPatt_id; // Running pattern marker id
+
+struct simple_marker {
+	int id;
+	ARdouble transform[3][4];
+	bool found;
+};
+
+std::vector<simple_marker> pattern_markers;
+std::unordered_map<int, simple_marker> barcode_markers;
+
 static ARPattHandle	*gARPattHandle = NULL;
 
 int patternDetectionMode = 0;
@@ -207,6 +219,11 @@ extern "C" {
 			exit(-1);
 		}
 
+		pattern_markers.push_back(simple_marker());
+		pattern_markers[gPatt_id].id = gPatt_id;
+		pattern_markers[gPatt_id].found = false;
+
+
 		return gPatt_id;
 	}
 
@@ -364,19 +381,88 @@ extern "C" {
 		int i, j, k;
 
 		k = -1;
+
+		ARMarkerInfo* marker;
+		simple_marker* match;
+
 		for (j = 0; j < arhandle->marker_num; j++) {
-			arGetTransMatSquare(ar3DHandle, &arhandle->markerInfo[j], width, transform);
+			marker = &arhandle->markerInfo[j];
+
+			// Pattern found
+			if (marker->idPatt > -1 && marker->idMatrix == -1) {
+				match = &pattern_markers[marker->idPatt];
+
+				if (!match->found) {
+					arGetTransMatSquare(ar3DHandle, marker, width, match->transform);
+				} else {
+					arGetTransMatSquareCont(ar3DHandle, marker, match->transform, width, match->transform);
+				}
+
+				// copy values
+				for (int x = 0; x < 3; x++) {
+					for (int y = 0; y < 4; y++) {
+						transform[x][y] = match->transform[x][y];
+					}
+				}
+			}
+			// Barcode found
+			else if (marker->idMatrix > -1) {
+				if (barcode_markers.find(marker->idMatrix) == barcode_markers.end()) {
+					barcode_markers[marker->idMatrix] = simple_marker();
+
+					match = &barcode_markers[marker->idMatrix];
+					match->found = true;
+					match->id = marker->idMatrix;
+					arGetTransMatSquare(ar3DHandle, marker, width, match->transform);
+				}
+				else {
+					match = &barcode_markers[marker->idMatrix];
+					arGetTransMatSquareCont(ar3DHandle, marker, match->transform, width, match->transform);
+				}
+				// copy values
+				for (int x = 0; x < 3; x++) {
+					for (int y = 0; y < 4; y++) {
+						transform[x][y] = match->transform[x][y];
+					}
+				}
+			}
+			// everything else
+			else {
+				arGetTransMatSquare(ar3DHandle, &arhandle->markerInfo[j], width, transform);
+			}
+
 			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 			transferMarker(&arhandle->markerInfo[j], j);
-			// if (arhandle->markerInfo[j].id == gPatt_id) {
-			// 	if (k == -1) k = j; // First marker detected.
-			// 	else if (arhandle->markerInfo[j].cf > arhandle->markerInfo[k].cf) k = j; // Higher confidence marker detected.
-			// }
 		}
 
-		// printf("Best match: %d\n", k);
-
 		arglCameraFrustumRH(&paramLT->param, NEAR_PLANE, FAR_PLANE, cameraLens);
+
+		// toggle transform found flag
+		for (j = 0; j < pattern_markers.size(); j++) {
+			match = &pattern_markers[j];
+			match->found = false;
+			for (k=0; k < arhandle->marker_num; k++) {
+				marker = &arhandle->markerInfo[k];
+				if (marker->idPatt == match->id && marker->idMatrix == -1) {
+					match->found = true;
+					break;
+				}
+			}
+		}
+
+		for (auto &any : barcode_markers) {
+			match = &any.second;
+			match->found = false;
+			for (k=0; k < arhandle->marker_num; k++) {
+				marker = &arhandle->markerInfo[k];
+				if (marker->idMatrix == -1) {
+					match->found = true;
+					break;
+				}
+			}
+
+			if (!match->found) barcode_markers.erase(marker->id);
+		}
 
 		if (arMultiConfig != NULL) {
 			int robustFlag = 1;
@@ -387,8 +473,12 @@ extern "C" {
 			} else {
 				err = arGetTransMatMultiSquare( ar3DHandle, markerInfo, markerNum, arMultiConfig );
 			}
-			arglCameraViewRH(arMultiConfig->trans, modelView, CAMERA_VIEW_SCALE);			
+			arglCameraViewRH(arMultiConfig->trans, modelView, CAMERA_VIEW_SCALE);
+		}
 
+		/*
+		if (!markerNum) {
+			transformContinue = 0;
 		} else {
 
 			if (!markerNum) {
@@ -405,10 +495,9 @@ extern "C" {
 				// arglCameraViewRH
 				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 			}
-
 		}
+		*/
 	}
 }
 
 #include "ARBindEM.cpp"
-
