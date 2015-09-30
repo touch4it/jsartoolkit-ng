@@ -22,8 +22,6 @@ static AR3DHandle* ar3DHandle;
 static ARdouble	transform[3][4];
 static int transformContinue = 0;
 
-static ARMultiMarkerInfoT* arMultiConfig;
-
 static ARdouble width = 40.0;
 static ARdouble CAMERA_VIEW_SCALE = 1.0;
 static ARdouble NEAR_PLANE = 0.0001;    ///< Near plane d	istance for projection matrix calculation
@@ -35,16 +33,26 @@ static ARdouble modelView[16];
 static char patt_name[]  = "/patt.hiro";
 static int gPatt_id; // Running pattern marker id
 
+
 struct simple_marker {
 	int id;
 	ARdouble transform[3][4];
 	bool found;
 };
 
+struct multi_marker {
+	int id;
+	ARMultiMarkerInfoT *multiMarkerHandle;
+	ARdouble transform[3][4];
+	bool found;
+};
+
 std::vector<simple_marker> pattern_markers;
+std::vector<multi_marker> multi_markers;
 std::unordered_map<int, simple_marker> barcode_markers;
 
 static ARPattHandle	*gARPattHandle = NULL;
+static ARMultiMarkerInfoT *gARMultiMarkerHandle = NULL;
 
 int patternDetectionMode = 0;
 AR_MATRIX_CODE_TYPE matrixType = AR_MATRIX_CODE_3x3;
@@ -192,15 +200,15 @@ extern "C" {
 		return (TRUE);
 	}
 
-	static int loadMultiMarker(const char *patt_name, ARHandle *arHandle, ARPattHandle **pattHandle_p) {
-		if( (arMultiConfig = arMultiReadConfigFile(patt_name, *pattHandle_p)) == NULL ) {
+	static int loadMultiMarker(const char *patt_name, ARHandle *arHandle, ARPattHandle **pattHandle_p, ARMultiMarkerInfoT **arMultiConfig) {
+		if( (*arMultiConfig = arMultiReadConfigFile(patt_name, *pattHandle_p)) == NULL ) {
 			ARLOGe("config data load error !!\n");
 			arPattDeleteHandle(*pattHandle_p);
 			return (FALSE);
 		}
-		if( arMultiConfig->patt_type == AR_MULTI_PATTERN_DETECTION_MODE_TEMPLATE ) {
+		if( (*arMultiConfig)->patt_type == AR_MULTI_PATTERN_DETECTION_MODE_TEMPLATE ) {
 			arSetPatternDetectionMode( arHandle, AR_TEMPLATE_MATCHING_COLOR );
-		} else if( arMultiConfig->patt_type == AR_MULTI_PATTERN_DETECTION_MODE_MATRIX ) {
+		} else if( (*arMultiConfig)->patt_type == AR_MULTI_PATTERN_DETECTION_MODE_MATRIX ) {
 			arSetPatternDetectionMode( arHandle, AR_MATRIX_CODE_DETECTION );
 		} else { // AR_MULTI_PATTERN_DETECTION_MODE_TEMPLATE_AND_MATRIX
 			arSetPatternDetectionMode( arHandle, AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX );
@@ -230,13 +238,20 @@ extern "C" {
 	int addMultiMarker(std::string patt_name) {
 		// const char *patt_name
 		// Load marker(s).
-		if (!loadMultiMarker(patt_name.c_str(), arhandle, &gARPattHandle)) {
+		if (!loadMultiMarker(patt_name.c_str(), arhandle, &gARPattHandle, &gARMultiMarkerHandle)) {
 			ARLOGe("main(): Unable to set up AR multimarker.\n");
 			teardown();
 			exit(-1);
 		}
 
-		return 0;
+		int gMultiMarker_id = 1000000000 - multi_markers.size();
+		multi_marker marker = multi_marker();
+		marker.id = gMultiMarker_id;
+		marker.found = false;
+		marker.multiMarkerHandle = gARMultiMarkerHandle;
+
+		multi_markers.push_back(marker);
+		return gMultiMarker_id;
 	}
 
 	void setThreshold(int threshold) {
@@ -270,6 +285,14 @@ extern "C" {
 		if (arSetImageProcMode(arhandle, mode) == 0) {
 			printf("Image proc. mode set to %d.", imageProcMode);
 		}
+	}
+
+	void transferMultiMarker(int index) {
+		EM_ASM_({
+			artoolkit.onGetMultiMarker($0);
+		},
+			index
+		);
 	}
 
 	void transferMarker(ARMarkerInfo* markerInfo, int index) {
@@ -384,6 +407,7 @@ extern "C" {
 
 		ARMarkerInfo* marker;
 		simple_marker* match;
+		multi_marker* multiMatch;
 
 		for (j = 0; j < arhandle->marker_num; j++) {
 			marker = &arhandle->markerInfo[j];
@@ -464,39 +488,36 @@ extern "C" {
 			if (!match->found) barcode_markers.erase(marker->id);
 		}
 
-		if (arMultiConfig != NULL) {
-			int robustFlag = 1;
-			int err = 0;
+		for (j = 0; j < multi_markers.size(); j++) {
+			multiMatch = &multi_markers[j];
+			multiMatch->found = false;
+			ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
 
-			if( robustFlag ) {
-				err = arGetTransMatMultiSquareRobust( ar3DHandle, markerInfo, markerNum, arMultiConfig );
-			} else {
-				err = arGetTransMatMultiSquare( ar3DHandle, markerInfo, markerNum, arMultiConfig );
-			}
-			arglCameraViewRH(arMultiConfig->trans, modelView, CAMERA_VIEW_SCALE);
-		}
-
-		/*
-		if (!markerNum) {
-			transformContinue = 0;
-		} else {
-
-			if (!markerNum) {
-				transformContinue = 0;
-			} else {
-				if (transformContinue) {
-					arGetTransMatSquareCont(ar3DHandle, markerInfo, transform, width, transform);
-				} else {
-					arGetTransMatSquare(ar3DHandle, markerInfo, width, transform);
-					transformContinue = 1;
+			for (k=0; k < arMulti->marker_num; k++) {
+				if (arMulti->marker[k].visible >= 0) {
+					multiMatch->found = true;
+					break;
 				}
+			}
+			// printf("multi marker %d, marker_num %d, found %d\n", multiMatch->id, arMulti->marker_num, multiMatch->found);
 
-				// Create the OpenGL projection from the calibrated camera parameters.
-				// arglCameraViewRH
-				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
+			if (true || multiMatch->found) {
+				int err = 0;
+				int robustFlag = 1;
+
+				if( robustFlag ) {
+					//printf("arGetTransMatMultiSquareRobust\n");
+					err = arGetTransMatMultiSquareRobust( ar3DHandle, markerInfo, markerNum, arMulti );
+				} else {
+					//printf("arGetTransMatMultiSquare\n");
+					err = arGetTransMatMultiSquare( ar3DHandle, markerInfo, markerNum, arMulti );
+				}
+				//printf("arglCameraViewRH\n");
+				arglCameraViewRH(arMulti->trans, modelView, CAMERA_VIEW_SCALE);
+				//printf("transferMultiMarker\n");
+				transferMultiMarker(multiMatch->id);
 			}
 		}
-		*/
 	}
 }
 

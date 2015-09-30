@@ -142,11 +142,6 @@ artoolkit.createThreeScene = function(video) {
 				artoolkit.multiMarkers[i].visible = false;
 			}
 			artoolkit.process(video);
-			for (var i in artoolkit.multiMarkers) {
-				var obj = artoolkit.multiMarkers[i];
-				obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
-				obj.visible = true;
-			}
 			camera.projectionMatrix.setFromArray(artoolkit.getCameraMatrix());
 		},
 
@@ -175,6 +170,19 @@ artoolkit.onGetMarker = function(marker) {
 		obj.visible = true;
 	}
 	var obj = this.barcodeMarkers[marker.idMatrix];
+	if (obj) {
+		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
+		obj.visible = true;
+	}
+};
+
+/**
+	Overrides the artoolkit.onGetMultiMarker method to keep track of Three.js multimarkers.
+
+	@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
+*/
+artoolkit.onGetMultiMarker = function(marker) {
+	var obj = this.multiMarkers[marker];
 	if (obj) {
 		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
 		obj.visible = true;
@@ -262,6 +270,7 @@ artoolkit.createThreeMarker = function(markerUID) {
 artoolkit.createThreeMultiMarker = function(markerUID) {
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
+	console.log('markerUID multimarker', markerUID);
 	this.multiMarkers[markerUID] = obj;
 	return obj;
 };

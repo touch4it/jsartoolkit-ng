@@ -28,6 +28,7 @@
 
 		onFrameMalloc: onFrameMalloc,
 		onGetMarker: onGetMarker,
+		onGetMultiMarker: onGetMultiMarker,
 		onMarkerNum: onMarkerNum,
 		debugSetup: debugSetup,
 
@@ -163,6 +164,10 @@
 		marker = object;
 		detected_markers[i] = marker;
 		// console.log(marker.id, marker.idMatrix, marker.cf);
+	}
+
+	function onGetMultiMarker(i) {
+		console.log('got multimarker', i);
 	}
 
 	function setup(_w, _h) {
