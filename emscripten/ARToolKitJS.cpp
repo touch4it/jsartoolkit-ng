@@ -244,14 +244,15 @@ extern "C" {
 			exit(-1);
 		}
 
-		int gMultiMarker_id = 1000000000 - multi_markers.size();
-		multi_marker marker = multi_marker();
-		marker.id = gMultiMarker_id;
-		marker.found = false;
-		marker.multiMarkerHandle = gARMultiMarkerHandle;
+		// int gMultiMarker_id = 1000000000 - multi_markers.size();
+		// multi_marker marker = multi_marker();
+		// marker.id = gMultiMarker_id;
+		// marker.found = false;
+		// marker.multiMarkerHandle = gARMultiMarkerHandle;
 
-		multi_markers.push_back(marker);
-		return gMultiMarker_id;
+		// multi_markers.push_back(marker);
+		// return gMultiMarker_id;
+		return gARMultiMarkerHandle->marker_num;
 	}
 
 	void setThreshold(int threshold) {
@@ -290,7 +291,7 @@ extern "C" {
 	void transferMultiMarker(int multiMarkerId) { //, int index, ARMultiEachMarkerInfoT *marker) {
 		EM_ASM_({
 			artoolkit.onGetMultiMarker($0
-			// , 
+			// ,
 			// {
 			// 	visible: $2,
 			// 	pattId: $3,
@@ -402,12 +403,12 @@ extern "C" {
 		int i, j;
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < 3; j++) {
-				dst[i][j] = 
+				dst[i][j] =
 					m[i][0] * n[0][j] +
 					m[i][1] * n[1][j] +
 					m[i][2] * n[2][j];
 			}
-			dst[i][j] = 
+			dst[i][j] =
 				m[i][0] * n[0][j] +
 				m[i][1] * n[1][j] +
 				m[i][2] * n[2][j] +
@@ -512,6 +513,53 @@ extern "C" {
 			//if (!match->found) barcode_markers.erase(marker->id);
 		}
 
+		int err = 0;
+
+		ARMultiMarkerInfoT *config = gARMultiMarkerHandle;
+		err = arGetTransMatMultiSquareRobust( ar3DHandle, markerInfo, markerNum, config );
+
+		EM_ASM_({
+			// console.log('\nmultimarker found', $0, 'vs', $1);
+		}, config->marker_num, markerNum
+		);
+
+
+		arglCameraViewRH(config->trans, modelView, CAMERA_VIEW_SCALE);
+		EM_ASM_({
+			eatMarkerRoot($0)
+		}, 1);
+
+		// gARMultiMarkerHandle
+		for (i = 0; i < config->marker_num; i++) {
+			arglCameraViewRH(config->marker[i].trans, modelView, CAMERA_VIEW_SCALE);
+
+
+			EM_ASM_({
+					eatthis($0)
+				}, i);
+
+
+			// if ( config->marker[i].visible >= 0 ) {
+			// 	EM_ASM_({
+			// 		// console.log('submarker found', $0);
+			// 	}, config->marker[i].visible
+			// 	);
+			// } else {
+
+			// }
+			//
+		}
+
+
+		// multi test
+		// glMatrixMode(GL_MODELVIEW);
+		// argConvGlpara(trans1, gl_para);
+		// glLoadMatrixd( gl_para );
+		// argConvGlpara(trans2, gl_para);
+
+
+		/*
+		// comment out the generalized block for now
 		for (j = 0; j < multi_markers.size(); j++) {
 			multiMatch = &multi_markers[j];
 			multiMatch->found = false;
@@ -535,6 +583,7 @@ extern "C" {
 			// 	transferMultiMarker(multiMatch->id, k, &(arMulti->marker[k]));
 			// }
 		}
+		*/
 	}
 }
 

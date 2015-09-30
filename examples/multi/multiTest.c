@@ -327,10 +327,10 @@ static void draw( ARdouble trans1[3][4], ARdouble trans2[3][4], int mode )
     GLfloat   mat_diffuse[]     = {0.0f, 0.0f, 1.0f, 1.0f};
     GLfloat   mat_diffuse1[]    = {1.0f, 0.0f, 0.0f, 1.0f};
     int       debugMode;
-    
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    
+
     /* load the camera transformation matrix */
     glMatrixMode(GL_MODELVIEW);
     argConvGlpara(trans1, gl_para);
@@ -354,7 +354,7 @@ static void draw( ARdouble trans1[3][4], ARdouble trans2[3][4], int mode )
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_color);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_color);
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_flash);
-    glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);	
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_flash_shiny);
     if( mode == 0 ) {
         glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
         glMaterialfv(GL_FRONT, GL_AMBIENT, mat_diffuse);
