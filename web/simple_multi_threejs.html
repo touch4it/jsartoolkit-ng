@@ -33,8 +33,8 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 
 		console.log('multi is', marker);
 
-		var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
-		greenCube.position.z = 0.5;
+		var greenCube = new THREE.Mesh( new THREE.BoxGeometry(40,40,40), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
+		greenCube.position.z = 20;
 
 		// Create an object that tracks the marker transform.
 		var markerRoot = artoolkit.createThreeMultiMarker(marker);

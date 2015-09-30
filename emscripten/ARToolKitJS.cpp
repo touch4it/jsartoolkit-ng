@@ -287,23 +287,26 @@ extern "C" {
 		}
 	}
 
-	void transferMultiMarker(int multiMarkerId, int index, ARMultiEachMarkerInfoT *marker) {
+	void transferMultiMarker(int multiMarkerId) { //, int index, ARMultiEachMarkerInfoT *marker) {
 		EM_ASM_({
-			artoolkit.onGetMultiMarker($0, 
-			{
-				visible: $2,
-				pattId: $3,
-				pattType: $4,
-				width: $5
-			},
-			$1);
+			artoolkit.onGetMultiMarker($0
+			// , 
+			// {
+			// 	visible: $2,
+			// 	pattId: $3,
+			// 	pattType: $4,
+			// 	width: $5
+			// },
+			// $1
+			);
 		},
-			multiMarkerId,
-			index,
-			marker->visible,
-			marker->patt_id,
-			marker->patt_type,
-			marker->width
+			multiMarkerId
+			// ,
+			// index,
+			// marker->visible,
+			// marker->patt_id,
+			// marker->patt_type,
+			// marker->width
 		);
 	}
 
@@ -513,7 +516,7 @@ extern "C" {
 				}
 			}
 
-			if (!match->found) barcode_markers.erase(marker->id);
+			//if (!match->found) barcode_markers.erase(marker->id);
 		}
 
 		for (j = 0; j < multi_markers.size(); j++) {
@@ -523,19 +526,21 @@ extern "C" {
 
 
 			int err = 0;
-			int robustFlag = 0;
+			int robustFlag = 1;
 
 			if( robustFlag ) {
 				err = arGetTransMatMultiSquareRobust( ar3DHandle, markerInfo, markerNum, arMulti );
 			} else {
 				err = arGetTransMatMultiSquare( ar3DHandle, markerInfo, markerNum, arMulti );
 			}
+			arglCameraViewRH(arMulti->trans, modelView, CAMERA_VIEW_SCALE);
+			transferMultiMarker(multiMatch->id);
 
-			for (k = 0; k < arMulti->marker_num; k++) {
-				matrixMul(transform, arMulti->trans, (arMulti->marker[k]).trans);
-				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
-				transferMultiMarker(multiMatch->id, k, &(arMulti->marker[k]));
-			}
+			// for (k = 0; k < arMulti->marker_num; k++) {
+			// 	matrixMul(transform, arMulti->trans, (arMulti->marker[k]).trans);
+			// 	arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
+			// 	transferMultiMarker(multiMatch->id, k, &(arMulti->marker[k]));
+			// }
 		}
 	}
 }
