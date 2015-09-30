@@ -287,11 +287,23 @@ extern "C" {
 		}
 	}
 
-	void transferMultiMarker(int index) {
+	void transferMultiMarker(int multiMarkerId, int index, ARMultiEachMarkerInfoT *marker) {
 		EM_ASM_({
-			artoolkit.onGetMultiMarker($0);
+			artoolkit.onGetMultiMarker($0, 
+			{
+				visible: $2,
+				pattId: $3,
+				pattType: $4,
+				width: $5
+			},
+			$1);
 		},
-			index
+			multiMarkerId,
+			index,
+			marker->visible,
+			marker->patt_id,
+			marker->patt_type,
+			marker->width
 		);
 	}
 
@@ -383,6 +395,22 @@ extern "C" {
 		);
 	}
 
+	void matrixMul(ARdouble dst[3][4], ARdouble m[3][4], ARdouble n[3][4]) {
+		int i, j;
+		for (i = 0; i < 3; i++) {
+			for (j = 0; j < 3; j++) {
+				dst[i][j] = 
+					m[i][0] * n[0][j] +
+					m[i][1] * n[1][j] +
+					m[i][2] * n[2][j];
+			}
+			dst[i][j] = 
+				m[i][0] * n[0][j] +
+				m[i][1] * n[1][j] +
+				m[i][2] * n[2][j] +
+				m[i][3];
+		}
+	}
 
 	void process() {
 
@@ -493,29 +521,20 @@ extern "C" {
 			multiMatch->found = false;
 			ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
 
-			for (k=0; k < arMulti->marker_num; k++) {
-				if (arMulti->marker[k].visible >= 0) {
-					multiMatch->found = true;
-					break;
-				}
+
+			int err = 0;
+			int robustFlag = 0;
+
+			if( robustFlag ) {
+				err = arGetTransMatMultiSquareRobust( ar3DHandle, markerInfo, markerNum, arMulti );
+			} else {
+				err = arGetTransMatMultiSquare( ar3DHandle, markerInfo, markerNum, arMulti );
 			}
-			// printf("multi marker %d, marker_num %d, found %d\n", multiMatch->id, arMulti->marker_num, multiMatch->found);
 
-			if (true || multiMatch->found) {
-				int err = 0;
-				int robustFlag = 1;
-
-				if( robustFlag ) {
-					//printf("arGetTransMatMultiSquareRobust\n");
-					err = arGetTransMatMultiSquareRobust( ar3DHandle, markerInfo, markerNum, arMulti );
-				} else {
-					//printf("arGetTransMatMultiSquare\n");
-					err = arGetTransMatMultiSquare( ar3DHandle, markerInfo, markerNum, arMulti );
-				}
-				//printf("arglCameraViewRH\n");
-				arglCameraViewRH(arMulti->trans, modelView, CAMERA_VIEW_SCALE);
-				//printf("transferMultiMarker\n");
-				transferMultiMarker(multiMatch->id);
+			for (k = 0; k < arMulti->marker_num; k++) {
+				matrixMul(transform, arMulti->trans, (arMulti->marker[k]).trans);
+				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
+				transferMultiMarker(multiMatch->id, k, &(arMulti->marker[k]));
 			}
 		}
 	}

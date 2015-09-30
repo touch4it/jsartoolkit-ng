@@ -181,7 +181,7 @@ artoolkit.onGetMarker = function(marker) {
 
 	@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
 */
-artoolkit.onGetMultiMarker = function(marker) {
+artoolkit.onGetMultiMarker = function(marker, subMarker, subMarkerID) {
 	var obj = this.multiMarkers[marker];
 	if (obj) {
 		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
