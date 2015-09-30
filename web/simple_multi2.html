@@ -16,13 +16,13 @@ canvas {
 
 var markers = [];
 
-function eatthis(i) {
-	// if (i == 4) console.log(artoolkit.getTransformationMatrix());
+artoolkit._eatthis = function(i) {
+	// if (i == 8) console.log(artoolkit.getTransformationMatrix());
 	markers[i].matrix.setFromArray(artoolkit.getTransformationMatrix());
 }
 
-function eatMarkerRoot() {
-	console.log(artoolkit.getTransformationMatrix());
+artoolkit._eatMarkerRoot = function() {
+	// console.log(artoolkit.getTransformationMatrix());
 	markerRoot.matrix.setFromArray(artoolkit.getTransformationMatrix());
 }
 
@@ -33,12 +33,8 @@ artoolkit.loadVideo = function(video, onSuccess) {
 
 
 	artoolkit.onReady(function() {
-
-
-
 		artoolkit.setup(video.width, video.height);
 		artoolkit.debugSetup();
-
 
 		var scenes = artoolkit.createThreeScene(video);
 		onSuccess(scenes)
@@ -52,6 +48,8 @@ artoolkit.loadVideo = function(video, onSuccess) {
 
 
 artoolkit.loadVideo(video, function(arScene) {
+
+window.scene = arScene.scene;
 
 	var renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
@@ -73,15 +71,33 @@ artoolkit.loadVideo(video, function(arScene) {
 		// Create an object that tracks the marker transform.
 		markerRoot = artoolkit.createThreeMultiMarker(999);
 		arScene.scene.add(markerRoot);
+		window.markerRoot = markerRoot;
+
+		console.log('oomo')
 
 		for (var i = 0; i < marker; i++) {
-			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
+			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true }) );
+
 			markers.push(greenCube);
-			greenCube.position.z = 20.4;
+			// greenCube.position.z = 10.5;
 			greenCube.visible = true;
+
+			console.log(i);
+
 			greenCube.matrixAutoUpdate = false;
-			markerRoot.add(greenCube);
+			scene.add(greenCube);;
 		}
+
+			// greenCube.matrixAutoUpdate = false;
+
+			var greenCube = new THREE.Mesh( new THREE.BoxGeometry(10,10,10), new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true }) );
+
+		window.greenCube = greenCube;
+		markerRoot.add(greenCube);
+		greenCube.position.z = 10.5;
+
+		// markerRoot.position.z = -20;
+		markerRoot.matrixAutoUpdate = false;
 
 		// console.log('multi is', marker);
 
