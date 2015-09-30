@@ -276,7 +276,7 @@ artoolkit.createThreeMultiMarker = function(markerUID) {
 };
 
 /**
-	Creates a Three.js marker Object3D for the given barcode marker UID. 
+	Creates a Three.js marker Object3D for the given barcode marker UID.
 	The marker Object3D tracks the marker pattern when it's detected in the video.
 
 	var markerRoot20 = artoolkit.createThreeBarcodeMarker(20);

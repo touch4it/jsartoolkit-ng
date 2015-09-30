@@ -316,7 +316,7 @@ extern "C" {
 		EM_ASM_({
 			var $a = arguments;
 			var i = 24;
-			artoolkit.onGetMarker({
+			artoolkit._onGetMarker({
 				area: $0,
 				id: $1,
 				idPatt: $2,
@@ -453,12 +453,7 @@ extern "C" {
 					arGetTransMatSquareCont(ar3DHandle, marker, match->transform, width, match->transform);
 				}
 
-				// copy values
-				for (int x = 0; x < 3; x++) {
-					for (int y = 0; y < 4; y++) {
-						transform[x][y] = match->transform[x][y];
-					}
-				}
+				arglCameraViewRH(match->transform, modelView, CAMERA_VIEW_SCALE);
 			}
 			// Barcode found
 			else if (marker->idMatrix > -1) {
@@ -474,19 +469,17 @@ extern "C" {
 					match = &barcode_markers[marker->idMatrix];
 					arGetTransMatSquareCont(ar3DHandle, marker, match->transform, width, match->transform);
 				}
-				// copy values
-				for (int x = 0; x < 3; x++) {
-					for (int y = 0; y < 4; y++) {
-						transform[x][y] = match->transform[x][y];
-					}
-				}
+
+				arglCameraViewRH(match->transform, modelView, CAMERA_VIEW_SCALE);
 			}
 			// everything else
 			else {
 				arGetTransMatSquare(ar3DHandle, &arhandle->markerInfo[j], width, transform);
+				// places transform matrix to modelView
+				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 			}
 
-			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
+			// send what we have down to JS land
 			transferMarker(&arhandle->markerInfo[j], j);
 		}
 
