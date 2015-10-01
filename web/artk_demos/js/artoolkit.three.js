@@ -140,6 +140,11 @@ artoolkit.createThreeScene = function(video) {
 			}
 			for (var i in artoolkit.multiMarkers) {
 				artoolkit.multiMarkers[i].visible = false;
+				for (var j=0; j<artoolkit.multiMarkers[i].markers.length; j++) {
+					if (artoolkit.multiMarkers[i].markers[j]) {
+						// artoolkit.multiMarkers[i].markers[j].visible = false;
+					}
+				}
 			}
 			artoolkit.process(video);
 			camera.projectionMatrix.setFromArray(artoolkit.getCameraMatrix());
@@ -181,11 +186,29 @@ artoolkit.onGetMarker = function(marker) {
 
 	@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
 */
-artoolkit.onGetMultiMarker = function(marker, subMarker, subMarkerID) {
+artoolkit.onGetMultiMarker = function(marker) {
 	var obj = this.multiMarkers[marker];
 	if (obj) {
 		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
 		obj.visible = true;
+	}
+};
+
+/**
+	Overrides the artoolkit.onGetMultiMarker method to keep track of Three.js multimarkers.
+
+	@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
+*/
+artoolkit.onGetMultiMarkerSub = function(marker, subMarker, subMarkerID) {
+	var obj = this.multiMarkers[marker];
+	if (obj && obj.markers && obj.markers[subMarkerID]) {
+		if (subMarker.visible >= 0) {
+			// console.log(artoolkit.getTransformationMatrix());
+			obj.markers[subMarkerID].matrix.setFromArray(artoolkit.getTransformationMatrix());
+			obj.markers[subMarkerID].material.color.setHex(0x00ff00);
+		} else {
+			obj.markers[subMarkerID].material.color.setHex(0xff0000);			
+		}
 	}
 };
 
@@ -225,7 +248,7 @@ artoolkit.loadMarker = artoolkit.addMarker;
 	Synonym for artoolkit.addMultiMarker.
 
 	@param {string} markerURL - The URL of the multimarker pattern file to load.
-	@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
+	@param {function} onSuccess - The success callback. Called with the id and the number of sub-markers of the loaded marker on a successful load.
 	@param {function} onError - The error callback. Called with the encountered error if the load fails.
 */
 artoolkit.loadMultiMarker = artoolkit.addMultiMarker;
@@ -270,7 +293,7 @@ artoolkit.createThreeMarker = function(markerUID) {
 artoolkit.createThreeMultiMarker = function(markerUID) {
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
-	console.log('markerUID multimarker', markerUID);
+	obj.markers = [];
 	this.multiMarkers[markerUID] = obj;
 	return obj;
 };

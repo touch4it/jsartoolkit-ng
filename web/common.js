@@ -196,8 +196,9 @@
 	function addMultiMarker(url, callback) {
 		var filename = '/multi_marker_' + multi_marker_count++;
 		ajax(url, filename, function() {
-			var id = Module._addMultiMarker(filename);
-			if (callback) callback(id);
+			var markerID = Module._addMultiMarker(filename);
+			var markerNum = Module._getMultiMarkerNum(markerID);
+			if (callback) callback(markerID, markerNum);
 		});
 	}
 

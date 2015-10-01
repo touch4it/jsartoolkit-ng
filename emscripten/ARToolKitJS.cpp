@@ -251,7 +251,16 @@ extern "C" {
 		marker.multiMarkerHandle = gARMultiMarkerHandle;
 
 		multi_markers.push_back(marker);
-		return gMultiMarker_id;
+
+		return marker.id;
+	}
+
+	int getMultiMarkerNum(int multiMarker_id) {
+		int id = -multiMarker_id + 1000000000;
+		if (multi_markers.size() <= id) {
+			return -1;
+		}
+		return (multi_markers[id].multiMarkerHandle)->marker_num;
 	}
 
 	void setThreshold(int threshold) {
@@ -287,26 +296,32 @@ extern "C" {
 		}
 	}
 
-	void transferMultiMarker(int multiMarkerId) { //, int index, ARMultiEachMarkerInfoT *marker) {
+	void transferMultiMarker(int multiMarkerId) {
 		EM_ASM_({
-			artoolkit.onGetMultiMarker($0
-			// , 
-			// {
-			// 	visible: $2,
-			// 	pattId: $3,
-			// 	pattType: $4,
-			// 	width: $5
-			// },
-			// $1
-			);
+			artoolkit.onGetMultiMarker($0);
 		},
 			multiMarkerId
-			// ,
-			// index,
-			// marker->visible,
-			// marker->patt_id,
-			// marker->patt_type,
-			// marker->width
+		);
+	}
+
+	void transferMultiMarkerSub(int multiMarkerId, int index, ARMultiEachMarkerInfoT *marker) {
+		EM_ASM_({
+			artoolkit.onGetMultiMarkerSub($0, 
+				{
+					visible: $2,
+					pattId: $3,
+					pattType: $4,
+					width: $5
+				},
+				$1
+			);
+		},
+			multiMarkerId,
+			index,
+			marker->visible,
+			marker->patt_id,
+			marker->patt_type,
+			marker->width
 		);
 	}
 
@@ -536,11 +551,11 @@ extern "C" {
 			arglCameraViewRH(arMulti->trans, modelView, CAMERA_VIEW_SCALE);
 			transferMultiMarker(multiMatch->id);
 
-			// for (k = 0; k < arMulti->marker_num; k++) {
-			// 	matrixMul(transform, arMulti->trans, (arMulti->marker[k]).trans);
-			// 	arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
-			// 	transferMultiMarker(multiMatch->id, k, &(arMulti->marker[k]));
-			// }
+			for (k = 0; k < arMulti->marker_num; k++) {
+				matrixMul(transform, arMulti->trans, arMulti->marker[k].trans);
+				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
+				transferMultiMarkerSub(multiMatch->id, k, &(arMulti->marker[k]));
+			}
 		}
 	}
 }

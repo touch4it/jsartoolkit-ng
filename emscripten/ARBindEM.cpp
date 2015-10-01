@@ -16,6 +16,7 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	function("setWidth", &setWidth);
 	function("_addMarker", &addMarker);
 	function("_addMultiMarker", &addMultiMarker);
+	function("_getMultiMarkerNum", &getMultiMarkerNum);
 
 
 	/* AR Toolkit C APIS */

@@ -28,18 +28,30 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 	light.position.set(-40, -20, -30);
 	arScene.scene.add(light);
 
+	var makeRedCube = function() {
+		var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xff3333 }) );
+		cube.matrixAutoUpdate = false;
+		cube.position.z = 0.5;
+		return cube;
+	};
+
 	// Load the marker to use.
-	artoolkit.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(marker) {
+	artoolkit.loadMultiMarker('/bin/Data/multi-barcode-4x3.dat', function(marker, markerNum) {
 
 		console.log('multi is', marker);
 
-		var greenCube = new THREE.Mesh( new THREE.BoxGeometry(40,40,40), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
-		greenCube.position.z = 20;
+		var greenCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x33ff33 }) );
+		greenCube.position.z = 0.5;
 
 		// Create an object that tracks the marker transform.
 		var markerRoot = artoolkit.createThreeMultiMarker(marker);
 		arScene.scene.add(markerRoot);
 		markerRoot.add(greenCube);
+
+		for (var i=0; i<markerNum; i++) {
+			markerRoot.markers[i] = makeRedCube();
+			arScene.scene.add(markerRoot.markers[i]);
+		}
 
 		var tick = function() {
 			requestAnimationFrame(tick);
