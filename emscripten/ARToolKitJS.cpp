@@ -29,6 +29,7 @@ static ARdouble FAR_PLANE = 1000.0;   ///< Far plane distance for projection mat
 
 static ARdouble cameraLens[16];
 static ARdouble modelView[16];
+static ARdouble matrix[16];
 
 static char patt_name[]  = "/patt.hiro";
 static int gPatt_id; // Running pattern marker id
@@ -331,7 +332,7 @@ extern "C" {
 		EM_ASM_({
 			var $a = arguments;
 			var i = 24;
-			artoolkit.onGetMarker({
+			artoolkit._onGetMarker({
 				area: $0,
 				id: $1,
 				idPatt: $2,
@@ -417,17 +418,48 @@ extern "C" {
 		int i, j;
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < 3; j++) {
-				dst[i][j] = 
+				dst[i][j] =
 					m[i][0] * n[0][j] +
 					m[i][1] * n[1][j] +
 					m[i][2] * n[2][j];
 			}
-			dst[i][j] = 
+			dst[i][j] =
 				m[i][0] * n[0][j] +
 				m[i][1] * n[1][j] +
 				m[i][2] * n[2][j] +
 				m[i][3];
 		}
+	}
+
+	void convertMatrixFormat( ARdouble para[3][4], ARdouble gl_para[16] ) {
+		int     i, j;
+
+		for( j = 0; j < 3; j++ ) {
+			for( i = 0; i < 4; i++ ) {
+				gl_para[i*4+j] = para[j][i];
+			}
+		}
+		gl_para[0*4+3] = gl_para[1*4+3] = gl_para[2*4+3] = 0.0;
+		gl_para[3*4+3] = 1.0;
+	}
+
+	void convert2(ARdouble origin[3][4], ARdouble convert[16]) {
+		convert[ 0] = origin[0][0];
+		convert[ 1] = origin[1][0];
+		convert[ 2] = origin[2][0];
+		convert[ 3] = 0.0;
+		convert[ 4] = origin[0][1];
+		convert[ 5] = origin[1][1];
+		convert[ 6] = origin[2][1];
+		convert[ 7] = 0.0;
+		convert[ 8] = origin[0][2];
+		convert[ 9] = origin[1][2];
+		convert[10] = origin[2][2];
+		convert[11] = 0.0;
+		convert[12] = origin[0][3];
+		convert[13] = origin[1][3];
+		convert[14] = origin[2][3];
+		convert[15] = 1.0;
 	}
 
 	void process() {
@@ -468,12 +500,7 @@ extern "C" {
 					arGetTransMatSquareCont(ar3DHandle, marker, match->transform, width, match->transform);
 				}
 
-				// copy values
-				for (int x = 0; x < 3; x++) {
-					for (int y = 0; y < 4; y++) {
-						transform[x][y] = match->transform[x][y];
-					}
-				}
+				arglCameraViewRH(match->transform, modelView, CAMERA_VIEW_SCALE);
 			}
 			// Barcode found
 			else if (marker->idMatrix > -1) {
@@ -489,19 +516,17 @@ extern "C" {
 					match = &barcode_markers[marker->idMatrix];
 					arGetTransMatSquareCont(ar3DHandle, marker, match->transform, width, match->transform);
 				}
-				// copy values
-				for (int x = 0; x < 3; x++) {
-					for (int y = 0; y < 4; y++) {
-						transform[x][y] = match->transform[x][y];
-					}
-				}
+
+				arglCameraViewRH(match->transform, modelView, CAMERA_VIEW_SCALE);
 			}
 			// everything else
 			else {
 				arGetTransMatSquare(ar3DHandle, &arhandle->markerInfo[j], width, transform);
+				// places transform matrix to modelView
+				arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
 			}
 
-			arglCameraViewRH(transform, modelView, CAMERA_VIEW_SCALE);
+			// send what we have down to JS land
 			transferMarker(&arhandle->markerInfo[j], j);
 		}
 
@@ -538,7 +563,6 @@ extern "C" {
 			multiMatch = &multi_markers[j];
 			multiMatch->found = false;
 			ARMultiMarkerInfoT *arMulti = multiMatch->multiMarkerHandle;
-
 
 			int err = 0;
 			int robustFlag = 1;

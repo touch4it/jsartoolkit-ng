@@ -27,9 +27,9 @@
 		addMultiMarker: addMultiMarker,
 
 		onFrameMalloc: onFrameMalloc,
-		onGetMarker: onGetMarker,
-		onGetMultiMarker: onGetMultiMarker,
 		onMarkerNum: onMarkerNum,
+		_onGetMarker: onGetMarker,
+
 		debugSetup: debugSetup,
 
 		getDetectedMarkers: function() {
@@ -163,11 +163,9 @@
 	function onGetMarker(object, i) {
 		marker = object;
 		detected_markers[i] = marker;
-		// console.log(marker.id, marker.idMatrix, marker.cf);
-	}
 
-	function onGetMultiMarker(i) {
-		console.log('got multimarker', i);
+		if (artoolkit.onGetMarker) artoolkit.onGetMarker(object, i);
+		// console.log(marker.id, marker.idMatrix, marker.cf);
 	}
 
 	function setup(_w, _h) {
