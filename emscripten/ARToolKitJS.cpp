@@ -8,6 +8,21 @@
 #include <vector>
 #include <unordered_map>
 
+
+struct simple_marker {
+	int id;
+	ARdouble transform[3][4];
+	bool found;
+};
+
+struct multi_marker {
+	int id;
+	ARMultiMarkerInfoT *multiMarkerHandle;
+	ARdouble transform[3][4];
+	bool found;
+};
+
+
 // ============================================================================
 //	Global variables
 // ============================================================================
@@ -34,20 +49,6 @@ static ARdouble matrix[16];
 static char patt_name[]  = "/patt.hiro";
 static int gPatt_id; // Running pattern marker id
 
-
-struct simple_marker {
-	int id;
-	ARdouble transform[3][4];
-	bool found;
-};
-
-struct multi_marker {
-	int id;
-	ARMultiMarkerInfoT *multiMarkerHandle;
-	ARdouble transform[3][4];
-	bool found;
-};
-
 std::vector<simple_marker> pattern_markers;
 std::vector<multi_marker> multi_markers;
 std::unordered_map<int, simple_marker> barcode_markers;
@@ -59,6 +60,129 @@ int patternDetectionMode = 0;
 AR_MATRIX_CODE_TYPE matrixType = AR_MATRIX_CODE_3x3;
 
 char cparam_name[] = "/camera_para.dat";
+
+
+/**
+	JSARController is the main class in JSARToolKit.
+	The JSARController hooks up a camera definition to the pattern detectors.
+
+	You give the JSARController a camera definition, the frame size, the type of patterns you want to detect,
+	and the pattern definitions. You can then pass images to JSARController and get back markers detected 
+	in the image.
+
+	To set up the JSARController, call JSARController::initialise with the video frame dimensions,
+	the camera definition data and pattern size and maximum pattern count.
+
+
+*/
+class JSARController {
+
+public:
+
+	bool initialise(const int width, const int height, const char* cameraBuff, const long cameraBuffLen, const int patternSize, const int patternCountMax);
+	bool shutdown(void);
+
+	bool initialiseBase(const int patternSize, const int patternCountMax);
+	void setProjectionNearPlane(const ARdouble projectionNearPlane);
+	void setProjectionFarPlane(const ARdouble projectionNearPlane);
+
+	void setVideoSize(const int width, const int height);
+
+	int getPatternCountMax();
+	void setPatternCountMax(const int patternCountMax);
+
+	ARdouble getScale();
+	void setScale(ARdouble cameraViewScale);
+
+	ARdouble getMarkerWidth();
+	void setMarkerWidth(ARdouble markerWidth); // ?
+
+	void getPatternDetectionMode(int mode);
+	void setPatternDetectionMode(int mode);
+
+	float getPattRatio();
+	void setPattRatio(float ratio);
+
+	int getMatrixCodeType();
+	void setMatrixCodeType(int matrixCodeType);
+
+	void setCameraParam(const char* cameraBuff, const long cameraBuffLen);
+
+	void addMarker(const char* markerBuff, const long markerBuffLen);
+	void addMultiMarker(const char* multiMarkerBuff, const long multiMarkerBuffLen);
+	void addBarcodeMarker(int barcodeID);
+
+	int getVideoThreshold();
+	void setVideoThreshold(int threshold);
+
+	int getVideoThresholdMode();
+	void setVideoThresholdMode(int mode);
+
+	int getLabelingMode();
+	void setLabelingMode(int mode);
+
+	int getBorderSize();
+	void setBorderSize(int borderSize);
+
+	int getImageProcMode();
+	void setImageProcMode(int mode);
+
+	int getNFTMultiMode();
+	void setNFTMultiMode(int mode);
+
+	// loadOpticalParams
+
+
+	// Marker management
+
+	// marker addMarker(markerConfig); ???
+	bool removeMarker(int markerUID); // ???
+	void removeAllMarkers();
+
+	// Markers
+	//
+	// marker.visible -> bool
+	// marker.getTransformation(matrix) -> bool
+	// marker.patternCount -> int
+	// marker.patternConfig -> something
+	// marker.getPatternImage -> image! woot? 
+	// marker.set/getOption -> :?
+
+
+
+private:
+	std::vector<simple_marker> m_patternMarkers;
+	std::vector<multi_marker> m_multiMarkers;
+	std::unordered_map<int, simple_marker> m_barcodeMarkers;
+
+	ARPattHandle *m_ARPattHandle = NULL;
+	ARMultiMarkerInfoT *m_ARMultiMarkerHandle = NULL;
+
+	int m_patternDetectionMode = 0;
+	AR_MATRIX_CODE_TYPE m_matrixType = AR_MATRIX_CODE_3x3;
+
+	ARParam m_ARParam;
+	ARParamLT *m_ARParamLT = NULL;
+	ARHandle *m_ARHandle = NULL;
+	ARUint8 *m_VideoFrame = NULL;
+	int m_VideoFrameSize;
+
+	AR3DHandle* m_AR3DHandle;
+
+	ARdouble m_transform[3][4];
+
+	ARdouble m_markerWidth = 40.0;
+	ARdouble m_cameraViewScale = 1.0;
+	ARdouble m_nearPlane = 0.0001;
+	ARdouble m_farPlane = 1000.0;
+
+	ARdouble m_cameraLens[16];
+	ARdouble m_modelView[16];
+	ARdouble m_matrix[16];
+
+	int m_pattId; // Running pattern marker id
+};
+
 
 extern "C" {
 	void setScale(ARdouble tmp) {

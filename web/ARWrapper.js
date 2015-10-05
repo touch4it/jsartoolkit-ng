@@ -1,20 +1,54 @@
-arw.registerLogCallback = function(callback) {
-	arw.logCallback = callback;
-};
+/*
 
-arw.initialiseAR = function() {
+	Main usage pattern:
 
-};
+	initialize
+	[startRunning] // because of the way HTML5 video source works, this is useless?
+	[registerLogCallback] // Uh? Is this needed?
+	[getError] // Is this needed?
+	{
+		[isRunning] // useless (see above)
+		getProjectionMatrix -> camera projection matrix
+		update(image) -> updates all the madness
 
-arw.initialiseARWithOptions = function(pattSize, pattCountMax) {
+		// Pattern detection config
 
-};
+		get / setVideoThreshold
+		get / setVideoThresholdMode
+		get / setLabelingMode
+		get / setPatternDetectionMode
+		get / setBorderSize
+		get / setMatrixCodeType
+		get / setImageProcMode
+		get / setNFTMultiMode
+		loadOpticalParams
+
+		// Marker management
+
+		addMarker(config) -> marker
+		removeMarker(marker)
+		removeAllMarkers()
+		marker.visible -> bool
+		marker.getTransformation(matrix)
+		marker.patternCount
+		marker.patternConfig
+		marker.patternImage
+		marker.set/getOption
+	}
+	[stopRunning] // because of the way HTML5 video source works, this is useless?
+	shutdown
+
+*/
+
+// Basic API
+
+arw.initialiseAR = Module.arwInitialiseAR;
+arw.initialiseARWithOptions = Module.arwInitialiseARWithOptions;
 
 arw.getARToolKitVersion = function() {
+	return "4.5.1";
 };
 
-arw.getError = function() {
-};
 
 arw.startRunning = function(vconf, cparaName, nearPlane, farPlane) {
 };
@@ -22,22 +56,11 @@ arw.startRunning = function(vconf, cparaName, nearPlane, farPlane) {
 arw.startRunningB = function(vconf, cparaBuff, nearPlane, farPlane) {
 };
 
-arw.startRunningStereo = function(vconfL, cparaNameL, vconfR, cparaNameR, transL2RName, nearPlane, farPlane) {
-};
+arw.isRunning = Module.arwIsRunning();
 
-arw.startRunningStereoB = function(vconfL, cparaBuffL, vconfR, cparaBuffR, transL2RBuff, nearPlane, farPlane) {
-};
+arw.stopRunning = Module.arwStopRunning();
 
-arw.isRunning = function() {
-};
-
-arw.stopRunning = function() {
-
-};
-
-arw.shutdownAR = function() {
-
-};
+arw.shutdownAR = Module.arwShutdownAR();
 
 arw.getProjectionMatrix = function(matrixFloatArray) {
 
@@ -210,3 +233,25 @@ arw.getMarkerOptionFloat = function (markerUID, option) {
 arw.loadOpticalParams = function (optical_param_name) {
 	// optical_param_buff, float *fovy_p, float *aspect_p, float m[16], float p[16]
 };
+
+
+// LOGGING
+
+arw.registerLogCallback = function(callback) {
+	arw.logCallback = callback;
+};
+
+arw.getError = function() {
+};
+
+
+// STEREO SUPPORT
+
+arw.startRunningStereo = function(vconfL, cparaNameL, vconfR, cparaNameR, transL2RName, nearPlane, farPlane) {
+};
+
+arw.startRunningStereoB = function(vconfL, cparaBuffL, vconfR, cparaBuffR, transL2RBuff, nearPlane, farPlane) {
+};
+
+
+
