@@ -8,8 +8,10 @@
 
 		if (typeof width !== 'number') {
 			var image = width;
+			camera = height;
 			w = image.videoWidth || image.width;
 			h = image.videoHeight || image.height;
+			this.image = image;
 		}
 
 		this.canvas = document.createElement('canvas');
@@ -72,6 +74,10 @@
 	};
 
 	ARController.prototype.process = function(image) {
+		if (!image) {
+			image = this.image;
+		}
+		
 		this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
 
 		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
@@ -135,7 +141,7 @@
 		ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2)
 		ctx.fillStyle = 'red'
 		ctx.fill()
-	}
+	};
 
 
 

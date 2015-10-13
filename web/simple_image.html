@@ -22,14 +22,12 @@ artoolkit.onReady(function() {
 
 	ar = new ARController(v);
 	ar.debugSetup();
-	// var id = artoolkit.setup(v.width, v.height);
-	// artoolkit.debugSetup();
 
 	interval = setTimeout(getFrame, 250);
 });
 
 function getFrame() {
-	ar.process(v);
+	ar.process();
 }
 
 </script>
