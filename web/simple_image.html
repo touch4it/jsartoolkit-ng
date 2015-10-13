@@ -14,17 +14,22 @@ kuva.jpg
 
 
 <script>
+
+var ar;
+
 artoolkit.init('../builds/', '/bin/Data/camera_para.dat');
 artoolkit.onReady(function() {
 
-	var id = artoolkit.setup(v.width, v.height);
-	artoolkit.debugSetup();
+	ar = new ARController(v);
+	ar.debugSetup();
+	// var id = artoolkit.setup(v.width, v.height);
+	// artoolkit.debugSetup();
 
 	interval = setTimeout(getFrame, 250);
 });
 
 function getFrame() {
-	artoolkit.process(v);
+	ar.process(v);
 }
 
 </script>
