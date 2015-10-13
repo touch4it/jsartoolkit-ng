@@ -72,9 +72,9 @@
 	};
 
 	ARController.prototype.process = function(image) {
-		this.ctx.drawImage(image, 0, 0, w, h); // draw video
+		this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
 
-		var imageData = this.ctx.getImageData(0, 0, w, h);
+		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 		var data = imageData.data;
 
 		if (this.dataHeap) {
@@ -93,7 +93,7 @@
 
 	ARController.prototype.debugDraw = function() {
 		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this.bwpointer, this.framesize);
-		var id = new ImageData(debugBuffer, w, h)
+		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
 		this.ctx.putImageData(id, 0, 0)
 
 		if (!marker) return;
