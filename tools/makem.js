@@ -122,13 +122,13 @@ if (USE_EMBIND) FLAGS += ' --bind ';
 if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH);
 
 /* DEBUG FLAGS */
-// var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
+var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
 // FLAGS += ' -s ASSERTIONS=2 '
-// FLAGS += ' -s ASSERTIONS=1 '
+FLAGS += ' -s ASSERTIONS=1 '
 // FLAGS += ' --profiling-funcs '
 // FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
-// FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
-// FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
+FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
+FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
 
 var INCLUDES = [
 	'include',

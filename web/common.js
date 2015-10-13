@@ -60,6 +60,8 @@
 	var w = 320, h = 240;
 	var canvas, ctx, image;
 
+	var arID;
+
 	var FUNCTIONS = [
 		// 'process',
 		// 'teardown',
@@ -115,11 +117,6 @@
 			artoolkit[n] = Module[n];
 		})
 
-		// for quick adjustments here. TODO cleanup
-		Module.setScale(1);
-		Module.setWidth(1);
-		artoolkit.setProjectionNearPlane(0.1)
-		artoolkit.setProjectionFarPlane(1000);
 
 		artoolkit.CONSTANTS = {};
 
@@ -144,7 +141,7 @@
 		else Module.onRuntimeInitialized = runWhenLoaded;
 	}
 
-	function onFrameMalloc(params) {
+	function onFrameMalloc(id, params) {
 		framepointer = params.framepointer;
 		framesize = params.framesize;
 
@@ -155,16 +152,17 @@
 		// console.log('matrices', camera_mat, transform_mat);
 	}
 
-	function onMarkerNum(number) {
+	function onMarkerNum(id, number) {
 		detected_markers = new Array(number);
 		// console.log('Detected', number);
 	}
 
-	function onGetMarker(object, i) {
+	function onGetMarker(object, i, id) {
+		console.log(arguments);
 		marker = object;
 		detected_markers[i] = marker;
 
-		if (artoolkit.onGetMarker) artoolkit.onGetMarker(object, i);
+		if (artoolkit.onGetMarker) artoolkit.onGetMarker(arID, object, i);
 		// console.log(marker.id, marker.idMatrix, marker.cf);
 	}
 
@@ -172,20 +170,27 @@
 		w = _w;
 		h = _h;
 
-		_setup(w, h, camera_path ? 1 : 0);
+		arID = _setup(w, h, camera_path ? 1 : 0);
+
+		Module.setScale(arID, 1);
+		Module.setWidth(arID, 1);
+		artoolkit.setProjectionNearPlane(arID, 0.1)
+		artoolkit.setProjectionFarPlane(arID, 1000);
 
 		// setup canvas
 		canvas = document.createElement('canvas');
 		canvas.width = w;
 		canvas.height = h;
 		ctx = canvas.getContext('2d')
+
+		return arID;
 	}
 
 	var marker_count = 0;
 	function addMarker(url, callback) {
 		var filename = '/marker_' + marker_count++;
 		ajax(url, filename, function() {
-			var id = Module._addMarker(filename);
+			var id = Module._addMarker(arID, filename);
 			if (callback) callback(id);
 		});
 	}
@@ -194,8 +199,8 @@
 	function addMultiMarker(url, callback) {
 		var filename = '/multi_marker_' + multi_marker_count++;
 		ajax(url, filename, function() {
-			var markerID = Module._addMultiMarker(filename);
-			var markerNum = Module._getMultiMarkerNum(markerID);
+			var markerID = Module._addMultiMarker(arID, filename);
+			var markerNum = Module._getMultiMarkerNum(arID, markerID);
 			if (callback) callback(markerID, markerNum);
 		});
 	}
@@ -204,7 +209,7 @@
 
 	function debugSetup() {
 		document.body.appendChild(canvas)
-		bwpointer = _setDebugMode(1);
+		bwpointer = _setDebugMode(arID, 1);
 	}
 
 	function debugDraw() {
@@ -269,7 +274,7 @@
 		console.timeEnd('transferImage');
 
 		// console.time('process')
-		_process();
+		_process(arID);
 		// console.timeEnd('process')
 
 		debugDraw();
