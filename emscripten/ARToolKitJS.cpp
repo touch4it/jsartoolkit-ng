@@ -142,6 +142,7 @@ extern "C" {
 	int setup(int width, int height, int load_camera) {
 		int id = gARControllerID++;
 		arController *arc = &(arControllers[id]);
+		arc->id = id;
 
 		arc->videoFrameSize = width * height * 4 * sizeof(ARUint8);
 		arc->videoFrame = (ARUint8*) malloc(arc->videoFrameSize);
@@ -149,7 +150,7 @@ extern "C" {
 		if (load_camera) {
 			if (arParamLoad(cparam_name, 1, &(arc->param)) < 0) {
 				ARLOGe("setupCamera(): Error loading parameter file %s for camera.\n", cparam_name);
-				return (FALSE);
+				return -1;
 			}
 
 			if (arc->param.xsize != width || arc->param.ysize != height) {
@@ -163,7 +164,7 @@ extern "C" {
 
 		if ((arc->paramLT = arParamLTCreate(&(arc->param), AR_PARAM_LT_DEFAULT_OFFSET)) == NULL) {
 			ARLOGe("setupCamera(): Error: arParamLTCreate.\n");
-			return (FALSE);
+			return -1;
 		}
 
 		printf("arParamLTCreated\n..%d, %d\n", (arc->paramLT->param).xsize, (arc->paramLT->param).ysize);
@@ -171,7 +172,7 @@ extern "C" {
 		// setup camera
 		if ((arc->arhandle = arCreateHandle(arc->paramLT)) == NULL) {
 			ARLOGe("setupCamera(): Error: arCreateHandle.\n");
-			return (FALSE);
+			return -1;
 		}
 		// AR_DEFAULT_PIXEL_FORMAT
 		int set = arSetPixelFormat(arc->arhandle, AR_PIXEL_FORMAT_RGBA);

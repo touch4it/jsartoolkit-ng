@@ -61172,17 +61172,17 @@ function _process($id) {
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
   $4 = __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0;
-  $5 = $4 + 196 | 0;
-  if (!(_arDetectMarker(HEAP32[$5 >> 2] | 0, HEAP32[$4 + 200 >> 2] | 0) | 0)) {
+  $5 = $4 + 204 | 0;
+  if (!(_arDetectMarker(HEAP32[$5 >> 2] | 0, HEAP32[$4 + 196 >> 2] | 0) | 0)) {
    HEAP32[$vararg_buffer >> 2] = 0;
    _printf(7840, $vararg_buffer) | 0;
    $12 = _arGetMarkerNum(HEAP32[$5 >> 2] | 0) | 0;
    $14 = _arGetMarker(HEAP32[$5 >> 2] | 0) | 0;
    _emscripten_asm_const_2(3, $id | 0, $12 | 0) | 0;
    $16 = $4 + 256 | 0;
-   $17 = $4 + 208 | 0;
-   $18 = $4 + 216 | 0;
-   $19 = $4 + 224 | 0;
+   $17 = $4 + 216 | 0;
+   $18 = $4 + 224 | 0;
+   $19 = $4 + 232 | 0;
    $20 = $4 + 280 | 0;
    $21 = HEAP32[$5 >> 2] | 0;
    if ((HEAP32[$21 + 44 >> 2] | 0) > 0) {
@@ -61246,7 +61246,7 @@ function _process($id) {
      $26 = HEAP32[$5 >> 2] | 0;
     } while (($j$022 | 0) < (HEAP32[$26 + 44 >> 2] | 0));
    }
-   _arglCameraFrustumRH(HEAP32[$4 + 192 >> 2] | 0, +HEAPF64[$4 + 232 >> 3], +HEAPF64[$4 + 240 >> 3], 8);
+   _arglCameraFrustumRH(HEAP32[$4 + 192 >> 2] | 0, +HEAPF64[$4 + 240 >> 3], +HEAPF64[$4 + 248 >> 3], 8);
    $75 = HEAP32[$4 + 260 >> 2] | 0;
    $76 = HEAP32[$16 >> 2] | 0;
    $80 = ($75 - $76 | 0) / 112 | 0;
@@ -66068,18 +66068,19 @@ function _setup($width, $height, $load_camera) {
  HEAP32[527] = $0 + 1;
  HEAP32[$id >> 2] = $0;
  $2 = __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $id) | 0;
+ HEAP32[$2 >> 2] = $0;
  $4 = Math_imul($width << 2, $height) | 0;
- $5 = $2 + 204 | 0;
+ $5 = $2 + 200 | 0;
  HEAP32[$5 >> 2] = $4;
  $6 = _malloc($4) | 0;
- $7 = $2 + 200 | 0;
+ $7 = $2 + 196 | 0;
  HEAP32[$7 >> 2] = $6;
  $$pre4 = $2 + 8 | 0;
  do if (!$load_camera) label = 7; else {
   if ((_arParamLoad(6412, 1, $$pre4, sp) | 0) < 0) {
    HEAP32[$vararg_buffer1 >> 2] = 6412;
    _arLog(3, 6517, $vararg_buffer1);
-   $$0 = 0;
+   $$0 = -1;
    break;
   }
   $11 = HEAP32[$$pre4 >> 2] | 0;
@@ -66100,7 +66101,7 @@ function _setup($width, $height, $load_camera) {
   HEAP32[$17 >> 2] = $16;
   if (!$16) {
    _arLog(3, 6649, $vararg_buffer7);
-   $$0 = 0;
+   $$0 = -1;
    break;
   }
   $21 = HEAP32[$16 + 4 >> 2] | 0;
@@ -66108,19 +66109,19 @@ function _setup($width, $height, $load_camera) {
   HEAP32[$vararg_buffer9 + 4 >> 2] = $21;
   _printf(6689, $vararg_buffer9) | 0;
   $23 = _arCreateHandle(HEAP32[$17 >> 2] | 0) | 0;
-  $24 = $2 + 196 | 0;
+  $24 = $2 + 204 | 0;
   HEAP32[$24 >> 2] = $23;
   if (!$23) {
    _arLog(3, 6716, $vararg_buffer13);
-   $$0 = 0;
+   $$0 = -1;
    break;
   }
   _arSetPixelFormat($23, 2) | 0;
   _puts(6755) | 0;
   $26 = _ar3DCreateHandle($$pre4) | 0;
-  HEAP32[$2 + 208 >> 2] = $26;
+  HEAP32[$2 + 216 >> 2] = $26;
   if (!$26) _arLog(3, 6775, $vararg_buffer15);
-  $29 = $2 + 248 | 0;
+  $29 = $2 + 208 | 0;
   if (!(HEAP32[$29 >> 2] | 0)) {
    $32 = _arPattCreateHandle() | 0;
    HEAP32[$29 >> 2] = $32;
@@ -66915,9 +66916,9 @@ function _addMultiMarker($id, $patt_name) {
  if (!(__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0)) $$0 = -1; else {
   $3 = __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0;
   if (!(HEAP8[$patt_name >> 0] & 1)) $15 = $patt_name + 1 | 0; else $15 = HEAP32[$patt_name + 8 >> 2] | 0;
-  $11 = HEAP32[$3 + 196 >> 2] | 0;
-  $12 = $3 + 248 | 0;
-  $13 = $3 + 252 | 0;
+  $11 = HEAP32[$3 + 204 >> 2] | 0;
+  $12 = $3 + 208 | 0;
+  $13 = $3 + 212 | 0;
   $16 = _arMultiReadConfigFile($15, HEAP32[$12 >> 2] | 0) | 0;
   HEAP32[$13 >> 2] = $16;
   if (!$16) {
@@ -67575,8 +67576,8 @@ function _addMarker($id, $patt_name) {
  if (!(__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0)) $$0 = -1; else {
   $4 = __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0;
   if (!(HEAP8[$patt_name >> 0] & 1)) $14 = $patt_name + 1 | 0; else $14 = HEAP32[$patt_name + 8 >> 2] | 0;
-  $11 = $4 + 308 | 0;
-  $12 = $4 + 248 | 0;
+  $11 = $4 + 300 | 0;
+  $12 = $4 + 208 | 0;
   $15 = _arPattLoad(HEAP32[$12 >> 2] | 0, $14) | 0;
   HEAP32[$11 >> 2] = $15;
   if (($15 | 0) < 0) {
@@ -70441,16 +70442,16 @@ function _teardown($id) {
  HEAP32[$0 >> 2] = $id;
  if (!(__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0)) $$0 = -1; else {
   $3 = __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0;
-  $4 = $3 + 200 | 0;
+  $4 = $3 + 196 | 0;
   $5 = HEAP32[$4 >> 2] | 0;
   if ($5) {
    _free($5);
    HEAP32[$4 >> 2] = 0;
-   HEAP32[$3 + 204 >> 2] = 0;
+   HEAP32[$3 + 200 >> 2] = 0;
   }
-  $8 = $3 + 196 | 0;
+  $8 = $3 + 204 | 0;
   _arPattDetach(HEAP32[$8 >> 2] | 0) | 0;
-  _arPattDeleteHandle(HEAP32[$3 + 248 >> 2] | 0) | 0;
+  _arPattDeleteHandle(HEAP32[$3 + 208 >> 2] | 0) | 0;
   _arDeleteHandle(HEAP32[$8 >> 2] | 0) | 0;
   _arParamLTFree($3 + 192 | 0) | 0;
   $$0 = 0;
@@ -70537,7 +70538,7 @@ function _setDebugMode($id, $enable) {
  $0 = sp + 4 | 0;
  HEAP32[$0 >> 2] = $id;
  if (!(__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0)) $$0 = 0; else {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 196 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 204 | 0;
   $6 = ($enable | 0) != 0;
   _arSetDebugMode(HEAP32[$4 >> 2] | 0, $6 & 1) | 0;
   HEAP32[$vararg_buffer >> 2] = $6 ? 7231 : 7235;
@@ -70625,7 +70626,7 @@ function _setPattRatio($id, $ratio) {
   $3 = __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0;
   if (!($ratio <= 0.0 | $ratio >= 1.0)) {
    $6 = $ratio;
-   $8 = HEAP32[$3 + 196 >> 2] | 0;
+   $8 = HEAP32[$3 + 204 >> 2] | 0;
    if ($8) if (!(_arSetPattRatio($8, $6) | 0)) {
     HEAPF64[$vararg_buffer >> 3] = $6;
     _printf(6463, $vararg_buffer) | 0;
@@ -70736,7 +70737,7 @@ function _setThreshold($id, $threshold) {
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
   $3 = __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0;
-  if ($threshold >>> 0 <= 255) if (!(_arSetLabelingThresh(HEAP32[$3 + 196 >> 2] | 0, $threshold) | 0)) {
+  if ($threshold >>> 0 <= 255) if (!(_arSetLabelingThresh(HEAP32[$3 + 204 >> 2] | 0, $threshold) | 0)) {
    HEAP32[$vararg_buffer >> 2] = $threshold;
    _printf(7186, $vararg_buffer) | 0;
   }
@@ -70988,7 +70989,7 @@ function _setPatternDetectionMode($id, $mode) {
  $0 = sp + 4 | 0;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 196 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 204 | 0;
   if (!(_arSetPatternDetectionMode(HEAP32[$4 >> 2] | 0, $mode) | 0)) {
    HEAP32[$vararg_buffer >> 2] = $mode;
    _printf(6429, $vararg_buffer) | 0;
@@ -71039,7 +71040,7 @@ function _setThresholdMode($id, $mode) {
  $0 = sp + 4 | 0;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 196 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 204 | 0;
   if (!(_arSetLabelingThreshMode(HEAP32[$4 >> 2] | 0, $mode) | 0)) {
    HEAP32[$vararg_buffer >> 2] = $mode;
    _printf(7206, $vararg_buffer) | 0;
@@ -71060,7 +71061,7 @@ function _setImageProcMode($id, $mode) {
  $0 = sp + 4 | 0;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 196 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 204 | 0;
   if (!(_arSetImageProcMode(HEAP32[$4 >> 2] | 0, $mode) | 0)) {
    HEAP32[$vararg_buffer >> 2] = $mode;
    _printf(7261, $vararg_buffer) | 0;
@@ -71081,7 +71082,7 @@ function _setLabelingMode($id, $mode) {
  $0 = sp + 4 | 0;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 196 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 204 | 0;
   if (!(_arSetLabelingMode(HEAP32[$4 >> 2] | 0, $mode) | 0)) {
    HEAP32[$vararg_buffer >> 2] = $mode;
    _printf(6493, $vararg_buffer) | 0;
@@ -71594,7 +71595,7 @@ function _setProjectionNearPlane($id, $projectionNearPlane) {
  $0 = sp;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 232 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 240 | 0;
   HEAPF64[$4 >> 3] = $projectionNearPlane;
  }
  STACKTOP = sp;
@@ -71637,7 +71638,7 @@ function _setProjectionFarPlane($id, $projectionFarPlane) {
  $0 = sp;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 240 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 248 | 0;
   HEAPF64[$4 >> 3] = $projectionFarPlane;
  }
  STACKTOP = sp;
@@ -71762,7 +71763,7 @@ function _setMatrixCodeType($id, $type) {
  $0 = sp;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 196 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 204 | 0;
   _arSetMatrixCodeType(HEAP32[$4 >> 2] | 0, $type) | 0;
  }
  STACKTOP = sp;
@@ -71963,7 +71964,7 @@ function _setWidth($id, $tmp) {
  $0 = sp;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 216 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 224 | 0;
   HEAPF64[$4 >> 3] = $tmp;
  }
  STACKTOP = sp;
@@ -71980,7 +71981,7 @@ function _setScale($id, $tmp) {
  $0 = sp;
  HEAP32[$0 >> 2] = $id;
  if (__ZNSt3__112__hash_tableINS_17__hash_value_typeIi12arControllerEENS_22__unordered_map_hasherIiS3_NS_4hashIiEELb1EEENS_21__unordered_map_equalIiS3_NS_8equal_toIiEELb1EEENS_9allocatorIS3_EEE4findIiEENS_15__hash_iteratorIPNS_11__hash_nodeIS3_PvEEEERKT_(2088, $0) | 0) {
-  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 224 | 0;
+  $4 = (__ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS_9allocatorINS_4pairIKiS1_EEEEEixERS8_(2088, $0) | 0) + 232 | 0;
   HEAPF64[$4 >> 3] = $tmp;
  }
  STACKTOP = sp;
@@ -72438,25 +72439,25 @@ function _get_buff($buf, $fp) {
 
 function __ZN12arControllerC2Ev($this) {
  $this = $this | 0;
- var $8 = 0, dest = 0, stop = 0;
+ var $10 = 0, dest = 0, stop = 0;
  HEAP32[$this + 192 >> 2] = 0;
  HEAP32[$this + 196 >> 2] = 0;
- HEAP32[$this + 200 >> 2] = 0;
- HEAPF64[$this + 216 >> 3] = 40.0;
- HEAPF64[$this + 224 >> 3] = 1.0;
- HEAPF64[$this + 232 >> 3] = .0001;
- HEAPF64[$this + 240 >> 3] = 1.0e3;
- $8 = $this + 296 | 0;
- dest = $this + 248 | 0;
- stop = dest + 48 | 0;
+ HEAP32[$this + 204 >> 2] = 0;
+ HEAP32[$this + 208 >> 2] = 0;
+ HEAP32[$this + 212 >> 2] = 0;
+ HEAPF64[$this + 224 >> 3] = 40.0;
+ HEAPF64[$this + 232 >> 3] = 1.0;
+ HEAPF64[$this + 240 >> 3] = .0001;
+ HEAPF64[$this + 248 >> 3] = 1.0e3;
+ $10 = $this + 296 | 0;
+ dest = $this + 256 | 0;
+ stop = dest + 40 | 0;
  do {
   HEAP32[dest >> 2] = 0;
   dest = dest + 4 | 0;
  } while ((dest | 0) < (stop | 0));
- HEAPF32[$8 >> 2] = 1.0;
+ HEAPF32[$10 >> 2] = 1.0;
  HEAP32[$this + 300 >> 2] = 0;
- HEAP32[$this + 304 >> 2] = 3;
- HEAP32[$this + 308 >> 2] = 0;
  return;
 }
 
@@ -72731,10 +72732,10 @@ function __ZNSt3__113unordered_mapIi12arControllerNS_4hashIiEENS_8equal_toIiEENS
  $this = $this | 0;
  $__k = $__k | 0;
  var $1 = 0, $5 = 0, $8 = 0;
- $1 = __Znwj(328) | 0;
+ $1 = __Znwj(320) | 0;
  HEAP32[$1 + 8 >> 2] = HEAP32[$__k >> 2];
  $5 = $1 + 16 | 0;
- _memset($5 | 0, 0, 312) | 0;
+ _memset($5 | 0, 0, 304) | 0;
  __ZN12arControllerC2Ev($5);
  HEAP32[$agg$result >> 2] = $1;
  $8 = $agg$result + 4 | 0;
@@ -74780,7 +74781,7 @@ var FUNCTION_TABLE_viiiiii = [b10,__ZNK10__cxxabiv117__class_type_info16search_a
 var FUNCTION_TABLE_iii = [b11,_compE,_addMarker,_addMultiMarker,_getMultiMarkerNum,__ZN10emscripten8internal7InvokerIiJiEE6invokeEPFiiEi,b11,b11];
 var FUNCTION_TABLE_viiii = [b12,__ZNK10__cxxabiv117__class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi];
 
-  return { _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_HAMMING63: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_HAMMING63, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION, _bitshift64Lshr: _bitshift64Lshr, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_EDC_FAIL: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_EDC_FAIL, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_PARITY65: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_PARITY65, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC, _bitshift64Shl: _bitshift64Shl, _fflush: _fflush, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5, _emscripten_bind_VoidPtr___destroy___0: _emscripten_bind_VoidPtr___destroy___0, _memset: _memset, _process: _process, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_OTSU: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_OTSU, ___cxa_demangle: ___cxa_demangle, _memcpy: _memcpy, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONFIDENCE: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONFIDENCE, _setThreshold: _setThreshold, _i64Subtract: _i64Subtract, _i64Add: _i64Add, _teardown: _teardown, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL, ___getTypeName: ___getTypeName, _setDebugMode: _setDebugMode, ___errno_location: ___errno_location, _free: _free, _memmove: _memmove, _setup: _setup, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST, _malloc: _malloc, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_9_3: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_9_3, __GLOBAL__sub_I_ARToolKitJS_cpp: __GLOBAL__sub_I_ARToolKitJS_cpp, __GLOBAL__sub_I_bind_cpp: __GLOBAL__sub_I_bind_cpp, runPostSets: runPostSets, _emscripten_replace_memory: _emscripten_replace_memory, stackAlloc: stackAlloc, stackSave: stackSave, stackRestore: stackRestore, establishStackSpace: establishStackSpace, setThrew: setThrew, setTempRet0: setTempRet0, getTempRet0: getTempRet0, dynCall_iiii: dynCall_iiii, dynCall_vid: dynCall_vid, dynCall_viiiii: dynCall_viiiii, dynCall_vi: dynCall_vi, dynCall_vii: dynCall_vii, dynCall_ii: dynCall_ii, dynCall_viii: dynCall_viii, dynCall_v: dynCall_v, dynCall_viid: dynCall_viid, dynCall_iiiii: dynCall_iiiii, dynCall_viiiiii: dynCall_viiiiii, dynCall_iii: dynCall_iii, dynCall_viiii: dynCall_viiii };
+  return { _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_HAMMING63: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_HAMMING63, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION, _bitshift64Lshr: _bitshift64Lshr, _emscripten_bind_VoidPtr___destroy___0: _emscripten_bind_VoidPtr___destroy___0, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_EDC_FAIL: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_EDC_FAIL, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_PARITY65: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_PARITY65, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC, _bitshift64Shl: _bitshift64Shl, _fflush: _fflush, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN, _memset: _memset, _process: _process, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_OTSU: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_OTSU, ___cxa_demangle: ___cxa_demangle, _memcpy: _memcpy, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_HEURISTIC_TROUBLESOME_MATRIX_CODES, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONFIDENCE: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONFIDENCE, _setThreshold: _setThreshold, _i64Subtract: _i64Subtract, _i64Add: _i64Add, _teardown: _teardown, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND, ___getTypeName: ___getTypeName, _setDebugMode: _setDebugMode, ___errno_location: ___errno_location, _free: _free, _memmove: _memmove, _setup: _setup, _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST: _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST, _malloc: _malloc, _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL: _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4, _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_9_3: _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_9_3, __GLOBAL__sub_I_ARToolKitJS_cpp: __GLOBAL__sub_I_ARToolKitJS_cpp, __GLOBAL__sub_I_bind_cpp: __GLOBAL__sub_I_bind_cpp, runPostSets: runPostSets, _emscripten_replace_memory: _emscripten_replace_memory, stackAlloc: stackAlloc, stackSave: stackSave, stackRestore: stackRestore, establishStackSpace: establishStackSpace, setThrew: setThrew, setTempRet0: setTempRet0, getTempRet0: getTempRet0, dynCall_iiii: dynCall_iiii, dynCall_vid: dynCall_vid, dynCall_viiiii: dynCall_viiiii, dynCall_vi: dynCall_vi, dynCall_vii: dynCall_vii, dynCall_ii: dynCall_ii, dynCall_viii: dynCall_viii, dynCall_v: dynCall_v, dynCall_viid: dynCall_viid, dynCall_iiiii: dynCall_iiiii, dynCall_viiiiii: dynCall_viiiiii, dynCall_iii: dynCall_iii, dynCall_viiii: dynCall_viiii };
 })
 // EMSCRIPTEN_END_ASM
 (Module.asmGlobalArg, Module.asmLibraryArg, buffer);
@@ -74808,10 +74809,10 @@ assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it a
 return real__bitshift64Lshr.apply(null, arguments);
 };
 
-var real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"]; asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"] = function() {
+var real__emscripten_bind_VoidPtr___destroy___0 = asm["_emscripten_bind_VoidPtr___destroy___0"]; asm["_emscripten_bind_VoidPtr___destroy___0"] = function() {
 assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
 assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-return real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN.apply(null, arguments);
+return real__emscripten_bind_VoidPtr___destroy___0.apply(null, arguments);
 };
 
 var real__emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE"]; asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE"] = function() {
@@ -74874,10 +74875,10 @@ assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it a
 return real__emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5.apply(null, arguments);
 };
 
-var real__emscripten_bind_VoidPtr___destroy___0 = asm["_emscripten_bind_VoidPtr___destroy___0"]; asm["_emscripten_bind_VoidPtr___destroy___0"] = function() {
+var real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"]; asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"] = function() {
 assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
 assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-return real__emscripten_bind_VoidPtr___destroy___0.apply(null, arguments);
+return real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN.apply(null, arguments);
 };
 
 var real__process = asm["_process"]; asm["_process"] = function() {
@@ -74946,10 +74947,10 @@ assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it a
 return real__emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI.apply(null, arguments);
 };
 
-var real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"]; asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"] = function() {
+var real__emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"]; asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"] = function() {
 assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
 assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-return real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL.apply(null, arguments);
+return real__emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND.apply(null, arguments);
 };
 
 var real____getTypeName = asm["___getTypeName"]; asm["___getTypeName"] = function() {
@@ -75000,10 +75001,10 @@ assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it a
 return real__malloc.apply(null, arguments);
 };
 
-var real__emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"]; asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"] = function() {
+var real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"]; asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"] = function() {
 assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
 assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-return real__emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND.apply(null, arguments);
+return real__emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL.apply(null, arguments);
 };
 
 var real__emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4 = asm["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4"]; asm["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4"] = function() {
@@ -75021,7 +75022,7 @@ var _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3_HAMMING63 = Module["
 var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_PATTERN_EXTRACTION"];
 var __GLOBAL__sub_I_ARToolKitJS_cpp = Module["__GLOBAL__sub_I_ARToolKitJS_cpp"] = asm["__GLOBAL__sub_I_ARToolKitJS_cpp"];
 var _bitshift64Lshr = Module["_bitshift64Lshr"] = asm["_bitshift64Lshr"];
-var _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN = Module["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"] = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"];
+var _emscripten_bind_VoidPtr___destroy___0 = Module["_emscripten_bind_VoidPtr___destroy___0"] = asm["_emscripten_bind_VoidPtr___destroy___0"];
 var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_NONE"];
 var _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3 = Module["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3"] = asm["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_3x3"];
 var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR"];
@@ -75032,7 +75033,7 @@ var _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_OTSU =
 var _bitshift64Shl = Module["_bitshift64Shl"] = asm["_bitshift64Shl"];
 var _fflush = Module["_fflush"] = asm["_fflush"];
 var _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5 = Module["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5"] = asm["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_5_5"];
-var _emscripten_bind_VoidPtr___destroy___0 = Module["_emscripten_bind_VoidPtr___destroy___0"] = asm["_emscripten_bind_VoidPtr___destroy___0"];
+var _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN = Module["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"] = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_AUTO_MEDIAN"];
 var _memset = Module["_memset"] = asm["_memset"];
 var _process = Module["_process"] = asm["_process"];
 var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_GENERIC"];
@@ -75046,7 +75047,7 @@ var __GLOBAL__sub_I_bind_cpp = Module["__GLOBAL__sub_I_bind_cpp"] = asm["__GLOBA
 var _i64Add = Module["_i64Add"] = asm["_i64Add"];
 var _teardown = Module["_teardown"] = asm["_teardown"];
 var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI"];
-var _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL = Module["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"] = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"];
+var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"];
 var ___getTypeName = Module["___getTypeName"] = asm["___getTypeName"];
 var _setDebugMode = Module["_setDebugMode"] = asm["_setDebugMode"];
 var ___errno_location = Module["___errno_location"] = asm["___errno_location"];
@@ -75056,7 +75057,7 @@ var _memmove = Module["_memmove"] = asm["_memmove"];
 var _setup = Module["_setup"] = asm["_setup"];
 var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_CONTRAST"];
 var _malloc = Module["_malloc"] = asm["_malloc"];
-var _emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND = Module["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"] = asm["_emscripten_enum_AR_MARKER_INFO_CUTOFF_PHASE_AR_MARKER_INFO_CUTOFF_PHASE_MATCH_BARCODE_NOT_FOUND"];
+var _emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL = Module["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"] = asm["_emscripten_enum_AR_LABELING_THRESH_MODE_AR_LABELING_THRESH_MODE_MANUAL"];
 var _emscripten_replace_memory = Module["_emscripten_replace_memory"] = asm["_emscripten_replace_memory"];
 var _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4 = Module["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4"] = asm["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4"];
 var _emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_9_3 = Module["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_9_3"] = asm["_emscripten_enum_AR_MATRIX_CODE_TYPE_AR_MATRIX_CODE_4x4_BCH_13_9_3"];

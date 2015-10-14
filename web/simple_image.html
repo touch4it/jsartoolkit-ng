@@ -3,6 +3,9 @@
 <script src="common.js"></script>
 
 <img id="v" src="tests/img.jpg"></img>
+<img id="v1" src="tests/chalk.jpg"></img>
+<img id="v2" src="tests/chalk_multi.jpg"></img>
+<img id="v3" src="tests/kuva.jpg"></img>
 
 <!--
 img
@@ -15,20 +18,27 @@ kuva.jpg
 
 <script>
 
-var ar;
-
 artoolkit.init('../builds/', '/bin/Data/camera_para.dat');
 artoolkit.onReady(function() {
 
-	ar = new ARController(v);
-	ar.debugSetup();
+	var ar1 = new ARController(v);
+	ar1.debugSetup();
 
-	interval = setTimeout(getFrame, 250);
+	var ar2 = new ARController(v1);
+	ar2.debugSetup();
+
+	var ar3 = new ARController(v2);
+	ar3.debugSetup();
+	ar3.process();
+
+	var ar4 = new ARController(v3);
+	ar4.debugSetup();
+	ar4.process();
+
+	ar1.process();
+	ar2.process();
+
 });
-
-function getFrame() {
-	ar.process();
-}
 
 </script>
 
