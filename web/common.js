@@ -77,7 +77,7 @@
 		if (!image) {
 			image = this.image;
 		}
-		
+
 		this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
 
 		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
@@ -141,6 +141,41 @@
 		ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2)
 		ctx.fillStyle = 'red'
 		ctx.fill()
+	};
+
+
+	var ARCameraParam = function() {
+		this.id = -1;
+		this._src = '';
+		this.complete = false;
+	};
+
+	Object.defineProperty(ARCameraParam.prototype, 'src', {
+		set: function(src) {
+			if (src === this._src) {
+				return;
+			}
+			this.dispose();
+			this._src = src;
+			if (src) {
+				var self = this;
+				artoolkit.loadCameraParam(src, function(id) {
+					self.id = id;
+					self.complete = true;
+					self.onload();
+				});
+			}
+		},
+		get: function() {
+			return this._src;
+		}
+	});
+
+	ARCameraParam.prototype.dispose = function() {
+		artoolkit.disposeCameraParam(this.id);
+		this.id = -1;
+		this._src = '';
+		this.complete = false;
 	};
 
 
@@ -435,5 +470,7 @@
 	window.Module = Module;
 	window.artoolkit = artoolkit;
 	window.ARController = ARController;
+	window.ARCameraParam = ARCameraParam;
+
 
 })();
