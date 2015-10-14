@@ -147,7 +147,6 @@ var EXPORTED_FUNCTIONS = JSON.stringify(
 
 		'setDebugMode',
 		'setThreshold',
-		'startSetupMarker'
 	].map(function(x) { return '_' + x; })
 );
 
