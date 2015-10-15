@@ -24,6 +24,7 @@ var MEM = 256 * 1024 * 1024; // 64MB
 var SOURCE_PATH = 'emscripten/';
 var OUTPUT_PATH = 'builds/';
 var BUILD_FILE = 'artoolkit.js';
+var BUILD_MIN_FILE = 'artoolkit.min.js';
 
 var MAIN_SOURCES = HAVE_NFT ? [
 	'ARMarkerNFT.c',
@@ -119,7 +120,8 @@ FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
 // FLAGS += ' -s FULL_ES2=1 '
 FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
 FLAGS += ' --memory-init-file 0 '; // for memless file
-FLAGS += ' --pre-js web/common.js ';
+
+var PRE_FLAGS = ' --pre-js web/common.js ';
 
 if (USE_EMBIND) FLAGS += ' --bind ';
 if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH);
@@ -226,6 +228,12 @@ var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
 	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
 	OUTPUT_PATH, OUTPUT_PATH, BUILD_FILE);
 
+var compile_combine_min = format(EMCC + ' ' + INCLUDES + ' '
+	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
+	+ FLAGS + ' ' + DEFINES + PRE_FLAGS + ' -o {OUTPUT_PATH}{BUILD_FILE} '
+	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
+	OUTPUT_PATH, OUTPUT_PATH, BUILD_MIN_FILE);
+
 var compile_all = format(EMCC + ' ' + INCLUDES + ' '
 	+ ar_sources.join(' ')
 	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} '
@@ -275,6 +283,7 @@ addJob(compile_arlib);
 // compile_kpm
 // addJob(compile_libjpeg);
 addJob(compile_combine);
+addJob(compile_combine_min);
 // addJob(compile_all);
 
 runJob();
