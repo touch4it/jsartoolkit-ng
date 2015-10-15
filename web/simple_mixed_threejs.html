@@ -6,15 +6,16 @@ canvas {
 }
 </style>
 
+<script src="../builds/artoolkit.js"></script>
 <script src="common.js"></script>
 <script src="artk_demos/js/third_party/three.js/three.min.js"></script>
 <script src="artk_demos/js/artoolkit.three.js"></script>
 
 <script>
 
-artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
+ARController.getUserMediaThreeScene(720, 480, '/bin/Data/camera_para.dat', function(arScene, arController, arCamera) {
 
-	artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
+	arController.setPatternDetectionMode(artoolkit.CONSTANTS.AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX);
 
 	var renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
@@ -34,7 +35,7 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 	redCube.position.z = 0.5;
 
 	// See /doc/patterns/Matrix code 3x3 (72dpi)/20.png
-	var markerRoot20 = artoolkit.createThreeBarcodeMarker(20);
+	var markerRoot20 = arController.createThreeBarcodeMarker(20);
 	arScene.scene.add(markerRoot20);
 	markerRoot20.add(redCube);
 
@@ -42,12 +43,12 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 	blueCube.position.z = 0.5;
 
 	// See /doc/patterns/Matrix code 3x3 (72dpi)/5.png
-	var markerRoot5 = artoolkit.createThreeBarcodeMarker(5);
+	var markerRoot5 = arController.createThreeBarcodeMarker(5);
 	arScene.scene.add(markerRoot5);
 	markerRoot5.add(blueCube);
 
 	// Load the marker to use.
-	artoolkit.loadMarker('/bin/Data/patt.hiro', function(marker) {
+	arController.loadMarker('/bin/Data/patt.hiro', function(marker) {
 
 		console.log('hiro is', marker);
 
@@ -55,14 +56,14 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 		greenCube.position.z = 0.5;
 
 		// Create an object that tracks the marker transform.
-		var markerRoot = artoolkit.createThreeMarker(marker);
+		var markerRoot = arController.createThreeMarker(marker);
 		arScene.scene.add(markerRoot);
 		markerRoot.add(greenCube);
 
 	});
 
 	// Load the marker to use.
-	artoolkit.loadMarker('/bin/Data/patt.kanji', function(marker) {
+	arController.loadMarker('/bin/Data/patt.kanji', function(marker) {
 
 		console.log('kanji is', marker);
 
@@ -70,7 +71,7 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 		greenCube.position.z = 0.5;
 
 		// Create an object that tracks the marker transform.
-		var markerRoot = artoolkit.createThreeMarker(marker);
+		var markerRoot = arController.createThreeMarker(marker);
 		arScene.scene.add(markerRoot);
 		markerRoot.add(greenCube);
 

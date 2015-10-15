@@ -40,7 +40,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 	@param {function} onSuccess - Called on successful initialization with an ThreeARScene object.
 	@param {function} onError - Called if the initialization fails with the error encountered.
 */
-artoolkit.getUserMediaThreeScene = function(width, height, cameraParamURL, onSuccess, onError) {
+ARController.getUserMediaThreeScene = function(width, height, cameraParamURL, onSuccess, onError) {
 	if (!onError) {
 		onError = function(err) {
 			console.log("ERROR: artoolkit.getUserMediaThreeScene");
@@ -254,7 +254,7 @@ ARController.prototype.setupThree = function() {
 	@param {function} onError - The error callback. Called with the encountered error if the load fails.
 */
 ARController.prototype.loadMarker = function(markerURL, onSuccess, onError) {
-	return artoolkit.addMarker(markerURL, onSuccess, onError);
+	return artoolkit.addMarker(this.id, markerURL, onSuccess, onError);
 };
 
 /**
@@ -269,7 +269,7 @@ ARController.prototype.loadMarker = function(markerURL, onSuccess, onError) {
 	@param {function} onError - The error callback. Called with the encountered error if the load fails.
 */
 ARController.prototype.loadMultiMarker = function(markerURL, onSuccess, onError) {
-	return artoolkit.addMultiMarker(markerURL, onSuccess, onError);
+	return artoolkit.addMultiMarker(this.id, markerURL, onSuccess, onError);
 };
 
 /**
