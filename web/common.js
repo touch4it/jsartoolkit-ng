@@ -1,7 +1,6 @@
 (function() {
 	'use strict'
 
-
 	var ARController = function(width, height, camera) {
 		var id;
 		var w = width, h = height;
@@ -22,7 +21,46 @@
 		this.addEventListeners();
 
 		this.id = artoolkit.setup(w, h, camera.id);
+
+		this.setScale(1);
+		this.setMarkerWidth(1);
+		this.setProjectionNearPlane(0.1)
+		this.setProjectionFarPlane(1000);
+
 	};
+
+	ARController.prototype.setScale = function(value) {
+		return artoolkit.setScale(this.id, value);
+	};
+
+	ARController.prototype.getScale = function() {
+		return artoolkit.getScale(this.id);
+	};
+
+	ARController.prototype.setMarkerWidth = function(value) {
+		return artoolkit.setMarkerWidth(this.id, value);
+	};
+
+	ARController.prototype.getMarkerWidth = function() {
+		return artoolkit.getMarkerWidth(this.id);
+	};
+
+	ARController.prototype.setProjectionNearPlane = function(value) {
+		return artoolkit.setProjectionNearPlane(this.id, value);
+	};
+
+	ARController.prototype.getProjectionNearPlane = function() {
+		return artoolkit.getProjectionNearPlane(this.id);
+	};
+
+	ARController.prototype.setProjectionFarPlane = function(value) {
+		return artoolkit.setProjectionFarPlane(this.id, value);
+	};
+
+	ARController.prototype.getProjectionFarPlane = function() {
+		return artoolkit.getProjectionFarPlane(this.id);
+	};
+
 
 	ARController.prototype.addEventListeners = function() {
 
@@ -69,10 +107,6 @@
 
 	};
 
-	ARController.prototype.debugSetup = function() {
-		artoolkit.debugSetup(this.id);
-	};
-
 	ARController.prototype.process = function(image) {
 		if (!image) {
 			image = this.image;
@@ -101,8 +135,6 @@
 		var debugBuffer = new Uint8ClampedArray(Module.HEAPU8.buffer, this.bwpointer, this.framesize);
 		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
 		this.ctx.putImageData(id, 0, 0)
-
-		if (!marker) return;
 
 		for (var i=0; i<detected_markers.length; i++) {
 			this.debugMarker(detected_markers[i]);
@@ -182,25 +214,8 @@
 
 
 
-	var path = '';
-
-	var EMSCRIPTEN_FILE = 'artoolkit.js';
-	var EMSCRIPTEN_MEM_FILE = 'artoolkit.js.mem';
-
-	// Emscripten Module
-	var Module = {
-		onRuntimeInitialized: function() {
-			ready = true;
-		},
-		locateFile: function(mem_file) {
-			return path + EMSCRIPTEN_MEM_FILE;
-		}
-	};
-
 	// ARToolKit JS API
 	var artoolkit = {
-		init: init,
-		onReady: onReady,
 		setup: setup,
 		process: process,
 
@@ -252,28 +267,13 @@
 		getCameraMatrix: function() {
 			return camera_mat;
 		},
+
 		getTransformationMatrix: function() {
 			return transform_mat;
-		},
-
-		registerMarker: function(marker) {
-			return -1;
 		}
 	};
 
-	var framepointer = 0, framesize = 0;
-	var marker;
-
-	var camera_mat;
-	var transform_mat;
-	 // = new Float32Array(16);
 	var detected_markers = [];
-
-	var ready = false;
-	var w = 320, h = 240;
-	var canvas, ctx, image;
-
-	var arID;
 
 	var FUNCTIONS = [
 		// 'process',
@@ -282,6 +282,9 @@
 
 		'setProjectionNearPlane',
 		'setProjectionFarPlane',
+
+		'setScale',
+		'setMarkerWidth',
 
 		'setThresholdMode',
 		'setThreshold',
@@ -293,38 +296,10 @@
 		'setPattRatio',
 	];
 
-	var files_to_load = [
-		// Array Tuples of [ajax path, fs path]
-		// ['bin/Data/patt.hiro', '/patt.hiro'],
-		// ['bin/Data/camera_para.dat', '/camera_para.dat'],
-		// [path + '../bin/Data2/markers2.dat', '/Data2/markers.dat'],
-		// [path + '../bin/DataNFT/pinball.fset3', '/Data2/pinball.fset3'],
-		// [path + '../bin/DataNFT/pinball.iset', '/Data2/pinball.iset'],
-		// [path + '../bin/DataNFT/pinball.fset', '/Data2/pinball.fset'],
-	];
-
-	var readyFunc;
-	var camera_path;
-
-	// Initalize base path for loading emscripten
-	// Also loads path for camera info
-	function init(p) {
-		path = p.slice(-1) === '/' ? p : p + '/';
-		var script = document.createElement('script');
-		script.src = path + EMSCRIPTEN_FILE;
-		document.body.appendChild(script);
-
-		return this;
-	}
-
-
-
-
 	function runWhenLoaded() {
 		FUNCTIONS.forEach(function(n) {
 			artoolkit[n] = Module[n];
 		})
-
 
 		artoolkit.CONSTANTS = {};
 
@@ -332,34 +307,10 @@
 			if (m.match(/^AR/))
 			artoolkit.CONSTANTS[m] = Module[m];
 		}
-
-		// FS
-		// FS.mkdir('/DataNFT');
-
-		ajaxDependencies(files_to_load, function() {
-			if (readyFunc) readyFunc();
-		});
-
-		ready = true;
-	}
-
-	function onReady(ofunc) {
-		readyFunc = ofunc;
-		if (ready) runWhenLoaded();
-		else Module.onRuntimeInitialized = runWhenLoaded;
 	}
 
 	function onFrameMalloc(id, params) {
 		this.dispatchEvent({name: 'frameMalloc', target: id, data: params});
-
-		// framepointer = params.framepointer;
-		// framesize = params.framesize;
-
-		// camera_mat = new Float64Array(Module.HEAPU8.buffer, params.camera, 16);
-		// transform_mat = new Float64Array(Module.HEAPU8.buffer, params.modelView, 16);
-
-		// console.log('onMalloc', params);
-		// console.log('matrices', camera_mat, transform_mat);
 	}
 
 	function onMarkerNum(id, number) {
@@ -372,7 +323,7 @@
 	function onGetMarker(object, i, id) {
 		this.dispatchEvent({name: 'getMarker', target: id, index: i, data: object});
 
-		marker = object;
+		var marker = object;
 		detected_markers[i] = marker;
 
 		if (artoolkit.onGetMarker) artoolkit.onGetMarker(arID, object, i);
@@ -388,17 +339,7 @@
 	}
 
 	function setup(_w, _h, _camera_id) {
-		w = _w;
-		h = _h;
-
-		arID = _setup(w, h, _camera_id);
-
-		Module.setScale(arID, 1);
-		Module.setMarkerWidth(arID, 1);
-		artoolkit.setProjectionNearPlane(arID, 0.1)
-		artoolkit.setProjectionFarPlane(arID, 1000);
-
-		return arID;
+		return _setup(_w, _h, _camera_id);
 	}
 
 	var marker_count = 0;
@@ -481,5 +422,6 @@
 	window.ARController = ARController;
 	window.ARCameraParam = ARCameraParam;
 
+	runWhenLoaded();
 
 })();

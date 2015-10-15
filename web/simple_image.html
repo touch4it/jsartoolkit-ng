@@ -1,5 +1,6 @@
 <html>
 <body>
+<script src="../builds/artoolkit.js"></script>
 <script src="common.js"></script>
 
 <img id="v" src="tests/img.jpg"></img>
@@ -18,29 +19,26 @@ kuva.jpg
 
 <script>
 
-artoolkit.init("../builds");
-artoolkit.onReady(function() {
-	var cameraParam = new ARCameraParam();
-	cameraParam.onload = function() {
-		var ar1 = new ARController(v, cameraParam);
-		ar1.debugSetup();
+var cameraParam = new ARCameraParam();
+cameraParam.onload = function() {
+	var ar1 = new ARController(v, cameraParam);
+	ar1.debugSetup();
 
-		var ar2 = new ARController(v1, cameraParam);
-		ar2.debugSetup();
+	var ar2 = new ARController(v1, cameraParam);
+	ar2.debugSetup();
 
-		var ar3 = new ARController(v2, cameraParam);
-		ar3.debugSetup();
-		ar3.process();
+	var ar3 = new ARController(v2, cameraParam);
+	ar3.debugSetup();
+	ar3.process();
 
-		var ar4 = new ARController(v3, cameraParam);
-		ar4.debugSetup();
-		ar4.process();
+	var ar4 = new ARController(v3, cameraParam);
+	ar4.debugSetup();
+	ar4.process();
 
-		ar1.process();
-		ar2.process();
-	};
-	cameraParam.src = '/bin/Data/camera_para.dat';
-});
+	ar1.process();
+	ar2.process();
+};
+cameraParam.src = '/bin/Data/camera_para.dat';
 
 </script>
 
