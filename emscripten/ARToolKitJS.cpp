@@ -31,12 +31,15 @@ struct arController {
 	ARUint8 *videoFrame = NULL;
 	int videoFrameSize;
 
+	int width = 0;
+	int height = 0;
+
 	ARHandle *arhandle = NULL;
 	ARPattHandle *arPattHandle = NULL;
 	ARMultiMarkerInfoT *arMultiMarkerHandle = NULL;
 	AR3DHandle* ar3DHandle;
 
-	ARdouble width = 40.0;
+	ARdouble markerWidth = 40.0;
 	ARdouble cameraViewScale = 1.0;
 	ARdouble nearPlane = 0.0001;
 	ARdouble farPlane = 1000.0;
@@ -56,6 +59,8 @@ std::unordered_map<int, simple_marker> barcode_markers;
 
 std::unordered_map<int, arController> arControllers;
 
+std::unordered_map<int, ARParam> cameraParams;
+
 
 // ============================================================================
 //	Global variables
@@ -71,146 +76,29 @@ static char patt_name[]  = "/patt.hiro";
 char cparam_name[] = "/camera_para.dat";
 
 static int gARControllerID = 0;
+static int gCameraID = 0;
 
 
 extern "C" {
 
-	void setScale(int id, ARdouble tmp) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-		arc->cameraViewScale = tmp;
-	}
+	/***********
+	* Teardown *
+	***********/
 
-	void setWidth(int id, ARdouble tmp) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-		arc->width = tmp;
-	}
-
-	void setProjectionNearPlane(int id, const ARdouble projectionNearPlane) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-		arc->nearPlane = projectionNearPlane;
-	}
-
-	void setProjectionFarPlane(int id, const ARdouble projectionFarPlane) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-		arc->farPlane = projectionFarPlane;
-	}
-
-	void setPatternDetectionMode(int id, int mode) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-		if (arSetPatternDetectionMode(arc->arhandle, mode) == 0) {
-			printf("Pattern detection mode set to %d.", mode);
+	void deleteHandle(arController *arc) {
+		if (arc->arhandle != NULL) {
+			arPattDetach(arc->arhandle);
+			arDeleteHandle(arc->arhandle);
+			arc->arhandle = NULL;
 		}
-	}
-
-	void setPattRatio(int id, float ratio) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-
-		if (ratio <= 0.0f || ratio >= 1.0f) return;
-		ARdouble pattRatio = (ARdouble)ratio;
-		if (arc->arhandle) {
-			if (arSetPattRatio(arc->arhandle, pattRatio) == 0) {
-				printf("Pattern ratio size set to %f.", pattRatio);
-			}
+		if (arc->ar3DHandle != NULL) {
+			ar3DDeleteHandle(&(arc->ar3DHandle));
+			arc->ar3DHandle = NULL;
 		}
-	}
-
-	void setMatrixCodeType(int id, int type) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-
-		AR_MATRIX_CODE_TYPE matrixType = (AR_MATRIX_CODE_TYPE)type;
-		arSetMatrixCodeType(arc->arhandle, matrixType);
-	}
-
-	void setLabelingMode(int id, int mode) {
-		if (arControllers.find(id) == arControllers.end()) { return; }
-		arController *arc = &(arControllers[id]);
-
-		int labelingMode = mode;
-
-		if (arSetLabelingMode(arc->arhandle, labelingMode) == 0) {
-			printf("Labeling mode set to %d", labelingMode);
+		if (arc->paramLT != NULL) {
+			arParamLTFree(&(arc->paramLT));
+			arc->paramLT = NULL;
 		}
-	}
-
-	int setup(int width, int height, int load_camera) {
-		int id = gARControllerID++;
-		arController *arc = &(arControllers[id]);
-		arc->id = id;
-
-		arc->videoFrameSize = width * height * 4 * sizeof(ARUint8);
-		arc->videoFrame = (ARUint8*) malloc(arc->videoFrameSize);
-
-		if (load_camera) {
-			if (arParamLoad(cparam_name, 1, &(arc->param)) < 0) {
-				ARLOGe("setupCamera(): Error loading parameter file %s for camera.\n", cparam_name);
-				return -1;
-			}
-
-			if (arc->param.xsize != width || arc->param.ysize != height) {
-				ARLOGw("*** Camera Parameter resized from %d, %d. ***\n", arc->param.xsize, arc->param.ysize);
-				arParamChangeSize(&(arc->param), width, height, &(arc->param));
-			}
-
-			ARLOG("*** Camera Parameter ***\n");
-			arParamDisp(&(arc->param));
-		}
-
-		if ((arc->paramLT = arParamLTCreate(&(arc->param), AR_PARAM_LT_DEFAULT_OFFSET)) == NULL) {
-			ARLOGe("setupCamera(): Error: arParamLTCreate.\n");
-			return -1;
-		}
-
-		printf("arParamLTCreated\n..%d, %d\n", (arc->paramLT->param).xsize, (arc->paramLT->param).ysize);
-
-		// setup camera
-		if ((arc->arhandle = arCreateHandle(arc->paramLT)) == NULL) {
-			ARLOGe("setupCamera(): Error: arCreateHandle.\n");
-			return -1;
-		}
-		// AR_DEFAULT_PIXEL_FORMAT
-		int set = arSetPixelFormat(arc->arhandle, AR_PIXEL_FORMAT_RGBA);
-
-		printf("arCreateHandle done\n");
-
-		arc->ar3DHandle = ar3DCreateHandle(&(arc->param));
-		if (arc->ar3DHandle == NULL) {
-			ARLOGe("Error creating 3D handle");
-		}
-
-		if (arc->arPattHandle != NULL) {
-			ARLOGe("setup(): arPattCreateHandle already created.\n");
-		} else if ((arc->arPattHandle = arPattCreateHandle()) == NULL) {
-			ARLOGe("setup(): Error: arPattCreateHandle.\n");
-		}
-
-		arPattAttach(arc->arhandle, arc->arPattHandle);
-		printf("pattern handler created.\n");
-
-		printf("Allocated videoFrameSize %d\n", arc->videoFrameSize);
-
-		EM_ASM_({
-			artoolkit.onFrameMalloc($0, {
-				framepointer: $1,
-				framesize: $2,
-				camera: $3,
-				modelView: $4
-			});
-		},
-			arc->id,
-			arc->videoFrame,
-			arc->videoFrameSize,
-			cameraLens,
-			modelView
-		);
-
-		return arc->id;
 	}
 
 	int teardown(int id) {
@@ -223,16 +111,90 @@ extern "C" {
 			arc->videoFrameSize = 0;
 		}
 
-		arPattDetach(arc->arhandle);
-		arPattDeleteHandle(arc->arPattHandle);
-		arDeleteHandle(arc->arhandle);
+		deleteHandle(arc);
 
-		arParamLTFree(&(arc->paramLT));
+		arPattDeleteHandle(arc->arPattHandle);
+
 
 		// TODO free all patterns and such
 
 		return 0;
 	}
+
+
+	/*****************
+	* Camera loading *
+	*****************/
+
+	int loadCamera(std::string cparam_name) {
+		ARParam param;
+		if (arParamLoad(cparam_name.c_str(), 1, &param) < 0) {
+			ARLOGe("loadCamera(): Error loading parameter file %s for camera.\n", cparam_name.c_str());
+			return -1;
+		}
+		int cameraID = gCameraID++;
+		cameraParams[cameraID] = param;
+
+		return cameraID;
+	}
+
+	int setCamera(int id, int cameraID) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		if (cameraParams.find(cameraID) == cameraParams.end()) { return -1; }
+
+		arc->param = cameraParams[cameraID];
+
+		if (arc->param.xsize != arc->width || arc->param.ysize != arc->height) {
+			ARLOGw("*** Camera Parameter resized from %d, %d. ***\n", arc->param.xsize, arc->param.ysize);
+			arParamChangeSize(&(arc->param), arc->width, arc->height, &(arc->param));
+		}
+
+		ARLOG("*** Camera Parameter ***\n");
+		arParamDisp(&(arc->param));
+
+		deleteHandle(arc);
+
+		if ((arc->paramLT = arParamLTCreate(&(arc->param), AR_PARAM_LT_DEFAULT_OFFSET)) == NULL) {
+			ARLOGe("setCamera(): Error: arParamLTCreate.\n");
+			return -1;
+		}
+
+		printf("setCamera(): arParamLTCreated\n..%d, %d\n", (arc->paramLT->param).xsize, (arc->paramLT->param).ysize);
+
+		// setup camera
+		if ((arc->arhandle = arCreateHandle(arc->paramLT)) == NULL) {
+			ARLOGe("setCamera(): Error: arCreateHandle.\n");
+			return -1;
+		}
+		// AR_DEFAULT_PIXEL_FORMAT
+		int set = arSetPixelFormat(arc->arhandle, AR_PIXEL_FORMAT_RGBA);
+
+		printf("setCamera(): arCreateHandle done\n");
+
+		arc->ar3DHandle = ar3DCreateHandle(&(arc->param));
+		if (arc->ar3DHandle == NULL) {
+			ARLOGe("setCamera(): Error creating 3D handle");
+			return -1;
+		}
+
+		printf("setCamera(): ar3DCreateHandle done\n");
+
+		arPattAttach(arc->arhandle, arc->arPattHandle);
+		printf("setCamera(): Pattern handler attached.\n");
+
+
+		return 0;
+	}
+
+
+
+
+	/*****************
+	* Marker loading *
+	*****************/
+
 
 	static int loadMarker(const char *patt_name, int *patt_id, ARHandle *arhandle, ARPattHandle **pattHandle_p) {
 		// Loading only 1 pattern in this example.
@@ -315,6 +277,78 @@ extern "C" {
 			return -1;
 		}
 		return (arc->multi_markers[mId].multiMarkerHandle)->marker_num;
+	}
+
+
+
+
+	/**********************
+	* Setters and getters *
+	**********************/
+
+
+	void setScale(int id, ARdouble tmp) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+		arc->cameraViewScale = tmp;
+	}
+
+	void setMarkerWidth(int id, ARdouble tmp) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+		arc->markerWidth = tmp;
+	}
+
+	void setProjectionNearPlane(int id, const ARdouble projectionNearPlane) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+		arc->nearPlane = projectionNearPlane;
+	}
+
+	void setProjectionFarPlane(int id, const ARdouble projectionFarPlane) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+		arc->farPlane = projectionFarPlane;
+	}
+
+	void setPatternDetectionMode(int id, int mode) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+		if (arSetPatternDetectionMode(arc->arhandle, mode) == 0) {
+			printf("Pattern detection mode set to %d.", mode);
+		}
+	}
+
+	void setPattRatio(int id, float ratio) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+
+		if (ratio <= 0.0f || ratio >= 1.0f) return;
+		ARdouble pattRatio = (ARdouble)ratio;
+		if (arc->arhandle) {
+			if (arSetPattRatio(arc->arhandle, pattRatio) == 0) {
+				printf("Pattern ratio size set to %f.", pattRatio);
+			}
+		}
+	}
+
+	void setMatrixCodeType(int id, int type) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+
+		AR_MATRIX_CODE_TYPE matrixType = (AR_MATRIX_CODE_TYPE)type;
+		arSetMatrixCodeType(arc->arhandle, matrixType);
+	}
+
+	void setLabelingMode(int id, int mode) {
+		if (arControllers.find(id) == arControllers.end()) { return; }
+		arController *arc = &(arControllers[id]);
+
+		int labelingMode = mode;
+
+		if (arSetLabelingMode(arc->arhandle, labelingMode) == 0) {
+			printf("Labeling mode set to %d", labelingMode);
+		}
 	}
 
 	void setThreshold(int id, int threshold) {
@@ -565,9 +599,9 @@ extern "C" {
 				match = &(arc->pattern_markers[marker->idPatt]);
 
 				if (!match->found) {
-					arGetTransMatSquare(arc->ar3DHandle, marker, arc->width, match->transform);
+					arGetTransMatSquare(arc->ar3DHandle, marker, arc->markerWidth, match->transform);
 				} else {
-					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->width, match->transform);
+					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->markerWidth, match->transform);
 				}
 
 				arglCameraViewRH(match->transform, modelView, arc->cameraViewScale);
@@ -580,18 +614,18 @@ extern "C" {
 					match = &(arc->barcode_markers[marker->idMatrix]);
 					match->found = true;
 					match->id = marker->idMatrix;
-					arGetTransMatSquare(arc->ar3DHandle, marker, arc->width, match->transform);
+					arGetTransMatSquare(arc->ar3DHandle, marker, arc->markerWidth, match->transform);
 				}
 				else {
 					match = &(arc->barcode_markers[marker->idMatrix]);
-					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->width, match->transform);
+					arGetTransMatSquareCont(arc->ar3DHandle, marker, match->transform, arc->markerWidth, match->transform);
 				}
 
 				arglCameraViewRH(match->transform, modelView, arc->cameraViewScale);
 			}
 			// everything else
 			else {
-				arGetTransMatSquare(arc->ar3DHandle, &((arc->arhandle)->markerInfo[j]), arc->width, transform);
+				arGetTransMatSquare(arc->ar3DHandle, &((arc->arhandle)->markerInfo[j]), arc->markerWidth, transform);
 				// places transform matrix to modelView
 				arglCameraViewRH(transform, modelView, arc->cameraViewScale);
 			}
@@ -652,6 +686,54 @@ extern "C" {
 			}
 		}
 	}
+
+
+
+
+
+	/********
+	* Setup *
+	********/
+
+	int setup(int width, int height, int cameraID) {
+		int id = gARControllerID++;
+		arController *arc = &(arControllers[id]);
+		arc->id = id;
+
+		arc->width = width;
+		arc->height = height;
+
+		arc->videoFrameSize = width * height * 4 * sizeof(ARUint8);
+		arc->videoFrame = (ARUint8*) malloc(arc->videoFrameSize);
+
+		if ((arc->arPattHandle = arPattCreateHandle()) == NULL) {
+			ARLOGe("setup(): Error: arPattCreateHandle.\n");
+		}
+
+		setCamera(id, cameraID);
+
+		printf("Allocated videoFrameSize %d\n", arc->videoFrameSize);
+
+		EM_ASM_({
+			artoolkit.onFrameMalloc($0, {
+				framepointer: $1,
+				framesize: $2,
+				camera: $3,
+				modelView: $4
+			});
+		},
+			arc->id,
+			arc->videoFrame,
+			arc->videoFrameSize,
+			cameraLens,
+			modelView
+		);
+
+		return arc->id;
+	}
+
+
+
 }
 
 #include "ARBindEM.cpp"

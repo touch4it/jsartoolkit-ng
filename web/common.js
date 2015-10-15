@@ -21,7 +21,7 @@
 
 		this.addEventListeners();
 
-		this.id = artoolkit.setup(w, h, camera);
+		this.id = artoolkit.setup(w, h, camera.id);
 	};
 
 	ARController.prototype.addEventListeners = function() {
@@ -159,7 +159,7 @@
 			this._src = src;
 			if (src) {
 				var self = this;
-				artoolkit.loadCameraParam(src, function(id) {
+				artoolkit.loadCamera(src, function(id) {
 					self.id = id;
 					self.complete = true;
 					self.onload();
@@ -172,7 +172,9 @@
 	});
 
 	ARCameraParam.prototype.dispose = function() {
-		artoolkit.disposeCameraParam(this.id);
+		if (this.id !== -1) {
+			artoolkit.deleteCamera(this.id);
+		}
 		this.id = -1;
 		this._src = '';
 		this.complete = false;
@@ -228,6 +230,8 @@
 				}
 			}
 		},
+
+		loadCamera: loadCamera,
 
 		addMarker: addMarker,
 		addMultiMarker: addMultiMarker,
@@ -304,16 +308,11 @@
 
 	// Initalize base path for loading emscripten
 	// Also loads path for camera info
-	function init(p, camera) {
+	function init(p) {
 		path = p.slice(-1) === '/' ? p : p + '/';
 		var script = document.createElement('script');
 		script.src = path + EMSCRIPTEN_FILE;
 		document.body.appendChild(script);
-
-		if (camera) {
-			camera_path = camera;
-			files_to_load.push([camera_path, '/camera_para.dat']);
-		}
 
 		return this;
 	}
@@ -388,14 +387,14 @@
 		this.dispatchEvent({name: 'getMultiMarkerSub', target: id, data: {multiMarkerId: multiId, markerId: subMarkerId, marker: subMarker}});
 	}
 
-	function setup(_w, _h) {
+	function setup(_w, _h, _camera_id) {
 		w = _w;
 		h = _h;
 
-		arID = _setup(w, h, camera_path ? 1 : 0);
+		arID = _setup(w, h, _camera_id);
 
 		Module.setScale(arID, 1);
-		Module.setWidth(arID, 1);
+		Module.setMarkerWidth(arID, 1);
 		artoolkit.setProjectionNearPlane(arID, 0.1)
 		artoolkit.setProjectionFarPlane(arID, 1000);
 
@@ -420,6 +419,16 @@
 			if (callback) callback(markerID, markerNum);
 		});
 	}
+
+	var camera_count = 0;
+	function loadCamera(url, callback) {
+		var filename = '/camera_param_' + camera_count++;
+		ajax(url, filename, function() {
+			var id = Module._loadCamera(filename);
+			if (callback) callback(id);
+		});
+	}
+
 
 	function setDebugMode(arId, mode) {
 		return _setDebugMode(arId, mode);

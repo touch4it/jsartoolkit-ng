@@ -1,5 +1,4 @@
 #include <emscripten/bind.h>
-#include <ARWrapper/ARController.h>
 
 using namespace emscripten;
 
@@ -13,11 +12,12 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	// function("setDebugMode", &setDebugMode, allow_raw_pointers());
 
 	function("setScale", &setScale);
-	function("setWidth", &setWidth);
+	function("setMarkerWidth", &setMarkerWidth);
 	function("_addMarker", &addMarker);
 	function("_addMultiMarker", &addMultiMarker);
 	function("_getMultiMarkerNum", &getMultiMarkerNum);
 
+	function("_loadCamera", &loadCamera);
 
 	/* AR Toolkit C APIS */
 	function("setProjectionNearPlane", &setProjectionNearPlane);

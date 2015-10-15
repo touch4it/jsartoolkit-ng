@@ -18,26 +18,28 @@ kuva.jpg
 
 <script>
 
-artoolkit.init('../builds/', '/bin/Data/camera_para.dat');
+artoolkit.init("../builds");
 artoolkit.onReady(function() {
+	var cameraParam = new ARCameraParam();
+	cameraParam.onload = function() {
+		var ar1 = new ARController(v, cameraParam);
+		ar1.debugSetup();
 
-	var ar1 = new ARController(v);
-	ar1.debugSetup();
+		var ar2 = new ARController(v1, cameraParam);
+		ar2.debugSetup();
 
-	var ar2 = new ARController(v1);
-	ar2.debugSetup();
+		var ar3 = new ARController(v2, cameraParam);
+		ar3.debugSetup();
+		ar3.process();
 
-	var ar3 = new ARController(v2);
-	ar3.debugSetup();
-	ar3.process();
+		var ar4 = new ARController(v3, cameraParam);
+		ar4.debugSetup();
+		ar4.process();
 
-	var ar4 = new ARController(v3);
-	ar4.debugSetup();
-	ar4.process();
-
-	ar1.process();
-	ar2.process();
-
+		ar1.process();
+		ar2.process();
+	};
+	cameraParam.src = '/bin/Data/camera_para.dat';
 });
 
 </script>

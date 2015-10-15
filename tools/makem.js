@@ -121,6 +121,8 @@ FLAGS += ' -s FULL_ES2=1 '
 if (USE_EMBIND) FLAGS += ' --bind ';
 if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH);
 
+FLAGS += ' --memory-init-file 0 '
+
 /* DEBUG FLAGS */
 var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
 // FLAGS += ' -s ASSERTIONS=2 '
