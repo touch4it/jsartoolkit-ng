@@ -129,13 +129,13 @@ if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH)
 FLAGS += ' --memory-init-file 0 '
 
 /* DEBUG FLAGS */
-// var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
-// // FLAGS += ' -s ASSERTIONS=2 '
-// FLAGS += ' -s ASSERTIONS=1 '
-// // FLAGS += ' --profiling-funcs '
-// // FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
-// FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
-// FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
+var DEBUG_FLAGS = ' -g ';
+// DEBUG_FLAGS += ' -s ASSERTIONS=2 '
+DEBUG_FLAGS += ' -s ASSERTIONS=1 '
+// DEBUG_FLAGS += ' --profiling-funcs '
+// DEBUG_FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
+DEBUG_FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
+DEBUG_FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
 
 var INCLUDES = [
 	'include',
@@ -224,7 +224,7 @@ var compile_libjpeg = format(EMCC + ' ' + INCLUDES + ' '
 
 var compile_combine = format(EMCC + ' ' + INCLUDES + ' '
 	+ ' {OUTPUT_PATH}*.bc ' + MAIN_SOURCES
-	+ FLAGS + ' ' + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} '
+	+ FLAGS + ' '  + DEBUG_FLAGS + DEFINES + ' -o {OUTPUT_PATH}{BUILD_FILE} '
 	+ ' -s EXPORTED_FUNCTIONS=\'' + EXPORTED_FUNCTIONS + '\'',
 	OUTPUT_PATH, OUTPUT_PATH, BUILD_FILE);
 
