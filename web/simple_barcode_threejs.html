@@ -6,15 +6,16 @@ canvas {
 }
 </style>
 
+<script src="../builds/artoolkit.js"></script>
 <script src="common.js"></script>
 <script src="artk_demos/js/third_party/three.js/three.min.js"></script>
 <script src="artk_demos/js/artoolkit.three.js"></script>
 
 <script>
 
-artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
+artoolkit.getUserMediaThreeScene(720, 480, '/bin/Data/camera_para.dat', function(arScene, arController, arCamera) {
 
-	artoolkit.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
+	arController.setPatternDetectionMode(artoolkit.CONSTANTS.AR_MATRIX_CODE_DETECTION);
 
 	var renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
@@ -22,7 +23,7 @@ artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
 	document.body.appendChild(renderer.domElement);
 
 	// See /doc/patterns/Matrix code 3x3 (72dpi)/20.png
-	var markerRoot = artoolkit.createThreeBarcodeMarker(20);
+	var markerRoot = arController.createThreeBarcodeMarker(20);
 
 	var sphere = new THREE.Mesh(
 		new THREE.SphereGeometry(0.5, 8, 8),

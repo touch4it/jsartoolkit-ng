@@ -5,6 +5,8 @@
 		var id;
 		var w = width, h = height;
 
+		this.listeners = {};
+
 		if (typeof width !== 'number') {
 			var image = width;
 			camera = height;
@@ -27,6 +29,31 @@
 		this.setProjectionNearPlane(0.1)
 		this.setProjectionFarPlane(1000);
 
+	};
+
+	ARController.prototype.addEventListener = function(name, callback) {
+		if (!this.listeners[name]) {
+			this.listeners[name] = [];
+		}
+		this.listeners[name].push(callback);
+	};
+
+	ARController.prototype.removeEventListener = function(name, callback) {
+		if (this.listeners[name]) {
+			var index = this.listeners[name].indexOf(callback);
+			if (index > -1) {
+				this.listeners[name].splice(index, 1);
+			}
+		}
+	};
+
+	ARController.prototype.dispatchEvent = function(event) {
+		var listeners = this.listeners[event.name];
+		if (listeners) {
+			for (var i=0; i<listeners.length; i++) {
+				listeners[i].call(this, event);
+			}
+		}
 	};
 
 	ARController.prototype.setScale = function(value) {
@@ -61,14 +88,32 @@
 		return artoolkit.getProjectionFarPlane(this.id);
 	};
 
+	ARController.prototype.setPatternDetectionMode = function(value) {
+		return artoolkit.setPatternDetectionMode(this.id, value);
+	};
+
+	ARController.prototype.getPatternDetectionMode = function() {
+		return artoolkit.getPatternDetectionMode(this.id);
+	};
+
+	ARController.prototype.getCameraMatrix = function() {
+		return this.camera_mat;
+	};
+
+	ARController.prototype.getTransformationMatrix = function() {
+		return this.transform_mat;
+	};
 
 	ARController.prototype.addEventListeners = function() {
 
 		var self = this;
 
+		this._detected_markers = [];
+
 		artoolkit.addEventListener('markerNum', function(ev) {
 			if (ev.target === self.id) {
-				console.log('ARController '+self.id+' got marker num', ev.data);
+				self._detected_markers = new Array(ev.data);
+				self.dispatchEvent(ev);
 			}
 		});
 
@@ -90,18 +135,20 @@
 
 		artoolkit.addEventListener('getMarker', function(ev) {
 			if (ev.target === self.id) {
-				console.log('ARController '+self.id+' got marker', ev.data, ev.index);
+				self._detected_markers[ev.data.index] = ev.data.marker;
+				self.dispatchEvent(ev);
 			}
 		});
 
 		artoolkit.addEventListener('getMultiMarker', function(ev) {
 			if (ev.target === self.id) {
-				console.log('getMultiMarker', ev.data);
+				self.dispatchEvent(ev);
 			}
 		});
 
 		artoolkit.addEventListener('getMultiMarkerSub', function(ev) {
 			if (ev.target === self.id) {
+				self.dispatchEvent(ev);
 			}
 		});
 
@@ -136,8 +183,8 @@
 		var id = new ImageData(debugBuffer, this.canvas.width, this.canvas.height)
 		this.ctx.putImageData(id, 0, 0)
 
-		for (var i=0; i<detected_markers.length; i++) {
-			this.debugMarker(detected_markers[i]);
+		for (var i=0; i<this._detected_markers.length; i++) {
+			this.debugMarker(this._detected_markers[i]);
 		}
 	};
 
@@ -239,7 +286,7 @@
 			var listeners = this.listeners[event.name];
 			if (listeners) {
 				for (var i=0; i<listeners.length; i++) {
-					listeners[i](event);
+					listeners[i].call(this, event);
 				}
 			}
 		},
@@ -256,22 +303,8 @@
 		onGetMultiMarker: onGetMultiMarker,
 		onGetMultiMarkerSub: onGetMultiMarkerSub,
 
-		setDebugMode: setDebugMode,
-
-		getDetectedMarkers: function() {
-			return detected_markers;
-		},
-
-		getCameraMatrix: function() {
-			return camera_mat;
-		},
-
-		getTransformationMatrix: function() {
-			return transform_mat;
-		}
+		setDebugMode: setDebugMode
 	};
-
-	var detected_markers = [];
 
 	var FUNCTIONS = [
 		// 'process',
@@ -313,23 +346,14 @@
 
 	function onMarkerNum(id, number) {
 		this.dispatchEvent({name: 'markerNum', target: id, data: number});
-
-		detected_markers = new Array(number);
-		// console.log('Detected', number);
 	}
 
 	function onGetMarker(object, i, id) {
-		this.dispatchEvent({name: 'getMarker', target: id, index: i, data: object});
-
-		var marker = object;
-		detected_markers[i] = marker;
-
-		if (artoolkit.onGetMarker) artoolkit.onGetMarker(arID, object, i);
-		// console.log(marker.id, marker.idMatrix, marker.cf);
+		this.dispatchEvent({name: 'getMarker', target: id, data: {index: i, marker: object}});
 	}
 
-	function onGetMultiMarker(id, object) {
-		this.dispatchEvent({name: 'getMultiMarker', target: id, data: object});
+	function onGetMultiMarker(id, multiId) {
+		this.dispatchEvent({name: 'getMultiMarker', target: id, data: {multiMarkerId: multiId}});
 	}
 
 	function onGetMultiMarkerSub(id, multiId, subMarker, subMarkerId) {

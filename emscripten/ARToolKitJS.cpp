@@ -698,7 +698,7 @@ extern "C" {
 
 		if (success) return;
 
-		printf("arDetectMarker: %d\n", success);
+		// printf("arDetectMarker: %d\n", success);
 
 		int markerNum = arGetMarkerNum(arc->arhandle);
 		ARMarkerInfo* markerInfo = arGetMarker(arc->arhandle);

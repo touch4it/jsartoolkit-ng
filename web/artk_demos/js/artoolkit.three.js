@@ -40,8 +40,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 	@param {function} onSuccess - Called on successful initialization with an ThreeARScene object.
 	@param {function} onError - Called if the initialization fails with the error encountered.
 */
-artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
-	artoolkit.init('../../builds', '../../bin/Data/camera_para.dat');
+artoolkit.getUserMediaThreeScene = function(width, height, cameraParamURL, onSuccess, onError) {
 	if (!onError) {
 		onError = function(err) {
 			console.log("ERROR: artoolkit.getUserMediaThreeScene");
@@ -60,18 +59,8 @@ artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
 	  	}
 	};
 
-	var completeInit = function() {
-		artoolkit.setup(video.videoWidth, video.videoHeight);
-		// artoolkit.debugSetup();
-
-		var scenes = artoolkit.createThreeScene(video);
-		onSuccess(scenes);
-	};
-
-	var initWaitCount = 2;
 	var initProgress = function() {
-		initWaitCount--;
-		if (initWaitCount === 0) {
+		if (this.videoWidth !== 0) {
 			completeInit();
 		}
 	};
@@ -81,19 +70,31 @@ artoolkit.getUserMediaThreeScene = function(width, height, onSuccess, onError) {
 
 		video.src = window.URL.createObjectURL(stream);
 		video.play();
+	};
 
-		artoolkit.onReady(initProgress);
+	var completeInit = function() {
 
+		var arCameraParam = new ARCameraParam();
+		arCameraParam.onload = function() {
+			var arController = new ARController(width, height, arCameraParam);
+			var scenes = arController.createThreeScene(video);
+			onSuccess(scenes, arController, arCameraParam);
+		};
+		arCameraParam.src = cameraParamURL;
 	};
 
 	if (navigator.getUserMedia) {
 		navigator.getUserMedia(hdConstraints, success, onError);
 	} else {
-		onError('');
+		onError('navigator.getUserMedia is not supported on your browser');
 	}
 };
 
-artoolkit.createThreeScene = function(video) {
+ARController.prototype.createThreeScene = function(video) {
+	if (!this.THREE_JS_ENABLED) {
+		this.setupThree();
+	}
+
 	// To display the video, first create a texture from it.
 	var videoTex = new THREE.Texture(video);
 
@@ -123,31 +124,35 @@ artoolkit.createThreeScene = function(video) {
 
 	camera.matrixAutoUpdate = false;
 
+	var self = this;
+
 	return {
 		scene: scene,
 		videoScene: videoScene,
 		camera: camera,
 		videoCamera: videoCamera,
 
+		arController: self,
+
 		video: video,
 
 		process: function() {
-			for (var i in artoolkit.patternMarkers) {
-				artoolkit.patternMarkers[i].visible = false;
+			for (var i in self.patternMarkers) {
+				self.patternMarkers[i].visible = false;
 			}
-			for (var i in artoolkit.barcodeMarkers) {
-				artoolkit.barcodeMarkers[i].visible = false;
+			for (var i in self.barcodeMarkers) {
+				self.barcodeMarkers[i].visible = false;
 			}
-			for (var i in artoolkit.multiMarkers) {
-				artoolkit.multiMarkers[i].visible = false;
-				for (var j=0; j<artoolkit.multiMarkers[i].markers.length; j++) {
-					if (artoolkit.multiMarkers[i].markers[j]) {
-						// artoolkit.multiMarkers[i].markers[j].visible = false;
+			for (var i in self.multiMarkers) {
+				self.multiMarkers[i].visible = false;
+				for (var j=0; j<self.multiMarkers[i].markers.length; j++) {
+					if (self.multiMarkers[i].markers[j]) {
+						// self.multiMarkers[i].markers[j].visible = false;
 					}
 				}
 			}
-			artoolkit.process(video);
-			camera.projectionMatrix.setFromArray(artoolkit.getCameraMatrix());
+			self.process(video);
+			camera.projectionMatrix.setFromArray(self.getCameraMatrix());
 		},
 
 		renderOn: function(renderer) {
@@ -163,74 +168,84 @@ artoolkit.createThreeScene = function(video) {
 	};
 };
 
-/**
-	Overrides the artoolkit.onGetMarker method to keep track of Three.js markers.
-
-	@param {Object} marker - The marker object received from ARToolKitJS.cpp
-*/
-artoolkit.onGetMarker = function(marker) {
-	var obj = this.patternMarkers[marker.idPatt];
-	if (obj) {
-		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
-		obj.visible = true;
+ARController.prototype.setupThree = function() {
+	if (this.THREE_JS_ENABLED) {
+		throw("ARController.prototype.setupThree: Trying to setup Three.js support multiple times.");
+		return;
 	}
-	var obj = this.barcodeMarkers[marker.idMatrix];
-	if (obj) {
-		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
-		obj.visible = true;
-	}
-};
+	this.THREE_JS_ENABLED = true;
 
-/**
-	Overrides the artoolkit.onGetMultiMarker method to keep track of Three.js multimarkers.
+	/**
+		Overrides the artoolkit.onGetMarker method to keep track of Three.js markers.
 
-	@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
-*/
-artoolkit.onGetMultiMarker = function(marker) {
-	var obj = this.multiMarkers[marker];
-	if (obj) {
-		obj.matrix.setFromArray(artoolkit.getTransformationMatrix());
-		obj.visible = true;
-	}
-};
-
-/**
-	Overrides the artoolkit.onGetMultiMarker method to keep track of Three.js multimarkers.
-
-	@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
-*/
-artoolkit.onGetMultiMarkerSub = function(marker, subMarker, subMarkerID) {
-	var obj = this.multiMarkers[marker];
-	if (obj && obj.markers && obj.markers[subMarkerID]) {
-		if (subMarker.visible >= 0) {
-			// console.log(artoolkit.getTransformationMatrix());
-			obj.markers[subMarkerID].matrix.setFromArray(artoolkit.getTransformationMatrix());
-			obj.markers[subMarkerID].material.color.setHex(0x00ff00);
-		} else {
-			obj.markers[subMarkerID].material.color.setHex(0xff0000);			
+		@param {Object} marker - The marker object received from ARToolKitJS.cpp
+	*/
+	this.addEventListener('getMarker', function(ev) {
+		var obj = this.patternMarkers[ev.data.marker.idPatt];
+		if (obj) {
+			obj.matrix.setFromArray(this.getTransformationMatrix());
+			obj.visible = true;
 		}
-	}
+		var obj = this.barcodeMarkers[ev.data.marker.idMatrix];
+		if (obj) {
+			obj.matrix.setFromArray(this.getTransformationMatrix());
+			obj.visible = true;
+		}
+	});
+
+	/**
+		Overrides the artoolkit.onGetMultiMarker method to keep track of Three.js multimarkers.
+
+		@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
+	*/
+	this.addEventListener('getMultiMarker', function(ev) {
+		var obj = this.multiMarkers[ev.data.multiMarkerId];
+		if (obj) {
+			obj.matrix.setFromArray(this.getTransformationMatrix());
+			obj.visible = true;
+		}
+	});
+
+	/**
+		Overrides the artoolkit.onGetMultiMarkerSub method to keep track of Three.js multimarker submarkers.
+
+		@param {Object} marker - The multimarker object received from ARToolKitJS.cpp
+	*/
+	this.addEventListener('getMultiMarkerSub', function(ev) {
+		var marker = ev.data.multiMarkerId;
+		var subMarkerID = ev.data.markerId;
+		var obj = this.multiMarkers[marker];
+		if (obj && obj.markers && obj.markers[subMarkerID]) {
+			if (subMarker.visible >= 0) {
+				// console.log(artoolkit.getTransformationMatrix());
+				obj.markers[subMarkerID].matrix.setFromArray(this.getTransformationMatrix());
+				obj.markers[subMarkerID].material.color.setHex(0x00ff00);
+			} else {
+				obj.markers[subMarkerID].material.color.setHex(0xff0000);			
+			}
+		}
+	});
+
+	/**
+		Index of Three.js pattern markers, maps markerID -> THREE.Object3D.
+	*/
+	this.patternMarkers = {};
+
+	/**
+		Index of Three.js barcode markers, maps markerID -> THREE.Object3D.
+	*/
+	this.barcodeMarkers = {};
+
+	/**
+		Index of Three.js multimarkers, maps markerID -> THREE.Object3D.
+	*/
+	this.multiMarkers = {};
 };
-
-/**
-	Index of Three.js pattern markers, maps markerID -> THREE.Object3D.
-*/
-artoolkit.patternMarkers = {};
-
-/**
-	Index of Three.js barcode markers, maps markerID -> THREE.Object3D.
-*/
-artoolkit.barcodeMarkers = {};
-
-/**
-	Index of Three.js multimarkers, maps markerID -> THREE.Object3D.
-*/
-artoolkit.multiMarkers = {};
 
 /**
 	Loads a marker from the given URL and calls the onSuccess callback with the UID of the marker.
 
-	artoolkit.loadMarker(markerURL, onSuccess, onError);
+	arController.loadMarker(markerURL, onSuccess, onError);
 
 	Synonym for artoolkit.addMarker.
 
@@ -238,12 +253,14 @@ artoolkit.multiMarkers = {};
 	@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
 	@param {function} onError - The error callback. Called with the encountered error if the load fails.
 */
-artoolkit.loadMarker = artoolkit.addMarker;
+ARController.prototype.loadMarker = function(markerURL, onSuccess, onError) {
+	return artoolkit.addMarker(markerURL, onSuccess, onError);
+};
 
 /**
 	Loads a multimarker from the given URL and calls the onSuccess callback with the UID of the marker.
 
-	artoolkit.loadMultiMarker(markerURL, onSuccess, onError);
+	arController.loadMultiMarker(markerURL, onSuccess, onError);
 
 	Synonym for artoolkit.addMultiMarker.
 
@@ -251,7 +268,9 @@ artoolkit.loadMarker = artoolkit.addMarker;
 	@param {function} onSuccess - The success callback. Called with the id and the number of sub-markers of the loaded marker on a successful load.
 	@param {function} onError - The error callback. Called with the encountered error if the load fails.
 */
-artoolkit.loadMultiMarker = artoolkit.addMultiMarker;
+ARController.prototype.loadMultiMarker = function(markerURL, onSuccess, onError) {
+	return artoolkit.addMultiMarker(markerURL, onSuccess, onError);
+};
 
 /**
 	Creates a Three.js marker Object3D for the given marker UID.
@@ -268,7 +287,7 @@ artoolkit.loadMultiMarker = artoolkit.addMultiMarker;
 	@param {number} markerUID - The UID of the marker to track.
 	@return {THREE.Object3D} Three.Object3D that tracks the given marker.
 */
-artoolkit.createThreeMarker = function(markerUID) {
+ARController.prototype.createThreeMarker = function(markerUID) {
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
 	this.patternMarkers[markerUID] = obj;
@@ -290,7 +309,7 @@ artoolkit.createThreeMarker = function(markerUID) {
 	@param {number} markerUID - The UID of the marker to track.
 	@return {THREE.Object3D} Three.Object3D that tracks the given marker.
 */
-artoolkit.createThreeMultiMarker = function(markerUID) {
+ARController.prototype.createThreeMultiMarker = function(markerUID) {
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
 	obj.markers = [];
@@ -313,7 +332,7 @@ artoolkit.createThreeMultiMarker = function(markerUID) {
 	@param {number} markerUID - The UID of the barcode marker to track.
 	@return {THREE.Object3D} Three.Object3D that tracks the given marker.
 */
-artoolkit.createThreeBarcodeMarker = function(markerUID) {
+ARController.prototype.createThreeBarcodeMarker = function(markerUID) {
 	var obj = new THREE.Object3D();
 	obj.matrixAutoUpdate = false;
 	this.barcodeMarkers[markerUID] = obj;

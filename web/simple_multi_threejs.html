@@ -6,13 +6,14 @@ canvas {
 }
 </style>
 
+<script src="../builds/artoolkit.js"></script>
 <script src="common.js"></script>
 <script src="artk_demos/js/third_party/three.js/three.min.js"></script>
 <script src="artk_demos/js/artoolkit.three.js"></script>
 
 <script>
 
-artoolkit.getUserMediaThreeScene(720, 480, function(arScene) {
+artoolkit.getUserMediaThreeScene(720, 480, '/bin/Data/camera_para.dat', function(arScene) {
 
 	var renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
