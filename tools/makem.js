@@ -9,7 +9,6 @@ var
 	fs = require('fs'),
 	child;
 
-
 var USE_WEBIDL = 1;
 var USE_EMBIND = 1;
 var HAVE_NFT = 0;
@@ -117,20 +116,24 @@ if (HAVE_NFT) DEFINES += ' -D HAVE_NFT ';
 
 var FLAGS = '' + OPTIMIZE_FLAGS;
 FLAGS += ' -s TOTAL_MEMORY=' + MEM + ' ';
-FLAGS += ' -s FULL_ES2=1 '
+// FLAGS += ' -s FULL_ES2=1 '
+FLAGS += ' -s NO_BROWSER=1 '; // for 20k less
+FLAGS += ' --memory-init-file 0 '; // for memless file
+FLAGS += ' --pre-js web/common.js ';
+
 if (USE_EMBIND) FLAGS += ' --bind ';
 if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH);
 
 FLAGS += ' --memory-init-file 0 '
 
 /* DEBUG FLAGS */
-var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
-// FLAGS += ' -s ASSERTIONS=2 '
-FLAGS += ' -s ASSERTIONS=1 '
-// FLAGS += ' --profiling-funcs '
-// FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
-FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
-FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
+// var DEBUG_FLAGS = ' -g '; FLAGS += DEBUG_FLAGS;
+// // FLAGS += ' -s ASSERTIONS=2 '
+// FLAGS += ' -s ASSERTIONS=1 '
+// // FLAGS += ' --profiling-funcs '
+// // FLAGS += ' -s EMTERPRETIFY_ADVISE=1 '
+// FLAGS += ' -s ALLOW_MEMORY_GROWTH=1';
+// FLAGS += '  -s DEMANGLE_SUPPORT=1 ';
 
 var INCLUDES = [
 	'include',

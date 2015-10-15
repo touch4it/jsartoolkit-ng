@@ -212,8 +212,6 @@
 		this.complete = false;
 	};
 
-
-
 	// ARToolKit JS API
 	var artoolkit = {
 		setup: setup,
@@ -416,12 +414,18 @@
 	}
 
 	/* Exports */
-
-	window.Module = Module;
 	window.artoolkit = artoolkit;
 	window.ARController = ARController;
 	window.ARCameraParam = ARCameraParam;
 
-	runWhenLoaded();
+	if (window.Module) {
+		runWhenLoaded();
+	} else {
+		window.Module = {
+			onRuntimeInitialized: function() {
+				runWhenLoaded();
+			}
+		};
+	}
 
 })();
