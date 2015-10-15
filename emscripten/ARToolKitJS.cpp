@@ -115,11 +115,11 @@ extern "C" {
 
 		arPattDeleteHandle(arc->arPattHandle);
 
-
 		// TODO free all patterns and such
 
 		return 0;
 	}
+
 
 
 	/*****************
@@ -241,7 +241,6 @@ extern "C" {
 		arc->pattern_markers[arc->patt_id].id = arc->patt_id;
 		arc->pattern_markers[arc->patt_id].found = false;
 
-
 		return arc->patt_id;
 	}
 
@@ -293,10 +292,22 @@ extern "C" {
 		arc->cameraViewScale = tmp;
 	}
 
+	ARdouble getScale(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+		return arc->cameraViewScale;
+	}
+
 	void setMarkerWidth(int id, ARdouble tmp) {
 		if (arControllers.find(id) == arControllers.end()) { return; }
 		arController *arc = &(arControllers[id]);
 		arc->markerWidth = tmp;
+	}
+
+	ARdouble getMarkerWidth(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+		return arc->markerWidth;
 	}
 
 	void setProjectionNearPlane(int id, const ARdouble projectionNearPlane) {
@@ -305,10 +316,22 @@ extern "C" {
 		arc->nearPlane = projectionNearPlane;
 	}
 
+	ARdouble getProjectionNearPlane(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+		return arc->nearPlane;
+	}
+
 	void setProjectionFarPlane(int id, const ARdouble projectionFarPlane) {
 		if (arControllers.find(id) == arControllers.end()) { return; }
 		arController *arc = &(arControllers[id]);
 		arc->farPlane = projectionFarPlane;
+	}
+
+	ARdouble getProjectionFarPlane(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+		return arc->farPlane;
 	}
 
 	void setPatternDetectionMode(int id, int mode) {
@@ -317,6 +340,17 @@ extern "C" {
 		if (arSetPatternDetectionMode(arc->arhandle, mode) == 0) {
 			printf("Pattern detection mode set to %d.", mode);
 		}
+	}
+
+	int getPatternDetectionMode(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		int mode;
+		arController *arc = &(arControllers[id]);
+		if (arGetPatternDetectionMode(arc->arhandle, &mode) == 0) {
+			return mode;
+		}
+
+		return -1;
 	}
 
 	void setPattRatio(int id, float ratio) {
@@ -332,12 +366,35 @@ extern "C" {
 		}
 	}
 
+	ARdouble getPattRatio(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		ARdouble pattRatio;
+		if (arc->arhandle) {
+			if (arGetPattRatio(arc->arhandle, &pattRatio) == 0) {
+				return pattRatio;
+			}
+		}
+
+		return -1;
+	}
+
 	void setMatrixCodeType(int id, int type) {
 		if (arControllers.find(id) == arControllers.end()) { return; }
 		arController *arc = &(arControllers[id]);
 
 		AR_MATRIX_CODE_TYPE matrixType = (AR_MATRIX_CODE_TYPE)type;
 		arSetMatrixCodeType(arc->arhandle, matrixType);
+	}
+
+	int getMatrixCodeType(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		AR_MATRIX_CODE_TYPE matrixType;
+		arGetMatrixCodeType(arc->arhandle, &matrixType);
+		return matrixType;
 	}
 
 	void setLabelingMode(int id, int mode) {
@@ -349,6 +406,19 @@ extern "C" {
 		if (arSetLabelingMode(arc->arhandle, labelingMode) == 0) {
 			printf("Labeling mode set to %d", labelingMode);
 		}
+	}
+
+	int getLabelingMode(int id, int mode) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		int labelingMode;
+
+		if (arGetLabelingMode(arc->arhandle, &labelingMode) == 0) {
+			return labelingMode;
+		}
+
+		return -1;
 	}
 
 	void setThreshold(int id, int threshold) {
@@ -364,6 +434,18 @@ extern "C" {
 		// AR_LABELING_THRESH_MODE_MANUAL, AR_LABELING_THRESH_MODE_AUTO_MEDIAN, AR_LABELING_THRESH_MODE_AUTO_OTSU, AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE
 	}
 
+	int getThreshold(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		int threshold;
+		if (arGetLabelingThresh(arc->arhandle, &threshold) == 0) {
+			return threshold;
+		};
+
+		return -1;
+	}
+
 	void setThresholdMode(int id, int mode) {
 		if (arControllers.find(id) == arControllers.end()) { return; }
 		arController *arc = &(arControllers[id]);
@@ -375,6 +457,18 @@ extern "C" {
 		}
 	}
 
+	int getThresholdMode(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		AR_LABELING_THRESH_MODE thresholdMode;
+
+		if (arGetLabelingThreshMode(arc->arhandle, &thresholdMode) == 0) {
+			return thresholdMode;
+		}
+
+		return -1;
+	}
 
 	ARUint8* setDebugMode(int id, int enable) {
 		if (arControllers.find(id) == arControllers.end()) { return NULL; }
@@ -384,6 +478,16 @@ extern "C" {
 		printf("Debug mode set to %s", enable ? "on." : "off.");
 
 		return arc->arhandle->labelInfo.bwImage;
+	}
+
+	int getDebugMode(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return NULL; }
+		arController *arc = &(arControllers[id]);
+
+		int enable;
+
+		arGetDebugMode(arc->arhandle, &enable);
+		return enable;
 	}
 
 	void setImageProcMode(int id, int mode) {
@@ -396,6 +500,26 @@ extern "C" {
 		}
 	}
 
+	int getImageProcMode(int id) {
+		if (arControllers.find(id) == arControllers.end()) { return -1; }
+		arController *arc = &(arControllers[id]);
+
+		int imageProcMode;
+		if (arGetImageProcMode(arc->arhandle, &imageProcMode) == 0) {
+			return imageProcMode;
+		}
+
+		return -1;
+	}
+
+
+
+
+	/*
+		Marker processing
+	*/
+
+
 	void transferMultiMarker(int id, int multiMarkerId) {
 		EM_ASM_({
 			artoolkit.onGetMultiMarker($0, $1);
@@ -407,7 +531,7 @@ extern "C" {
 
 	void transferMultiMarkerSub(int id, int multiMarkerId, int index, ARMultiEachMarkerInfoT *marker) {
 		EM_ASM_({
-			artoolkit.onGetMultiMarkerSub($0, $1, 
+			artoolkit.onGetMultiMarkerSub($0, $1,
 				{
 					visible: $2,
 					pattId: $3,

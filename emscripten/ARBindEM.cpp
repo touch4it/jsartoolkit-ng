@@ -12,7 +12,11 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	// function("setDebugMode", &setDebugMode, allow_raw_pointers());
 
 	function("setScale", &setScale);
+	function("getScale", &getScale);
+
 	function("setMarkerWidth", &setMarkerWidth);
+	function("getMarkerWidth", &getMarkerWidth);
+
 	function("_addMarker", &addMarker);
 	function("_addMultiMarker", &addMultiMarker);
 	function("_getMultiMarkerNum", &getMultiMarkerNum);
@@ -21,17 +25,30 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 
 	/* AR Toolkit C APIS */
 	function("setProjectionNearPlane", &setProjectionNearPlane);
+	function("getProjectionNearPlane", &getProjectionNearPlane);
+
 	function("setProjectionFarPlane", &setProjectionFarPlane);
+	function("getProjectionFarPlane", &getProjectionFarPlane);
 
 	function("setThresholdMode", &setThresholdMode);
-	function("setThreshold", &setThreshold);
+	function("getThresholdMode", &getThresholdMode);
 
-	function("setLabelingMode", &setLabelingMode);
+	function("setThreshold", &setThreshold);
+	function("getThreshold", &getThreshold);
+
 	function("setPatternDetectionMode", &setPatternDetectionMode);
+	function("getPatternDetectionMode", &getPatternDetectionMode);
+
+	function("setPattRatio", &setPattRatio);
+	function("getPattRatio", &getPattRatio);
 
 	function("setMatrixCodeType", &setMatrixCodeType);
+	function("getMatrixCodeType", &getMatrixCodeType);
+
+	function("setLabelingMode", &setLabelingMode);
+	function("getLabelingMode", &getLabelingMode);
+
 	function("setImageProcMode", &setImageProcMode);
-	function("setPattRatio", &setPattRatio);
 
 
 	/* arDebug */
