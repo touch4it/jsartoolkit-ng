@@ -23,27 +23,15 @@ p {
 
 <script async src="../builds/artoolkit.min.js"></script>
 <script async src="artk_demos/js/third_party/three.js/three.min.js"></script>
+<script async src="artk_demos/js/artoolkit.three.js"></script>
 
 <script>
 
-window.onload = function() {
-	videores.innerHTML += 'onload ';
-	if (window.THREE && window.ARController) {
-		videores.innerHTML += 'libs ';
-		var e = document.createElement('script');
-		e.src = "artk_demos/js/artoolkit.three.js";
-		document.body.appendChild(e);
+if (window.ARController.getUserMediaThreeScene) {
+	ARThreeOnLoad();
+}
 
-		var ival = setInterval(function() {
-			if (ARController.getUserMediaThreeScene) {
-				clearInterval(ival);
-				runDemo();
-			}
-		}, 10);
-	}	
-};
-
-var runDemo = function() {
+function ARThreeOnLoad() {
 	ARController.getUserMediaThreeScene({
 		width: 320,
 		height: 320,
@@ -122,7 +110,7 @@ var runDemo = function() {
 
 		}
 	});
-};
+}
 </script>
 
 </body>
