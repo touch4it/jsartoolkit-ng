@@ -59,10 +59,7 @@ ARController.getUserMediaThreeScene = function(configuration) {
 	var hdConstraints = {
 		audio: false,
 		video: {
-			mandatory: {
-				maxWidth: width,
-				maxHeight: height
-	    	}
+			mandatory: {}
 	  	}
 	};
 
@@ -83,7 +80,10 @@ ARController.getUserMediaThreeScene = function(configuration) {
 
 		var arCameraParam = new ARCameraParam();
 		arCameraParam.onload = function() {
-			var arController = new ARController(width, height, arCameraParam);
+			var f = Math.min(width / video.videoWidth, height / video.videoHeight);
+			var w = f * video.videoWidth;
+			var h = f * video.videoHeight;
+			var arController = new ARController(w, h, arCameraParam);
 			var scenes = arController.createThreeScene(video);
 			onSuccess(scenes, arController, arCameraParam);
 		};

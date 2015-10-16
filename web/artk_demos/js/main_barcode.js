@@ -87,10 +87,12 @@ var createBox = function() {
 	var tw = 1280 / 2;
 	var th = 720 / 2;
 
-	var initThreeJS = function(arScene) {
+	var initThreeJS = function(arScene, arController) {
 		var renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(arScene.video.videoWidth, arScene.video.videoHeight);
 		document.body.appendChild(renderer.domElement);
+
+		arController.debugSetup();
 
 		// Create a couple of lights for our AR scene.
 		var light = new THREE.PointLight(0xffffff);
@@ -104,22 +106,22 @@ var createBox = function() {
 		var redCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0xff3333 }) );
 		redCube.position.z = 0.5;
 
-		var markerRoot20 = artoolkit.createThreeBarcodeMarker(20);
+		var markerRoot20 = arController.createThreeBarcodeMarker(20);
 		arScene.scene.add(markerRoot20);
 		markerRoot20.add(redCube);
 
 		var blueCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({ color: 0x3333ff }) );
 		blueCube.position.z = 0.5;
 
-		var markerRoot5 = artoolkit.createThreeBarcodeMarker(5);
+		var markerRoot5 = arController.createThreeBarcodeMarker(5);
 		arScene.scene.add(markerRoot5);
 		markerRoot5.add(blueCube);
 
 		// Load the marker to use.
-		artoolkit.loadMarker('../../bin/Data/patt.hiro', function(marker) {
+		arController.loadMarker('../../bin/Data/patt.hiro', function(marker) {
 
 			// Create an object that tracks the marker transform.
-			var markerRoot = artoolkit.createThreeMarker(marker);
+			var markerRoot = arController.createThreeMarker(marker);
 			arScene.scene.add(markerRoot);
 
 			// Create the openable box object for our AR scene.
@@ -147,7 +149,9 @@ var createBox = function() {
 
 	};
 
-	artoolkit.getUserMediaThreeScene(tw, th, initThreeJS);
+	ARController.getUserMediaThreeScene(
+		{width: tw, height: th, cameraParam: '/bin/Data/camera_para.dat', onSuccess: initThreeJS}
+	);
 
 
 })();
