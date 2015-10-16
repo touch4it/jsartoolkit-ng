@@ -40,7 +40,14 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 	@param {function} onSuccess - Called on successful initialization with an ThreeARScene object.
 	@param {function} onError - Called if the initialization fails with the error encountered.
 */
-ARController.getUserMediaThreeScene = function(width, height, cameraParamURL, onSuccess, onError) {
+ARController.getUserMediaThreeScene = function(configuration) {
+	var width = configuration.width;
+	var height = configuration.height;
+	var cameraParamURL = configuration.cameraParam;
+	var onSuccess = configuration.onSuccess;
+	var onError = configuration.onError;
+	var facing = configuration.facing;
+
 	if (!onError) {
 		onError = function(err) {
 			console.log("ERROR: artoolkit.getUserMediaThreeScene");
@@ -83,11 +90,40 @@ ARController.getUserMediaThreeScene = function(width, height, cameraParamURL, on
 		arCameraParam.src = cameraParamURL;
 	};
 
-	if (navigator.getUserMedia) {
-		navigator.getUserMedia(hdConstraints, success, onError);
+	if (facing && (navigator.mediaDevices || window.MediaStreamTrack)) {
+		if (navigator.mediaDevices) {
+			navigator.mediaDevices.getUserMedia({
+				audio: false,
+				video: {
+					width: { max: width },
+					height: { max: height },
+					facingMode: facing
+				}
+			}).then(success, onError); 
+		} else if (window.MediaStreamTrack) {
+			MediaStreamTrack.getSources(function(sources) {
+				for (var i=0; i<sources.length; i++) {
+					if (sources[i].kind === 'video' && sources[i].facing === facing) {
+						hdConstraints.video.mandatory.sourceId = sources[i].id;
+						break;
+					}
+				}
+				if (navigator.getUserMedia) {
+					navigator.getUserMedia(hdConstraints, success, onError);
+				} else {
+					onError('navigator.getUserMedia is not supported on your browser');
+				}
+			});
+		}
 	} else {
-		onError('navigator.getUserMedia is not supported on your browser');
+		if (navigator.getUserMedia) {
+			navigator.getUserMedia(hdConstraints, success, onError);
+		} else {
+			onError('navigator.getUserMedia is not supported on your browser');
+		}
 	}
+
+
 };
 
 ARController.prototype.createThreeScene = function(video) {
