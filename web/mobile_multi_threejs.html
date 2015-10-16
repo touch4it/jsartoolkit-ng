@@ -8,12 +8,18 @@ html, body {
 	padding: 0;
 	text-align: center;
 }
+p {
+	height: 20px;
+	margin: 0;
+	padding: 0;
+	line-height: 20px;
+}
 
 </style>
 </head>
 <body>
 
-<p>Tap here to start video.</p>
+<p>Tap to start video. <span id="videores"></span></p>
 
 <script src="../builds/artoolkit.min.js"></script>
 <script src="artk_demos/js/third_party/three.js/three.min.js"></script>
@@ -24,12 +30,29 @@ html, body {
 ARController.getUserMediaThreeScene({
 	width: 320,
 	height: 320,
-	cameraParam: '/bin/Data/camera_para.dat',
+	cameraParam: '/Xcode/iOS device camera parameters (for use with utilities)/camera_para-iPhone 5 rear 640x480 0.3m.dat',
 	facing: 'environment',
 	onSuccess: function(arScene, arController, arCamera) {
 		var renderer = new THREE.WebGLRenderer({antialias: true});
-		var f = window.innerWidth / arScene.video.videoWidth; 
-		renderer.setSize(f * arScene.video.videoWidth, f * arScene.video.videoHeight);
+		var f = Math.min(
+			window.innerWidth / arScene.video.videoWidth,
+			(window.innerHeight-20) / arScene.video.videoHeight
+		);
+		var w = f * arScene.video.videoWidth;
+		var h = f * arScene.video.videoHeight;
+
+		if (arController.orientation === 'portrait') {
+			renderer.setSize(h,w);
+			renderer.domElement.style.transformOrigin = '0 0';
+			renderer.domElement.style.transform = 'rotate(-90deg) translateX(-100%)';
+		} else {
+			renderer.setSize(w,h);
+		}
+
+		videores.innerHTML = (
+			arScene.video.videoWidth+'x'+arScene.video.videoHeight+' -> '+
+			Math.ceil(f * arScene.video.videoWidth) + 'x' + Math.ceil(f * arScene.video.videoHeight)
+		);
 
 		document.body.appendChild(renderer.domElement);
 

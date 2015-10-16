@@ -83,7 +83,15 @@ ARController.getUserMediaThreeScene = function(configuration) {
 			var f = Math.min(width / video.videoWidth, height / video.videoHeight);
 			var w = f * video.videoWidth;
 			var h = f * video.videoHeight;
+			if (video.videoWidth < video.videoHeight) {
+				var tmp = w;
+				w = h;
+				h = tmp;
+			}
 			var arController = new ARController(w, h, arCameraParam);
+			if (video.videoWidth < video.videoHeight) {
+				arController.orientation = 'portrait';
+			}
 			var scenes = arController.createThreeScene(video);
 			onSuccess(scenes, arController, arCameraParam);
 		};
@@ -151,6 +159,10 @@ ARController.prototype.createThreeScene = function(video) {
 	var videoScene = new THREE.Scene();
 	videoScene.add(plane);
 	videoScene.add(videoCamera);
+
+	if (this.orientation === 'portrait') {
+		plane.rotation.z = Math.PI/2;
+	}
 
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera(45, 1, 1, 1000)

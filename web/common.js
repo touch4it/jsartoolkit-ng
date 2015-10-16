@@ -5,6 +5,8 @@
 		var id;
 		var w = width, h = height;
 
+		this.orientation = 'landscape';
+
 		this.listeners = {};
 
 		if (typeof width !== 'number') {
@@ -159,7 +161,17 @@
 			image = this.image;
 		}
 
-		this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
+		this.ctx.save();
+
+		if (this.orientation === 'portrait') {
+			this.ctx.translate(this.canvas.width, 0);
+			this.ctx.rotate(Math.PI/2);
+			this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
+		} else {
+			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
+		}
+
+		this.ctx.restore();
 
 		var imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 		var data = imageData.data;
@@ -386,10 +398,17 @@
 	var camera_count = 0;
 	function loadCamera(url, callback) {
 		var filename = '/camera_param_' + camera_count++;
-		ajax(url, filename, function() {
+		var writeCallback = function() {
 			var id = Module._loadCamera(filename);
 			if (callback) callback(id);
-		});
+		};
+		if (typeof url === 'object') { // Maybe it's a byte array
+			writeByteArrayToFS(filename, url, writeCallback);
+		} else if (url.indexOf("\n") > -1) { // Or a string with the camera param
+			writeStringToFS(filename, url, writeCallback);
+		} else {
+			ajax(url, filename, writeCallback);
+		}
 	}
 
 
@@ -402,6 +421,21 @@
 
 	function process(arId) {
 		_process(arId);
+	}
+
+	function writeStringToFS(target, string, callback) {
+		var byteArray = new Uint8Array(string.length);
+		for (var i=0; i<byteArray.length; i++) {
+			byteArray[i] = string.charCodeAt(i) & 0xff;
+		}
+		writeByteArrayToFS(target, byteArray, callback);
+	}
+
+	function writeByteArrayToFS(target, byteArray, callback) {
+		FS.writeFile(target, byteArray, { encoding: 'binary' });
+		console.log('FS written', target);
+
+		callback();
 	}
 
 	// Eg.
@@ -417,10 +451,7 @@
 			console.log('ajax done for ', url);
 			var arrayBuffer = oReq.response;
 			var byteArray = new Uint8Array(arrayBuffer);
-			FS.writeFile(target, byteArray, { encoding: 'binary' });
-			console.log('FS written', target);
-
-			callback();
+			writeByteArrayToFS(target, byteArray, callback);
 		};
 
 		oReq.send();
