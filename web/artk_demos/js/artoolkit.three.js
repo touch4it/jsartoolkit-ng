@@ -95,8 +95,6 @@ ARController.getUserMediaThreeScene = function(configuration) {
 			navigator.mediaDevices.getUserMedia({
 				audio: false,
 				video: {
-					width: { max: width },
-					height: { max: height },
 					facingMode: facing
 				}
 			}).then(success, onError); 
