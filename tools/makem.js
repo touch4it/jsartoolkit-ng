@@ -126,8 +126,6 @@ var PRE_FLAGS = ' --pre-js web/common.js ';
 if (USE_EMBIND) FLAGS += ' --bind ';
 if (USE_WEBIDL) FLAGS += format(' --post-js {OUTPUT_PATH}glue.js ', OUTPUT_PATH);
 
-FLAGS += ' --memory-init-file 0 '
-
 /* DEBUG FLAGS */
 var DEBUG_FLAGS = ' -g ';
 // DEBUG_FLAGS += ' -s ASSERTIONS=2 '
