@@ -245,8 +245,7 @@ extern "C" {
 		// const char *patt_name
 		// Load marker(s).
 		if (!loadMarker(patt_name.c_str(), &(arc->patt_id), arc->arhandle, &(arc->arPattHandle))) {
-			ARLOGe("main(): Unable to set up AR marker.\n");
-			teardown(id);
+			ARLOGe("ARToolKitJS(): Unable to set up AR marker.\n");
 			return -1;
 		}
 
@@ -264,8 +263,7 @@ extern "C" {
 		// const char *patt_name
 		// Load marker(s).
 		if (!loadMultiMarker(patt_name.c_str(), arc->arhandle, &(arc->arPattHandle), &(arc->arMultiMarkerHandle))) {
-			ARLOGe("main(): Unable to set up AR multimarker.\n");
-			teardown(id);
+			ARLOGe("ARToolKitJS(): Unable to set up AR multimarker.\n");
 			return -1;
 		}
 

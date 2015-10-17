@@ -458,13 +458,68 @@
 		});
 	}
 
+	function bytesToString(array) {
+		return String.fromCharCode.apply(String, array);
+	}
+
+	function parseMultiFile(bytes) {
+		var str = bytesToString(bytes);
+
+		var lines = str.split('\n');
+
+		var files = [];
+
+		var state = 0; // 0 - read,
+		var markers = 0;
+
+		lines.forEach(function(line) {
+			line = line.trim();
+			if (!line || line.startsWith('#')) return;
+
+			switch (state) {
+				case 0:
+					markers = +line;
+					state = 1;
+					return;
+				case 1: // filename or barcode
+					if (!line.match(/^\d+$/)) {
+						files.push(line);
+					}
+				case 2: // width
+				case 3: // matrices
+				case 4:
+					state++;
+					return;
+				case 5:
+					state = 1;
+					return;
+			}
+		});
+
+		return files;
+	}
+
 	var multi_marker_count = 0;
+
 	function addMultiMarker(arId, url, callback) {
 		var filename = '/multi_marker_' + multi_marker_count++;
-		ajax(url, filename, function() {
-			var markerID = Module._addMultiMarker(arId, filename);
-			var markerNum = Module._getMultiMarkerNum(arId, markerID);
-			if (callback) callback(markerID, markerNum);
+		ajax(url, filename, function(bytes) {
+			var files = parseMultiFile(bytes);
+
+			function ok() {
+				var markerID = Module._addMultiMarker(arId, filename);
+				var markerNum = Module._getMultiMarkerNum(arId, markerID);
+				if (callback) callback(markerID, markerNum);
+			}
+
+			if (!files.length) return ok();
+
+			var path = url.split('/').slice(0, -1).join('/')
+			files = files.map(function(file) {
+				return [path + '/' + file, file]
+			})
+
+			ajaxDependencies(files, ok);
 		});
 	}
 
@@ -511,7 +566,7 @@
 		FS.writeFile(target, byteArray, { encoding: 'binary' });
 		console.log('FS written', target);
 
-		callback();
+		callback(byteArray);
 	}
 
 	// Eg.
