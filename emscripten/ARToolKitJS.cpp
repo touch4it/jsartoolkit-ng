@@ -234,7 +234,7 @@ extern "C" {
 		if (!loadMarker(patt_name.c_str(), &(arc->patt_id), arc->arhandle, &(arc->arPattHandle))) {
 			ARLOGe("main(): Unable to set up AR marker.\n");
 			teardown(id);
-			exit(-1);
+			return -1;
 		}
 
 		arc->pattern_markers.push_back(simple_marker());
@@ -253,7 +253,7 @@ extern "C" {
 		if (!loadMultiMarker(patt_name.c_str(), arc->arhandle, &(arc->arPattHandle), &(arc->arMultiMarkerHandle))) {
 			ARLOGe("main(): Unable to set up AR multimarker.\n");
 			teardown(id);
-			exit(-1);
+			return -1;
 		}
 
 		int multiMarker_id = 1000000000 - arc->multi_markers.size();
