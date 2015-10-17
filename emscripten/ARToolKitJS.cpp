@@ -115,7 +115,12 @@ extern "C" {
 
 		arPattDeleteHandle(arc->arPattHandle);
 
-		// TODO free all patterns and such
+		arControllers.erase(id);
+
+		delete &arc->pattern_markers;
+		delete &arc->multi_markers;
+		delete &arc->barcode_markers;
+		delete arc;
 
 		return 0;
 	}

@@ -284,6 +284,13 @@
 		ctx.fill()
 	};
 
+	ARController.prototype.dispose = function() {
+		Module._teardown(this.id);
+
+		for (var t in this) {
+			this[t] = null;
+		}
+	};
 
 	var ARCameraParam = function() {
 		this.id = -1;
