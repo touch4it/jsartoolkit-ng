@@ -11,17 +11,18 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	// TODO: handle pointer return
 	// function("setDebugMode", &setDebugMode, allow_raw_pointers());
 
-	function("setScale", &setScale);
-	function("getScale", &getScale);
-
-	function("setMarkerWidth", &setMarkerWidth);
-	function("getMarkerWidth", &getMarkerWidth);
-
 	function("_addMarker", &addMarker);
 	function("_addMultiMarker", &addMultiMarker);
 	function("_getMultiMarkerNum", &getMultiMarkerNum);
 
 	function("_loadCamera", &loadCamera);
+
+
+	function("setScale", &setScale);
+	function("getScale", &getScale);
+
+	function("setMarkerWidth", &setMarkerWidth);
+	function("getMarkerWidth", &getMarkerWidth);
 
 	/* AR Toolkit C APIS */
 	function("setProjectionNearPlane", &setProjectionNearPlane);
@@ -49,6 +50,7 @@ EMSCRIPTEN_BINDINGS(constant_bindings) {
 	function("getLabelingMode", &getLabelingMode);
 
 	function("setImageProcMode", &setImageProcMode);
+	function("getImageProcMode", &getImageProcMode);
 
 
 	/* arDebug */

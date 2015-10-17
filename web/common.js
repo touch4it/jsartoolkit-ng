@@ -58,6 +58,8 @@
 		}
 	};
 
+	/* Setter / Getter Proxies */
+
 	ARController.prototype.setScale = function(value) {
 		return artoolkit.setScale(this.id, value);
 	};
@@ -90,12 +92,60 @@
 		return artoolkit.getProjectionFarPlane(this.id);
 	};
 
+	ARController.prototype.setThresholdMode = function(mode) {
+		return artoolkit.setThresholdMode(this.id, mode);
+	};
+
+	ARController.prototype.getThresholdMode = function() {
+		return artoolkit.getThresholdMode(this.id);
+	};
+
+	ARController.prototype.setThreshold = function(mode) {
+		return artoolkit.setThreshold(this.id, mode);
+	};
+
+	ARController.prototype.getThreshold = function() {
+		return artoolkit.getThreshold(this.id);
+	};
+
 	ARController.prototype.setPatternDetectionMode = function(value) {
 		return artoolkit.setPatternDetectionMode(this.id, value);
 	};
 
 	ARController.prototype.getPatternDetectionMode = function() {
 		return artoolkit.getPatternDetectionMode(this.id);
+	};
+
+	ARController.prototype.setMatrixCodeType = function(value) {
+		return artoolkit.setMatrixCodeType(this.id, value);
+	};
+
+	ARController.prototype.getMatrixCodeType = function() {
+		return artoolkit.getMatrixCodeType(this.id);
+	};
+
+	ARController.prototype.setLabelingMode = function(value) {
+		return artoolkit.setLabelingMode(this.id, value);
+	};
+
+	ARController.prototype.getLabelingMode = function() {
+		return artoolkit.getLabelingMode(this.id);
+	};
+
+	ARController.prototype.setPattRatio = function(value) {
+		return artoolkit.setPattRatio(this.id, value);
+	};
+
+	ARController.prototype.getPattRatio = function() {
+		return artoolkit.getPattRatio(this.id);
+	};
+
+	ARController.prototype.setImageProcMode = function(value) {
+		return artoolkit.setImageProcMode(this.id, value);
+	};
+
+	ARController.prototype.getImageProcMode = function() {
+		return artoolkit.getImageProcMode(this.id);
 	};
 
 	ARController.prototype.getCameraMatrix = function() {
@@ -319,24 +369,39 @@
 	};
 
 	var FUNCTIONS = [
-		// 'process',
-		// 'teardown',
-		// 'setDebugMode',
+		'setScale',
+		'getScale',
+
+		'setMarkerWidth',
+		'getMarkerWidth',
+
 
 		'setProjectionNearPlane',
-		'setProjectionFarPlane',
+		'getProjectionNearPlane',
 
-		'setScale',
-		'setMarkerWidth',
+		'setProjectionFarPlane',
+		'getProjectionFarPlane',
 
 		'setThresholdMode',
+		'getThresholdMode',
+
 		'setThreshold',
-		'setLabelingMode',
+		'getThreshold',
+
 		'setPatternDetectionMode',
+		'getPatternDetectionMode',
+
 		'setMatrixCodeType',
-		'setImageProcMode',
+		'getMatrixCodeType',
+
+		'setLabelingMode',
+		'getLabelingMode',
 
 		'setPattRatio',
+		'getPattRatio',
+
+		'setImageProcMode',
+		'getImageProcMode',
 	];
 
 	function runWhenLoaded() {
