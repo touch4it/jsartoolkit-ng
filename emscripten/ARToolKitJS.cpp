@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <AR/config.h>
 
 
 struct simple_marker {
@@ -80,6 +81,13 @@ static int gCameraID = 0;
 
 
 extern "C" {
+
+	/***************
+	 * Set Log Level
+	 ****************/
+	void setLogLevel(int level) {
+		arLogLevel = level;
+	}
 
 	/***********
 	* Teardown *
@@ -166,7 +174,7 @@ extern "C" {
 			return -1;
 		}
 
-		printf("setCamera(): arParamLTCreated\n..%d, %d\n", (arc->paramLT->param).xsize, (arc->paramLT->param).ysize);
+		ARLOGi("setCamera(): arParamLTCreated\n..%d, %d\n", (arc->paramLT->param).xsize, (arc->paramLT->param).ysize);
 
 		// setup camera
 		if ((arc->arhandle = arCreateHandle(arc->paramLT)) == NULL) {
@@ -176,7 +184,7 @@ extern "C" {
 		// AR_DEFAULT_PIXEL_FORMAT
 		int set = arSetPixelFormat(arc->arhandle, AR_PIXEL_FORMAT_RGBA);
 
-		printf("setCamera(): arCreateHandle done\n");
+		ARLOGi("setCamera(): arCreateHandle done\n");
 
 		arc->ar3DHandle = ar3DCreateHandle(&(arc->param));
 		if (arc->ar3DHandle == NULL) {
@@ -184,10 +192,10 @@ extern "C" {
 			return -1;
 		}
 
-		printf("setCamera(): ar3DCreateHandle done\n");
+		ARLOGi("setCamera(): ar3DCreateHandle done\n");
 
 		arPattAttach(arc->arhandle, arc->arPattHandle);
-		printf("setCamera(): Pattern handler attached.\n");
+		ARLOGi("setCamera(): Pattern handler attached.\n");
 
 
 		return 0;
@@ -343,7 +351,7 @@ extern "C" {
 		if (arControllers.find(id) == arControllers.end()) { return; }
 		arController *arc = &(arControllers[id]);
 		if (arSetPatternDetectionMode(arc->arhandle, mode) == 0) {
-			printf("Pattern detection mode set to %d.", mode);
+			ARLOGi("Pattern detection mode set to %d.", mode);
 		}
 	}
 
@@ -366,7 +374,7 @@ extern "C" {
 		ARdouble pattRatio = (ARdouble)ratio;
 		if (arc->arhandle) {
 			if (arSetPattRatio(arc->arhandle, pattRatio) == 0) {
-				printf("Pattern ratio size set to %f.", pattRatio);
+				ARLOGi("Pattern ratio size set to %f.", pattRatio);
 			}
 		}
 	}
@@ -409,7 +417,7 @@ extern "C" {
 		int labelingMode = mode;
 
 		if (arSetLabelingMode(arc->arhandle, labelingMode) == 0) {
-			printf("Labeling mode set to %d", labelingMode);
+			ARLOGi("Labeling mode set to %d", labelingMode);
 		}
 	}
 
@@ -432,7 +440,7 @@ extern "C" {
 
 		if (threshold < 0 || threshold > 255) return;
 		if (arSetLabelingThresh(arc->arhandle, threshold) == 0) {
-			printf("Threshold set to %d", threshold);
+			ARLOGi("Threshold set to %d", threshold);
 		};
 		// default 100
 		// arSetLabelingThreshMode
@@ -458,7 +466,7 @@ extern "C" {
 		AR_LABELING_THRESH_MODE thresholdMode = (AR_LABELING_THRESH_MODE)mode;
 
 		if (arSetLabelingThreshMode(arc->arhandle, thresholdMode) == 0) {
-			printf("Threshold mode set to %d", (int)thresholdMode);
+			ARLOGi("Threshold mode set to %d", (int)thresholdMode);
 		}
 	}
 
@@ -480,7 +488,7 @@ extern "C" {
 		arController *arc = &(arControllers[id]);
 
 		arSetDebugMode(arc->arhandle, enable ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
-		printf("Debug mode set to %s", enable ? "on." : "off.");
+		ARLOGi("Debug mode set to %s", enable ? "on." : "off.");
 
 		return arc->arhandle->labelInfo.bwImage;
 	}
@@ -501,7 +509,7 @@ extern "C" {
 
 		int imageProcMode = mode;
 		if (arSetImageProcMode(arc->arhandle, mode) == 0) {
-			printf("Image proc. mode set to %d.", imageProcMode);
+			ARLOGi("Image proc. mode set to %d.", imageProcMode);
 		}
 	}
 
@@ -521,8 +529,8 @@ extern "C" {
 
 
 	/*
-		Marker processing
-	*/
+	 * Marker processing
+	 */
 
 
 	void transferMultiMarker(int id, int multiMarkerId) {
@@ -703,7 +711,7 @@ extern "C" {
 
 		if (success) return;
 
-		// printf("arDetectMarker: %d\n", success);
+		// ARLOGi("arDetectMarker: %d\n", success);
 
 		int markerNum = arGetMarkerNum(arc->arhandle);
 		ARMarkerInfo* markerInfo = arGetMarker(arc->arhandle);
@@ -841,7 +849,7 @@ extern "C" {
 
 		setCamera(id, cameraID);
 
-		printf("Allocated videoFrameSize %d\n", arc->videoFrameSize);
+		ARLOGi("Allocated videoFrameSize %d\n", arc->videoFrameSize);
 
 		EM_ASM_({
 			artoolkit.onFrameMalloc($0, {

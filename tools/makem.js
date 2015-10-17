@@ -150,8 +150,8 @@ var EXPORTED_FUNCTIONS = JSON.stringify(
 		'process',
 		'teardown',
 
+		'setLogLevel',
 		'setDebugMode',
-		'setThreshold',
 	].map(function(x) { return '_' + x; })
 );
 

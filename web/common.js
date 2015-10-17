@@ -372,6 +372,7 @@
 		onGetMultiMarker: onGetMultiMarker,
 		onGetMultiMarkerSub: onGetMultiMarkerSub,
 
+		setLogLevel: setLogLevel,
 		setDebugMode: setDebugMode
 	};
 
@@ -483,6 +484,9 @@
 		}
 	}
 
+	function setLogLevel(level) {
+		return _setLogLevel(level);
+	}
 
 	function setDebugMode(arId, mode) {
 		return _setDebugMode(arId, mode);
