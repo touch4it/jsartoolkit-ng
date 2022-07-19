@@ -60,7 +60,7 @@ See examples/simple_image_wasm.html for details.
 1. Install Docker (if you havn't already): [get Docker](https://www.docker.com/)
 2. Clone artoolkit5 repository on your machine: `git submodule update --init`
 3. `npm install`
-4. From inside jsartoolkit5 directory run `docker run -dit --name emscripten -v $(pwd):/src trzeci/emscripten-slim:latest bash` to download and start the container, in preparation for the build
+4. From inside jsartoolkit5 directory run `docker run -dit --name emscripten -v $(pwd):/src emscripten/emsdk:2.0.34 bash` to download and start the container, in preparation for the build
 5. `docker exec emscripten npm run build-local` to build JS version of artoolkit5
 6. `docker stop emscripten` to stop the container after the build, if needed
 7. `docker rm emscripten` to remove the container
