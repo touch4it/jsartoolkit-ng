@@ -15,6 +15,7 @@
 // #include <AR/gsub_es2.h>
 #include <AR/arMulti.h>
 #include <emscripten.h>
+#include <emscripten/val.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -279,14 +280,14 @@ extern "C" {
 		return 0;
 	}
 
-	int loadNFTMarker(arController *arc, int surfaceSetCount, const char* datasetPathname) {
+	int loadNFTMarker(arController *arc, int surfaceSetCount, const char* datasetPathname, emscripten::val progressCallback) {
 		int i, pageNo;
 		KpmRefDataSet *refDataSet;
 
 		KpmHandle *kpmHandle = arc->kpmHandle;
 
 		refDataSet = NULL;
-
+		auto callbackInvoke = [progressCallback](int progressMax, int progress) -> void{ progressCallback(progressMax, progress); };
 		// Load KPM data.
 		KpmRefDataSet  *refDataSet2;
 		ARLOGi("Reading %s.fset3\n", datasetPathname);
@@ -317,7 +318,7 @@ extern "C" {
 
 	if (surfaceSetCount == PAGES_MAX) exit(-1);
 
-		if (kpmSetRefDataSet(kpmHandle, refDataSet) < 0) {
+		if (kpmSetRefDataSet(kpmHandle, refDataSet, callbackInvoke) < 0) {
 		    ARLOGe("Error: kpmSetRefDataSet\n");
 		    return (FALSE);
 		}
@@ -512,13 +513,13 @@ extern "C" {
 		return arc->patt_id;
 	}
 
-	int addNFTMarker(int id, std::string datasetPathname) {
+	int addNFTMarker(int id, std::string datasetPathname, emscripten::val progressCallback) {
 		if (arControllers.find(id) == arControllers.end()) { return -1; }
 		arController *arc = &(arControllers[id]);
 
 		// Load marker(s).
 		int patt_id = arc->surfaceSetCount;
-		if (!loadNFTMarker(arc, patt_id, datasetPathname.c_str())) {
+		if (!loadNFTMarker(arc, patt_id, datasetPathname.c_str(), progressCallback)) {
 			ARLOGe("ARToolKitJS(): Unable to set up NFT marker.\n");
 			return -1;
 		}

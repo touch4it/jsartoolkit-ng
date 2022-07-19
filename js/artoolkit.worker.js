@@ -21,26 +21,32 @@ var ar = null;
 var markerResult = null;
 
 function load(msg) {
-
     var param = new ARCameraParam(msg.camera_para);
-
+  
     param.onload = function () {
+      try {
         ar = new ARController(msg.pw, msg.ph, param);
         var cameraMatrix = ar.getCameraMatrix();
-
-        ar.addEventListener('getNFTMarker', function (ev) {
-            markerResult = {type: "found", matrixGL_RH: JSON.stringify(ev.data.matrixGL_RH), proj: JSON.stringify(cameraMatrix)};
+  
+        ar.addEventListener("getNFTMarker", function (ev) {
+          markerResult = {
+            type: "found",
+            matrixGL_RH: JSON.stringify(ev.data.matrixGL_RH),
+            proj: JSON.stringify(cameraMatrix),
+          };
         });
-
+  
         ar.loadNFTMarker(msg.marker, function (markerId) {
-            ar.trackNFTMarkerId(markerId, 2);
-            console.log("loadNFTMarker -> ", markerId);
-            postMessage({type: "endLoading", end: true})
+          ar.trackNFTMarkerId(markerId, 2);
+          console.log("loadNFTMarker -> ", markerId);
+          postMessage({ type: "endLoading", end: true });
         });
-
-        postMessage({type: "loaded", proj: JSON.stringify(cameraMatrix)});
+      } catch (error) {
+        postMessage({ type: "errorLoading", error });
+      }
+      postMessage({ type: "loaded", proj: JSON.stringify(cameraMatrix) });
     };
-}
+  }
 
 function process() {
 

@@ -576,22 +576,26 @@
 		@param {function} onSuccess - The success callback. Called with the id of the loaded marker on a successful load.
 		@param {function} onError - The error callback. Called with the encountered error if the load fails.
 	*/
-    ARController.prototype.loadNFTMarker = function (markerURL, onSuccess, onError) {
+    ARController.prototype.loadNFTMarker = function (markerURL, progressCallback, onSuccess, onError) {
         var self = this;
-        if (markerURL) {
-          return artoolkit.addNFTMarker(this.id, markerURL, function (id) {
-              self.nftMarkerCount = id + 1;
-              onSuccess(id);
-          }, onError);
-        } else {
-          if (onError) {
-              onError("Marker URL needs to be defined and not equal empty string!");
-          }
-          else {
-              console.error("Marker URL needs to be defined and not equal empty string!");
-          }
+        if (progressCallback) {
+            onError("Progress callback needs to be defined and not equal empty string!");
         }
-
+        else{
+            if (markerURL) {
+            return artoolkit.addNFTMarker(this.id, markerURL, function (id) {
+                self.nftMarkerCount = id + 1;
+                onSuccess(id);
+            }, progressCallback, onError);
+            } else {
+            if (onError) {
+                onError("Marker URL needs to be defined and not equal empty string!");
+            }
+            else {
+                console.error("Marker URL needs to be defined and not equal empty string!");
+            }
+            }
+        }
     };
 
 	/**
@@ -1878,7 +1882,7 @@
         }, function (errorNumber) { if (onError) onError(errorNumber) });
     }
 
-    function addNFTMarker(arId, url, callback, onError) {
+    function addNFTMarker(arId, url, callback, progressCallback, onError) {
         var mId = marker_count++;
         var prefix = '/markerNFT_' + mId;
         var filename1 = prefix + '.fset';
@@ -1887,7 +1891,7 @@
         ajax(url + '.fset', filename1, function () {
             ajax(url + '.iset', filename2, function () {
                 ajax(url + '.fset3', filename3, function () {
-                    var id = Module._addNFTMarker(arId, prefix);
+                    var id = Module._addNFTMarker(arId, prefix, progressCallback);
                     if (callback) callback(id);
                 }, function (errorNumber) { if (onError) onError(errorNumber) });
             }, function (errorNumber) { if (onError) onError(errorNumber) });
