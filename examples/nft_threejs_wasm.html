@@ -80,11 +80,11 @@ html,body {
       		torus.position.z = 0.5;
       		torus.rotation.x = Math.PI/2;
 
-      		arController.loadNFTMarker('DataNFT/pinball', function(markerId) {
+      		arController.loadNFTMarker('DataNFT/pinball', function(maximum, progress){console.log(progress + "/" + maximum)}, function(markerId) {
       			var markerRoot = arController.createThreeNFTMarker(markerId);
       			markerRoot.add(sphere);
       			arScene.scene.add(markerRoot);
-      		});
+      		}, function(error){console.error(error)});
 
       		arController.loadMarker('Data/patt.kanji', function(markerId) {
       			var markerRoot = arController.createThreeMarker(markerId);

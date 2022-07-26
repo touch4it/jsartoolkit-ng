@@ -578,7 +578,7 @@
 	*/
     ARController.prototype.loadNFTMarker = function (markerURL, progressCallback, onSuccess, onError) {
         var self = this;
-        if (progressCallback) {
+        if (!progressCallback) {
             onError("Progress callback needs to be defined and not equal empty string!");
         }
         else{
