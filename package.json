@@ -1,6 +1,6 @@
 {
-  "name": "jsartoolkit",
-  "version": "0.0.0",
+  "name": "jsartoolkit-ng",
+  "version": "1.0.0",
   "main": "js/index",
   "typings": "js/index",
   "description": "Emscripten port of ARToolKit to JavaScript",
@@ -9,14 +9,14 @@
     "AR",
     "Augmented Reality"
   ],
-  "author": "ARToolKit (https://github.com/artoolkit)",
-  "repository": "git://https://github.com/artoolkitx/jsartoolkit5.git",
-  "homepage": "https://github.com/artoolkitx/jsartoolkit5",
+  "author": "Touch4IT (https://github.com/touch4it)",
+  "repository": "git://https://github.com/touch4it/jsartoolkit-ng.git",
+  "homepage": "https://github.com/touch4it/jsartoolkit-ng",
   "contributors": [
-    "Github Contributors (https://github.com/artoolkitx/jsartoolkit5/graphs/contributors)"
+    "Github Contributors (https://github.com/touch4it/jsartoolkit-ng/graphs/contributors)"
   ],
   "bugs": {
-    "url": "https://github.com/artoolkitx/jsartoolkit5/issues"
+    "url": "https://github.com/touch4it/jsartoolkit-ng/issues"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
